@@ -77,10 +77,10 @@
   .ci svg{width:84px;height:84px}
   #selC{position:absolute;top:5px;width:126px;height:126px;margin-left:-63px;border-radius:50%;box-shadow:0 0 0 5px #fff,0 0 0 10px var(--accent);background:var(--tile)}
 
-  /* hand */
-  #hand{position:absolute;left:0;top:0;width:360px;height:1350px;transform-origin:0 0;z-index:20;will-change:transform}
-  #hand svg{width:100%;height:100%;display:block;overflow:visible}
-  .shadowed #hand svg{filter:drop-shadow(-16px 24px 22px rgba(0,0,0,.22))}
+  /* tap indicator */
+  #tap{position:absolute;left:0;top:0;width:0;height:0;z-index:20;pointer-events:none}
+  #tap .dot{position:absolute;left:-44px;top:-44px;width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 4px rgba(255,255,255,.9),0 6px 18px rgba(0,0,0,.18);opacity:0}
+  #tap .wave{position:absolute;left:-44px;top:-44px;width:88px;height:88px;border-radius:50%;border:4px solid #fff;opacity:0}
 
   /* controls */
   #bar{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px 16px;background:#151A2B;border-top:1px solid #232A40;font:600 14px/1 system-ui,sans-serif}
@@ -161,51 +161,7 @@
       </div>
     </div>
 
-    <div id="hand">
-      <svg viewBox="0 0 400 1500" aria-hidden="true">
-        <defs>
-          <linearGradient id="hArm" x1="0" x2="1"><stop offset="0" stop-color="#e2b195"/><stop offset=".42" stop-color="#f4d0ba"/><stop offset=".78" stop-color="#ebbea3"/><stop offset="1" stop-color="#c98f72"/></linearGradient>
-          <linearGradient id="hSkin" x1="0" x2="1"><stop offset="0" stop-color="#e8b99c"/><stop offset=".38" stop-color="#f7d7c4"/><stop offset=".72" stop-color="#efc5ab"/><stop offset="1" stop-color="#d09779"/></linearGradient>
-          <linearGradient id="hFing" x1="0" x2="1"><stop offset="0" stop-color="#e6b597"/><stop offset=".38" stop-color="#f9ddcc"/><stop offset=".75" stop-color="#f0c6ad"/><stop offset="1" stop-color="#d39b7e"/></linearGradient>
-          <linearGradient id="hNail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d3cf"/><stop offset="1" stop-color="#e6a9a4"/></linearGradient>
-          <filter id="hb3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
-          <filter id="hb8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
-          <clipPath id="hClip">
-            <path d="M118 1500 L126 640 Q132 520 146 470 L304 466 Q322 530 326 640 L344 1500 Z"/>
-            <path d="M130 500 Q112 400 138 330 Q158 284 204 274 L300 270 Q334 282 336 336 Q340 430 316 500 Z"/>
-            <path d="M196 258 Q204 224 238 222 Q272 224 276 258 L278 330 Q240 342 200 330 Z"/>
-            <path d="M266 268 Q272 240 298 240 Q326 244 328 274 L330 338 Q298 348 270 340 Z"/>
-            <path d="M318 292 Q324 268 342 270 Q362 276 362 302 L358 358 Q338 364 322 356 Z"/>
-            <path d="M146 452 Q104 424 98 360 Q94 312 108 286 Q120 266 140 270 Q156 278 156 302 L156 400 Z"/>
-            <path d="M150 306 L150 74 Q150 18 179 16 Q208 18 208 74 L212 300 Z"/>
-          </clipPath>
-        </defs>
-        <path d="M118 1500 L126 640 Q132 520 146 470 L304 466 Q322 530 326 640 L344 1500 Z" fill="url(#hArm)"/>
-        <path d="M130 500 Q112 400 138 330 Q158 284 204 274 L300 270 Q334 282 336 336 Q340 430 316 500 Z" fill="url(#hSkin)"/>
-        <path d="M318 292 Q324 268 342 270 Q362 276 362 302 L358 358 Q338 364 322 356 Z" fill="url(#hSkin)"/>
-        <path d="M266 268 Q272 240 298 240 Q326 244 328 274 L330 338 Q298 348 270 340 Z" fill="url(#hSkin)"/>
-        <path d="M196 258 Q204 224 238 222 Q272 224 276 258 L278 330 Q240 342 200 330 Z" fill="url(#hSkin)"/>
-        <path d="M146 452 Q104 424 98 360 Q94 312 108 286 Q120 266 140 270 Q156 278 156 302 L156 400 Z" fill="url(#hFing)"/>
-        <path d="M150 306 L150 74 Q150 18 179 16 Q208 18 208 74 L212 300 Z" fill="url(#hFing)"/>
-        <g clip-path="url(#hClip)">
-          <rect x="306" y="250" width="70" height="1260" fill="#b0735a" opacity=".38" filter="url(#hb8)"/>
-          <rect x="196" y="24" width="18" height="290" fill="#c4876b" opacity=".45" filter="url(#hb3)"/>
-          <rect x="156" y="44" width="10" height="250" fill="#fff" opacity=".38" filter="url(#hb3)"/>
-          <ellipse cx="228" cy="390" rx="64" ry="76" fill="#fff" opacity=".2" filter="url(#hb8)"/>
-          <rect x="150" y="600" width="40" height="900" fill="#fff" opacity=".14" filter="url(#hb8)"/>
-          <path d="M180 322 Q184 400 192 468 M236 324 Q238 400 232 470 M292 336 Q288 412 276 470" stroke="#fff" stroke-width="6" opacity=".16" fill="none" filter="url(#hb3)"/>
-          <path d="M146 420 Q150 360 156 300" stroke="#b97c62" stroke-width="7" opacity=".3" fill="none" filter="url(#hb3)"/>
-          <path d="M262 272 L266 330 M314 292 L318 350" stroke="#b07a62" stroke-width="4" opacity=".4" fill="none" filter="url(#hb3)"/>
-          <path d="M214 250 Q236 242 258 250 M274 262 Q292 256 310 264 M320 284 Q334 280 346 288" stroke="#fff" stroke-width="5" opacity=".35" fill="none" filter="url(#hb3)"/>
-        </g>
-        <path d="M160 196 Q179 204 200 196 M162 207 Q179 213 198 207 M161 118 Q179 124 199 118" stroke="#b98068" stroke-width="2.4" opacity=".38" fill="none" stroke-linecap="round"/>
-        <path d="M216 290 Q236 296 256 290 M272 300 Q292 306 310 300" stroke="#b98068" stroke-width="2.2" opacity=".3" fill="none" stroke-linecap="round"/>
-        <path d="M163 36 Q163 21 179 20 Q195 21 195 36 L195 72 Q179 80 163 72 Z" fill="url(#hNail)" stroke="#d6a08e" stroke-width="1.4" stroke-opacity=".55"/>
-        <path d="M163 36 Q163 21 179 20 Q195 21 195 36 L195 41 Q179 34 163 41 Z" fill="#fff9f5"/>
-        <ellipse cx="171" cy="52" rx="3.5" ry="12" fill="#fff" opacity=".7"/>
-        <g transform="rotate(-22 112 292)"><ellipse cx="112" cy="294" rx="11" ry="16" fill="url(#hNail)" stroke="#d6a08e" stroke-width="1.2" stroke-opacity=".5"/><path d="M101 288 Q112 276 123 288 Q112 284 101 288 Z" fill="#fff9f5"/></g>
-      </svg>
-    </div>
+    <div id="tap"><div class="wave"></div><div class="dot"></div></div>
   </div>
 </div>
 
@@ -222,9 +178,9 @@
 
 <script>
 (() => {
-  const DUR = 7.4, W = 1080, H = 1920, HS = .9, TIP = [179, 17];
+  const DUR = 7.4, W = 1080, H = 1920;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-  const stage = $('#stage'), phone = $('#phone'), hand = $('#hand');
+  const stage = $('#stage'), phone = $('#phone'), tapDot = $('#tap .dot'), tapWave = $('#tap .wave');
 
   /* furniture illustrations, 300×300 box, floor ≈ y 275; colours via CSS vars --f1/--f2/--f3 */
   const F = 'style="fill:var(--f1)"', F2 = 'style="fill:var(--f2)"', F3 = 'style="fill:var(--f3)"';
@@ -299,25 +255,10 @@
     lift: inOutCubic(seg(t, T - .24, T - .09)) * (1 - seg(t, T - .09, T - .03)),
     press: outCubic(seg(t, T - .06, T)) * (1 - outCubic(seg(t, T + .06, T + .28))),
   });
-  const WAY = [
-    [0, 'off'], [.85, 'off'], [1.33, 0, 'in'], [1.55, 0], [2.05, 'rest'], [2.95, 'rest'], [3.25, 1], [3.45, 1],
-    [4.1, 2], [4.4, 2], [4.95, 3], [5.2, 3], [5.85, 'rest'], [6.25, 'rest'], [6.7, 'off', 'out'], [DUR, 'off'],
-  ];
   let sRect, sScale;
-  const pointOf = key => {
-    if (key === 'off') return [1180, 2350];
-    if (key === 'rest') return [930, 1560];
-    const { el, fx, fy } = TAPS[key], r = el.getBoundingClientRect();
+  const pointOf = i => {
+    const { el, fx, fy } = TAPS[i], r = el.getBoundingClientRect();
     return [(r.left + r.width * fx - sRect.left) / sScale, (r.top + r.height * fy - sRect.top) / sScale];
-  };
-  const handAt = t => {
-    let i = 0;
-    while (i < WAY.length - 2 && t >= WAY[i + 1][0]) i++;
-    const [t0, a] = WAY[i], [t1, b, mode] = WAY[i + 1];
-    const k = seg(t, t0, t1);
-    const e = mode === 'in' ? outBack(k, 1.1) : mode === 'out' ? inBack(k, 1.2) : inOutCubic(k);
-    const p0 = pointOf(a), p1 = pointOf(b);
-    return [lerp(p0[0], p1[0], e), lerp(p0[1], p1[1], e)];
   };
   const fade = (el, v, dy = 0) => { el.style.opacity = v; el.style.transform = (el.dataset.t || '') + ` translateY(${(1 - v) * dy}px)`; };
   $('#hint1').dataset.t = $('#hint2').dataset.t = 'translateX(-50%)'; $('#sws').dataset.t = 'translateX(-50%)';
@@ -383,13 +324,19 @@
     $('#lampG').setAttribute('opacity', lk > 0 ? 1 : 0);
     dropT($('#lampArt'), 490, 852, lk, 130);
 
-    // hand
+    // tap indicator on the chosen object
     sRect = stage.getBoundingClientRect(); sScale = sRect.width / W;
-    const [hx, hy] = handAt(t), [px] = handAt(Math.max(0, t - 1 / 60));
-    let lift = 0, press = 0;
-    for (const tp of TAPS) { const c = tapCurve(t, tp.T); lift += c.lift; press += c.press; }
-    const lean = clamp((hx - px) * 60 * .01, -8, 8), k = 1 + .04 * lift - .06 * press;
-    hand.style.transform = `translate(${hx}px,${hy - 18 * lift + 5 * press}px) rotate(${-18 + lean}deg) scale(${k}) translate(${-TIP[0] * HS}px,${-TIP[1] * HS}px)`;
+    const ti = TAPS.findIndex(x => t > x.T - .3 && t < x.T + .5);
+    if (ti < 0) { tapDot.style.opacity = 0; tapWave.style.opacity = 0; }
+    else {
+      const T = TAPS[ti].T, [x, y] = pointOf(ti), c = tapCurve(t, T);
+      const a = seg(t, T - .3, T - .12), out = 1 - seg(t, T + .2, T + .45), w = seg(t, T, T + .45);
+      $('#tap').style.transform = `translate(${x}px,${y}px)`;
+      tapDot.style.opacity = a * out;
+      tapDot.style.transform = `scale(${(.6 + .4 * outBack(a, 2)) * (1 - .25 * c.press)})`;
+      tapWave.style.opacity = w > 0 && w < 1 ? .9 * (1 - w) : 0;
+      tapWave.style.transform = `scale(${1 + 1.6 * outCubic(w)})`;
+    }
   }
 
   const qs = new URLSearchParams(location.search);
