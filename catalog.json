@@ -10,6 +10,28 @@
       "topic": "services",
       "date": "2026-10-22",
       "task": "tasks/services/2026-10-22_private-security-services"
+    },
+    {
+      "section": "apps",
+      "path": "apps/tech/2026-10-23_app-development-2026-2/",
+      "title": "App Development 2026: Nookset AR room app",
+      "q": "App Development 2026",
+      "partner": "ad",
+      "platforms": "tiktok",
+      "topic": "tech",
+      "date": "2026-10-23",
+      "task": "tasks/tech/2026-10-23_app-development-2026-2"
+    },
+    {
+      "section": "motion",
+      "path": "motion/tech/2026-10-23_app-development-2026-2/",
+      "title": "App Development 2026: AR room motion v1",
+      "q": "App Development 2026",
+      "partner": "ad",
+      "platforms": "tiktok",
+      "topic": "tech",
+      "date": "2026-10-23",
+      "task": "tasks/tech/2026-10-23_app-development-2026-2"
     }
   ]
 }
