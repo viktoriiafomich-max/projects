@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Development 2026 — AR room motion</title>
+<style>
+  :root{
+    --font:"SF Pro Rounded","Arial Rounded MT Bold","Arial Black",system-ui,sans-serif;
+    --ink:#1e1c1a; --muted:#7d766d; --cream:#f6f2ec; --accent:#ff6a3d;
+    --ui:#0E1220; --uiText:#E8ECF6; --uiMute:#8A93AD;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--ui);color:var(--uiText);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column}
+  #viewport{flex:1;position:relative;min-height:0}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;transform-origin:0 0;perspective:2600px;perspective-origin:540px 860px}
+
+  .bg-magenta{background:#FF00FF} .bg-green{background:#00FF00} .bg-black{background:#000}
+  .bg-checker{background:repeating-conic-gradient(#2a2d36 0 25%,#1d2028 0 50%) 0 0/80px 80px}
+  .bg-footage{background:linear-gradient(180deg,#8d8174 0%,#a89a88 45%,#6d5a48 100%)}
+  #footage{position:absolute;inset:0;display:none;filter:blur(38px)}
+  .bg-footage #footage{display:block}
+  #footage i{position:absolute;border-radius:50%}
+  #footLabel{position:absolute;left:40px;top:36px;font:600 26px/1 system-ui;color:#fff;opacity:.6;display:none}
+  .bg-footage #footLabel{display:block}
+
+  /* phone */
+  #phone{position:absolute;left:210px;top:170px;width:660px;height:1350px;border-radius:124px;transform-origin:50% 55%;will-change:transform,opacity}
+  #phone .bezel{position:absolute;inset:0;border-radius:124px;
+    background:linear-gradient(135deg,#FFD08A 0%,#FFAA4C 30%,#FF7F3A 65%,#E85A2A 100%);
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.35),inset 10px 10px 18px rgba(255,255,255,.5),inset -12px -14px 22px rgba(120,40,10,.4)}
+  #phone .rim{position:absolute;inset:22px;border-radius:104px;background:#06070B}
+  .shadowed #phone{filter:drop-shadow(0 50px 60px rgba(0,0,0,.35))}
+  .screen{position:absolute;left:34px;top:34px;width:592px;height:1282px;border-radius:92px;overflow:hidden;background:var(--cream)}
+  .island{position:absolute;left:206px;top:26px;width:180px;height:54px;border-radius:27px;background:#05060A;z-index:9}
+  .glare{position:absolute;top:-200px;left:0;width:260px;height:1700px;z-index:10;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transform:rotate(18deg)}
+  .pane{position:absolute;inset:0}
+  .badge{position:absolute;left:50%;top:98px;transform:translateX(-50%);white-space:nowrap;font:700 22px/1 system-ui,sans-serif;
+    color:#fff;background:rgba(20,18,16,.55);padding:9px 18px;border-radius:999px;z-index:8}
+
+  /* screen 1 — choice */
+  .head{position:absolute;left:40px;top:160px;display:flex;align-items:center;gap:18px}
+  .appIcon{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#ff8a4c,#ff4f6d);display:grid;place-items:center;box-shadow:0 8px 16px rgba(255,90,70,.3)}
+  .appIcon svg{width:46px;height:46px}
+  .appName{font-size:46px;font-weight:900;color:var(--ink);letter-spacing:-.5px}
+  .title{position:absolute;left:40px;top:278px;width:510px;font-size:56px;line-height:1.05;font-weight:900;color:var(--ink);letter-spacing:-.8px}
+  .tile{position:absolute;left:36px;width:520px;height:136px;border-radius:32px;overflow:hidden;background:#fff;box-shadow:0 6px 0 #e7e0d6}
+  .tile .sel{position:absolute;inset:0;background:linear-gradient(135deg,#ff8a4c,#ff5a4a);opacity:0}
+  .tile .ico{position:absolute;left:22px;top:22px;width:92px;height:92px;border-radius:24px;background:#f1ebe2}
+  .tile .ico svg{position:absolute;left:16px;top:16px;width:60px;height:60px}
+  .tile .lbl{position:absolute;left:138px;top:0;bottom:0;display:flex;align-items:center;font-size:44px;font-weight:900;color:var(--ink)}
+  .tile .chk{position:absolute;right:28px;top:41px;width:54px;height:54px;border-radius:50%;background:#fff;transform:scale(0)}
+  .tile .chk svg{position:absolute;left:12px;top:13px;width:30px;height:28px}
+  .ripple{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);opacity:0;pointer-events:none}
+
+  /* screen 2 — AR view */
+  #room{position:absolute;inset:0;width:592px;height:1282px}
+  .arTop{position:absolute;left:30px;right:30px;top:150px;display:flex;justify-content:space-between;align-items:center;z-index:6}
+  .circ{width:74px;height:74px;border-radius:50%;background:rgba(22,20,18,.5);display:grid;place-items:center}
+  .circ svg{width:34px;height:34px}
+  .pill{font-size:30px;font-weight:900;color:#fff;background:rgba(22,20,18,.5);padding:18px 30px;border-radius:999px}
+  .hint{position:absolute;left:50%;top:250px;white-space:nowrap;font:800 25px/1 system-ui,sans-serif;color:#fff;background:rgba(22,20,18,.5);padding:16px 24px;border-radius:999px;z-index:6}
+  .dim{position:absolute;white-space:nowrap;font:800 26px/1 system-ui,sans-serif;color:#fff;background:rgba(22,20,18,.6);padding:12px 20px;border-radius:999px;transform:translate(-50%,-100%);z-index:6}
+  .chips{position:absolute;left:0;right:0;top:1000px;display:flex;justify-content:center;gap:20px;z-index:6}
+  .sw{width:62px;height:62px;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.7)}
+  .tray{position:absolute;left:24px;right:24px;top:1090px;height:132px;border-radius:44px;background:rgba(22,20,18,.5);display:flex;align-items:center;gap:14px;padding:0 16px;z-index:6}
+  .ti{width:100px;height:100px;border-radius:28px;background:rgba(255,255,255,.94);display:grid;place-items:center;flex:none;position:relative;overflow:hidden}
+  .ti svg{width:76px;height:76px}
+  .ok{margin-left:auto;height:100px;padding:0 30px;border-radius:30px;background:var(--accent);color:#fff;font-size:38px;font-weight:900;display:grid;place-items:center}
+
+  /* hand */
+  #hand{position:absolute;left:0;top:0;width:416px;height:611px;transform-origin:0 0;z-index:20;will-change:transform}
+  #hand svg{width:100%;height:100%;display:block}
+  .shadowed #hand svg{filter:drop-shadow(-14px 26px 22px rgba(0,0,0,.28))}
+
+  /* controls */
+  #bar{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px 16px;background:#151A2B;border-top:1px solid #232A40;font:600 14px/1 system-ui,sans-serif}
+  #bar button{font:inherit;color:var(--uiText);background:#232A40;border:1px solid #2F3754;border-radius:9px;padding:9px 12px;cursor:pointer}
+  #bar button.on{background:#3B5BDB;border-color:#4C6EF5}
+  #scrub{flex:1;min-width:140px;accent-color:#4C6EF5}
+  #time{font-variant-numeric:tabular-nums;color:var(--uiMute);min-width:88px}
+  .grp{display:flex;gap:6px;flex-wrap:wrap}
+  .hintbar{color:var(--uiMute);width:100%;font-weight:500}
+  body.clean #bar{display:none}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage" class="bg-footage shadowed">
+    <div id="footage">
+      <i style="left:-160px;top:80px;width:760px;height:900px;background:#efe5d6;opacity:.7"></i>
+      <i style="left:600px;top:-140px;width:640px;height:640px;background:#f6f3ee;opacity:.75"></i>
+      <i style="left:560px;top:520px;width:560px;height:600px;background:#7b8f78;opacity:.8"></i>
+      <i style="left:-220px;top:1250px;width:1520px;height:900px;background:#9a7350;opacity:.85"></i>
+    </div>
+    <div id="footLabel">placeholder footage — real UGC goes here</div>
+
+    <div id="phone">
+      <div class="bezel"></div><div class="rim"></div>
+      <div class="screen">
+        <div class="island"></div>
+        <div class="badge">For illustration purposes only</div>
+
+        <div class="pane" id="p1">
+          <div class="head" id="head"><div class="appIcon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/><path d="M5 17v2M19 17v2"/></svg></div><div class="appName">Nookset</div></div>
+          <div class="title" id="title">What do you want to try in your room?</div>
+          <div class="tile" style="top:470px"><div class="sel"></div>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/><path d="M5 17v2M19 17v2"/></svg></div>
+            <div class="lbl">Sofas</div><div class="chk"><svg viewBox="0 0 30 28" fill="none" stroke="#ff5a4a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15l7 7L26 5"/></svg></div><div class="ripple"></div></div>
+          <div class="tile" style="top:630px"><div class="sel"></div>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4"/><path d="M5 18v-5a2 2 0 0 1 4 0h6a2 2 0 0 1 4 0v5H5z"/><path d="M7 18v2M17 18v2"/></svg></div>
+            <div class="lbl">Armchairs</div><div class="chk"></div><div class="ripple"></div></div>
+          <div class="tile" style="top:790px"><div class="sel"></div>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l3 7H5z"/><path d="M12 10v10M8 21h8"/></svg></div>
+            <div class="lbl">Lamps</div><div class="chk"></div><div class="ripple"></div></div>
+          <div class="tile" style="top:950px"><div class="sel"></div>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10l-1.5 6h-7z"/><path d="M12 15V9M12 11c-3 0-5-2-5-5 3 0 5 2 5 5zM12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/></svg></div>
+            <div class="lbl">Plants</div><div class="chk"></div><div class="ripple"></div></div>
+        </div>
+
+        <div class="pane" id="p2">
+          <svg id="room" viewBox="0 0 592 1282" aria-hidden="true">
+            <defs>
+              <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3ece2"/><stop offset="1" stop-color="#e4d9ca"/></linearGradient>
+              <linearGradient id="flr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a27a"/><stop offset="1" stop-color="#a87b52"/></linearGradient>
+              <radialGradient id="shd" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+              <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe3b0" stop-opacity=".9"/><stop offset="1" stop-color="#ffe3b0" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="592" height="600" fill="url(#wall)"/>
+            <rect x="330" y="150" width="190" height="300" rx="6" fill="#d8cdbd"/>
+            <rect x="340" y="160" width="170" height="280" rx="4" fill="#f8fafc"/>
+            <rect x="423" y="160" width="4" height="280" fill="#d8cdbd"/>
+            <rect y="600" width="592" height="682" fill="url(#flr)"/>
+            <g id="planks" stroke="rgba(80,45,20,.25)" stroke-width="2"></g>
+            <rect y="590" width="592" height="14" fill="#f7f2ea"/>
+            <g id="dots" fill="#fff"></g>
+            <g id="ret"><ellipse cx="296" cy="820" rx="78" ry="26" fill="none" stroke="#fff" stroke-width="5"/><ellipse cx="296" cy="820" rx="9" ry="4" fill="#fff"/><ellipse id="retB" cx="296" cy="820" rx="104" ry="35" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3"/></g>
+            <g id="lamp">
+              <ellipse cx="478" cy="790" rx="50" ry="12" fill="url(#shd)"/>
+              <circle cx="478" cy="500" r="90" fill="url(#glow)"/>
+              <ellipse cx="478" cy="786" rx="30" ry="7" fill="#2b2a29"/>
+              <rect x="475" y="520" width="6" height="266" fill="#2b2a29"/>
+              <path d="M450 455h56l18 74h-92z" fill="#efe6d6"/><path d="M450 455h56l4 16h-64z" fill="#fff" opacity=".45"/>
+              <ellipse cx="478" cy="529" rx="46" ry="8" fill="#ffe7b8"/>
+            </g>
+            <g id="sofa">
+              <ellipse id="sofaShd" cx="296" cy="850" rx="250" ry="40" fill="url(#shd)"/>
+              <ellipse id="selRing" cx="296" cy="850" rx="262" ry="58" fill="none" stroke="#ff6a3d" stroke-width="6"/>
+              <rect x="104" y="836" width="10" height="22" rx="4" fill="#3b2a1f"/><rect x="478" y="836" width="10" height="22" rx="4" fill="#3b2a1f"/>
+              <rect class="f2" x="96" y="770" width="400" height="74" rx="20"/>
+              <rect class="f1" x="122" y="640" width="112" height="120" rx="30"/><rect class="f1" x="240" y="640" width="112" height="120" rx="30"/><rect class="f1" x="358" y="640" width="112" height="120" rx="30"/>
+              <rect class="f3" x="132" y="650" width="92" height="22" rx="11" opacity=".5"/><rect class="f3" x="250" y="650" width="92" height="22" rx="11" opacity=".5"/><rect class="f3" x="368" y="650" width="92" height="22" rx="11" opacity=".5"/>
+              <rect class="f1" x="132" y="742" width="104" height="52" rx="18"/><rect class="f1" x="244" y="742" width="104" height="52" rx="18"/><rect class="f1" x="356" y="742" width="104" height="52" rx="18"/>
+              <rect class="f2" x="74" y="700" width="66" height="146" rx="28"/><rect class="f2" x="452" y="700" width="66" height="146" rx="28"/>
+              <rect class="f3" x="84" y="708" width="46" height="16" rx="8" opacity=".5"/><rect class="f3" x="462" y="708" width="46" height="16" rx="8" opacity=".5"/>
+            </g>
+          </svg>
+          <div class="arTop">
+            <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></div>
+            <div class="pill">Nookset</div>
+            <div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg></div>
+          </div>
+          <div class="hint" id="hint1">Move your phone slowly to find the floor</div>
+          <div class="hint" id="hint2">Floor found. Tap to place</div>
+          <div class="dim" id="dim" style="left:296px;top:618px">210 × 90 cm</div>
+          <div class="chips" id="chips">
+            <div class="sw" style="background:#8fa58a"></div><div class="sw" style="background:#c46f4e"></div><div class="sw" style="background:#e6dccb"></div><div class="sw" style="background:#33476e"></div><div class="sw" style="background:#4a4a4f"></div>
+          </div>
+          <div class="tray" id="tray">
+            <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/></svg></div>
+            <div class="ti" id="tiLamp"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l3 7H5z"/><path d="M12 10v10M8 21h8"/></svg><div class="ripple" style="background:rgba(255,106,61,.35)"></div></div>
+            <div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15h10l-1.5 6h-7z"/><path d="M12 15V9M12 11c-3 0-5-2-5-5 3 0 5 2 5 5zM12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/></svg></div>
+            <div class="ok">OK</div>
+          </div>
+        </div>
+        <div class="glare" id="glare"></div>
+      </div>
+    </div>
+
+    <div id="hand">
+      <svg viewBox="0 0 320 470" aria-hidden="true">
+        <defs>
+          <radialGradient id="sk" cx="38%" cy="30%" r="80%">
+            <stop offset="0" stop-color="#FFE9D4"/><stop offset=".5" stop-color="#F8C9A0"/><stop offset="1" stop-color="#D9976A"/>
+          </radialGradient>
+          <radialGradient id="skF" cx="35%" cy="25%" r="90%">
+            <stop offset="0" stop-color="#FFEEDD"/><stop offset=".55" stop-color="#F7C49A"/><stop offset="1" stop-color="#D38F62"/>
+          </radialGradient>
+          <linearGradient id="sl" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3D58B8"/><stop offset=".55" stop-color="#22357F"/><stop offset="1" stop-color="#121E4E"/>
+          </linearGradient>
+          <linearGradient id="cf" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#CCD3E4"/>
+          </linearGradient>
+        </defs>
+        <g transform="rotate(-6 190 400)">
+          <rect x="72" y="338" width="232" height="170" rx="44" fill="url(#sl)"/>
+          <path d="M96 352 q90 26 190 0" stroke="rgba(255,255,255,.18)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <rect x="80" y="304" width="216" height="58" rx="28" fill="url(#cf)"/>
+        </g>
+        <ellipse cx="182" cy="250" rx="98" ry="84" fill="url(#sk)"/>
+        <rect x="152" y="150" width="112" height="64" rx="32" fill="url(#skF)"/>
+        <rect x="160" y="204" width="104" height="60" rx="30" fill="url(#skF)"/>
+        <rect x="164" y="254" width="92" height="54" rx="27" fill="url(#skF)"/>
+        <path d="M200 182 q20 4 40 0 M206 234 q18 4 36 0 M208 282 q16 3 30 0" stroke="rgba(170,95,55,.35)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="90" y="0" width="64" height="240" rx="32" fill="url(#skF)"/>
+        <ellipse cx="118" cy="34" rx="19" ry="23" fill="#FFDCD2" opacity=".9"/>
+        <ellipse cx="112" cy="26" rx="7" ry="9" fill="#fff" opacity=".7"/>
+        <path d="M104 118 q18 6 36 0 M104 168 q18 6 36 0" stroke="rgba(170,95,55,.35)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="78" y="214" width="150" height="62" rx="31" fill="url(#sk)" transform="rotate(-24 150 246)"/>
+        <ellipse cx="106" cy="258" rx="26" ry="14" fill="#fff" opacity=".18" transform="rotate(-24 106 258)"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div id="bar">
+  <button id="play">Pause</button><button id="restart">Restart</button>
+  <input id="scrub" type="range" min="0" max="7400" value="0"><span id="time">0.00 / 7.40 s</span>
+  <div class="grp" id="bgs">
+    <button data-bg="footage">Footage</button><button data-bg="magenta">Magenta key</button>
+    <button data-bg="green">Green key</button><button data-bg="black">Black</button><button data-bg="checker">Checker</button>
+  </div>
+  <button id="rec">Record mode</button>
+  <div class="hintbar">Record mode = magenta key, controls hidden (H to exit). Space pause · R restart · B background. Key out #FF00FF (green clashes with the sage sofa and plants).</div>
+</div>
+
+<script>
+(() => {
+  const DUR = 7.4, W = 1080, H = 1920, HS = 1.3, TIP = [118, 10];
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const stage = $('#stage'), phone = $('#phone'), hand = $('#hand');
+  const tiles = $$('#p1 .tile'), sws = $$('#chips .sw');
+
+  // parquet: perspective lines to a vanishing point + rows
+  const pl = $('#planks'); const VX = 296, VY = 380;
+  for (let i = -9; i <= 9; i++) { const xb = 296 + i * 80; const k = (600 - VY) / (1282 - VY); pl.insertAdjacentHTML('beforeend', `<line x1="${VX + (xb - VX) * k}" y1="600" x2="${xb}" y2="1282"/>`); }
+  [640, 700, 785, 900, 1060, 1260].forEach(y => pl.insertAdjacentHTML('beforeend', `<line x1="0" y1="${y}" x2="592" y2="${y}" stroke-width="1.5"/>`));
+  // scan dots (deterministic)
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const DOTS = [];
+  for (let i = 0; i < 46; i++) { const x = 40 + rnd() * 512, y = 640 + Math.pow(rnd(), .8) * 420; $('#dots').insertAdjacentHTML('beforeend', `<circle cx="${x}" cy="${y}" r="${2 + (y - 600) / 120}"/>`); }
+  const dots = $$('#dots circle');
+
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const outCubic = x => 1 - Math.pow(1 - x, 3);
+  const inOutCubic = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const outBack = (x, s = 1.70158) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  const inBack = (x, s = 1.70158) => (s + 1) * x * x * x - s * x * x;
+  const mix = (c1, c2, k) => `rgb(${c1.map((v, i) => Math.round(lerp(v, c2[i], k))).join(',')})`;
+  const SAGE = [[143, 165, 138], [118, 140, 113], [196, 214, 190]], TERRA = [[196, 111, 78], [166, 88, 58], [232, 170, 140]];
+
+  const TAPS = [
+    { T: 1.55, el: tiles[0], fx: .55, fy: .5 },
+    { T: 3.45, el: $('#ret'), fx: .5, fy: .5 },
+    { T: 4.4, el: sws[1], fx: .5, fy: .5 },
+    { T: 5.2, el: $('#tiLamp'), fx: .5, fy: .5 },
+  ];
+  const tapCurve = (t, T) => ({
+    lift: inOutCubic(seg(t, T - .24, T - .09)) * (1 - seg(t, T - .09, T - .03)),
+    press: outCubic(seg(t, T - .06, T)) * (1 - outCubic(seg(t, T + .06, T + .28))),
+  });
+  const WAY = [
+    [0, 'off'], [.85, 'off'], [1.33, 0, 'in'], [1.55, 0], [2.05, 'rest'], [2.95, 'rest'], [3.25, 1], [3.45, 1],
+    [4.1, 2], [4.4, 2], [4.95, 3], [5.2, 3], [5.85, 'rest'], [6.25, 'rest'], [6.7, 'off', 'out'], [DUR, 'off'],
+  ];
+  let sRect, sScale;
+  const pointOf = key => {
+    if (key === 'off') return [1260, 2420];
+    if (key === 'rest') return [905, 1560];
+    const { el, fx, fy } = TAPS[key], r = el.getBoundingClientRect();
+    return [(r.left + r.width * fx - sRect.left) / sScale, (r.top + r.height * fy - sRect.top) / sScale];
+  };
+  const handAt = t => {
+    let i = 0;
+    while (i < WAY.length - 2 && t >= WAY[i + 1][0]) i++;
+    const [t0, a] = WAY[i], [t1, b, mode] = WAY[i + 1];
+    const k = seg(t, t0, t1);
+    const e = mode === 'in' ? outBack(k, 1.1) : mode === 'out' ? inBack(k, 1.2) : inOutCubic(k);
+    const p0 = pointOf(a), p1 = pointOf(b);
+    return [lerp(p0[0], p1[0], e), lerp(p0[1], p1[1], e)];
+  };
+  const ripple = (rip, T, t, fx, fy, s = 6) => {
+    const rp = seg(t, T - .02, T + .5);
+    rip.style.left = fx * 100 + '%'; rip.style.top = fy * 100 + '%';
+    rip.style.transform = `scale(${outCubic(rp) * s})`; rip.style.opacity = rp > 0 && rp < 1 ? .6 * (1 - rp) : 0;
+  };
+
+  function render(t) {
+    const pin = seg(t, 0, .78), p = outBack(pin, 1.35), q = inBack(seg(t, 6.55, 7.05), 1.4);
+    const y = (1 - p) * 950 + Math.sin(t * 2.1) * 5 + q * 1250;
+    const rz = 3 + (1 - p) * -12 + Math.sin(t * 1.7) * .4 - q * 9;
+    const ry = -9 + (1 - p) * -24, rx = 5 + (1 - p) * 10, sc = (.72 + .28 * p) * (1 - .12 * q);
+    phone.style.opacity = seg(t, 0, .12) * (1 - seg(t, 6.95, 7.08));
+    phone.style.transform = `translateY(${y}px) rotateZ(${rz}deg) rotateY(${ry}deg) rotateX(${rx}deg) scale(${sc})`;
+    $('#glare').style.transform = `translateX(${lerp(-420, 900, inOutCubic(seg(t, .55, 1.35)))}px) rotate(18deg)`;
+
+    // screen 1
+    const hi = outCubic(seg(t, .3, .7)), ti = outCubic(seg(t, .38, .8));
+    $('#head').style.cssText += `;opacity:${hi};transform:translateY(${(1 - hi) * 30}px)`;
+    $('#title').style.cssText += `;opacity:${ti};transform:translateY(${(1 - ti) * 36}px)`;
+    tiles.forEach((el, i) => {
+      const k = seg(t, .45 + i * .07, .95 + i * .07); let s = 1, sel = 0;
+      if (i === 0) {
+        const T = TAPS[0].T, c = tapCurve(t, T); s -= .04 * c.press; sel = outCubic(seg(t, T - .02, T + .12));
+        ripple(el.querySelector('.ripple'), T, t, .55, .5);
+        el.querySelector('.chk').style.transform = `scale(${outBack(seg(t, T + .04, T + .34), 2.4)})`;
+      }
+      el.style.opacity = clamp(k * 1.6);
+      el.style.transform = `translateX(${(1 - outBack(k, 1.4)) * -90}px) scale(${s})`;
+      el.querySelector('.sel').style.opacity = sel;
+      el.querySelector('.lbl').style.color = mix([30, 28, 26], [255, 255, 255], sel);
+      el.querySelector('.ico').style.color = '#1e1c1a';
+    });
+
+    // transition
+    const sw = inOutCubic(seg(t, 1.85, 2.3));
+    $('#p1').style.transform = `translateX(${-sw * 100}%)`;
+    $('#p2').style.transform = `translateX(${(1 - sw) * 100}%)`;
+
+    // scan → reticle → place
+    const scan = seg(t, 2.3, 3.05);
+    dots.forEach((d, i) => { const a = seg(scan, i / dots.length * .8, i / dots.length * .8 + .15); const out = 1 - seg(t, 3.5, 3.8); d.setAttribute('opacity', (.85 * a * out).toFixed(3)); });
+    const h1 = seg(t, 2.3, 2.45) * (1 - seg(t, 3.0, 3.1)), h2 = seg(t, 3.08, 3.2) * (1 - seg(t, 3.5, 3.6));
+    $('#hint1').style.cssText += `;opacity:${h1};transform:translate(-50%,${(1 - h1) * -8}px)`;
+    $('#hint2').style.cssText += `;opacity:${h2};transform:translate(-50%,${(1 - h2) * -8}px)`;
+    const rv = outBack(seg(t, 3.0, 3.25), 2) * (1 - seg(t, 3.45, 3.6));
+    const ret = $('#ret'); ret.setAttribute('opacity', clamp(rv)); ret.style.transformOrigin = '296px 820px'; ret.style.transform = `scale(${Math.max(.01, rv)})`;
+    $('#retB').setAttribute('rx', 104 + Math.sin(t * 9) * 6);
+
+    const T1 = TAPS[1].T, dk = seg(t, T1, T1 + .5);
+    const sofa = $('#sofa'); sofa.style.transformOrigin = '296px 850px';
+    sofa.setAttribute('opacity', dk > 0 ? 1 : 0);
+    sofa.style.transform = `translateY(${(1 - outCubic(dk)) * -140}px) scale(${.86 + .14 * outBack(dk, 1.8)})`;
+    $('#sofaShd').setAttribute('opacity', outCubic(dk));
+    const ring = outCubic(seg(t, T1 + .35, T1 + .6)) * (1 - seg(t, 5.15, 5.35)); $('#selRing').setAttribute('opacity', ring);
+    const dim = $('#dim'), dv = seg(t, T1 + .45, T1 + .75) * (1 - seg(t, 5.0, 5.2));
+    dim.style.opacity = dv; dim.style.transform = `translate(-50%,-100%) scale(${.8 + .2 * outBack(dv, 2)})`;
+    const cv = seg(t, T1 + .5, T1 + .8) * (1 - seg(t, 5.25, 5.45));
+    $('#chips').style.opacity = cv; $('#chips').style.transform = `translateY(${(1 - outCubic(cv)) * 20}px)`;
+
+    // colour swap
+    const T2 = TAPS[2].T, ck = outCubic(seg(t, T2, T2 + .25)), c2 = tapCurve(t, T2);
+    $$('#sofa .f1').forEach(e => e.setAttribute('fill', mix(SAGE[0], TERRA[0], ck)));
+    $$('#sofa .f2').forEach(e => e.setAttribute('fill', mix(SAGE[1], TERRA[1], ck)));
+    $$('#sofa .f3').forEach(e => e.setAttribute('fill', mix(SAGE[2], TERRA[2], ck)));
+    sws.forEach((s, i) => { const on = i === 0 ? 1 - ck : i === 1 ? ck : 0; s.style.boxShadow = on > .5 ? '0 0 0 5px #fff,0 0 0 9px #ff6a3d' : '0 0 0 4px rgba(255,255,255,.7)'; s.style.transform = i === 1 ? `scale(${1 - .12 * c2.press})` : ''; });
+    if (ck > 0 && ck < 1) sofa.style.transform += ` scale(${1 - .03 * Math.sin(ck * Math.PI)})`;
+
+    // lamp
+    const T3 = TAPS[3].T, lk = seg(t, T3 + .05, T3 + .5), c3 = tapCurve(t, T3);
+    const lamp = $('#lamp'); lamp.style.transformOrigin = '478px 790px';
+    lamp.setAttribute('opacity', lk > 0 ? 1 : 0);
+    lamp.style.transform = `translateY(${(1 - outCubic(lk)) * -120}px) scale(${.85 + .15 * outBack(lk, 1.8)})`;
+    const tl = $('#tiLamp'); tl.style.transform = `scale(${1 - .06 * c3.press})`;
+    tl.style.boxShadow = t > T3 ? '0 0 0 5px #ff6a3d' : 'none';
+    ripple(tl.querySelector('.ripple'), T3, t, .5, .5, 3);
+
+    // hand
+    sRect = stage.getBoundingClientRect(); sScale = sRect.width / W;
+    const [hx, hy] = handAt(t), [px] = handAt(Math.max(0, t - 1 / 60));
+    let lift = 0, press = 0;
+    for (const tp of TAPS) { const c = tapCurve(t, tp.T); lift += c.lift; press += c.press; }
+    const lean = clamp((hx - px) * 60 * .012, -10, 10), hs = HS * (1 + .05 * lift - .09 * press);
+    hand.style.transform = `translate(${hx}px,${hy - 20 * lift + 6 * press}px) rotate(${-15 + lean}deg) scale(${hs / HS}) translate(${-TIP[0] * HS}px,${-TIP[1] * HS}px)`;
+  }
+
+  const qs = new URLSearchParams(location.search);
+  let t = qs.has('t') ? clamp(+qs.get('t'), 0, DUR) : 0, playing = !qs.has('t'), last = null;
+  const loop = qs.get('loop') !== '0';
+  const BGS = ['footage', 'magenta', 'green', 'black', 'checker'];
+  const KEY = { magenta: '#FF00FF', green: '#00FF00', black: '#000' };
+  let bg = BGS.includes(qs.get('bg')) ? qs.get('bg') : 'footage';
+  const setBg = b => {
+    bg = b;
+    stage.className = `bg-${b}` + (b === 'magenta' || b === 'green' ? '' : ' shadowed');
+    $$('#bgs button').forEach(x => x.classList.toggle('on', x.dataset.bg === b));
+    document.body.style.background = document.body.classList.contains('clean') && KEY[b] ? KEY[b] : '';
+  };
+  const setClean = on => { document.body.classList.toggle('clean', on); setBg(bg); fit(); };
+  function fit() {
+    const vp = $('#viewport').getBoundingClientRect();
+    const s = Math.min(vp.width / W, vp.height / H);
+    stage.style.transform = `translate(${(vp.width - W * s) / 2}px,${(vp.height - H * s) / 2}px) scale(${s})`;
+    render(t);
+  }
+  const ui = () => {
+    $('#scrub').value = Math.round(t * 1000);
+    $('#time').textContent = `${t.toFixed(2)} / ${DUR.toFixed(2)} s`;
+    $('#play').textContent = playing ? 'Pause' : 'Play';
+  };
+  function frame(now) {
+    if (playing && last != null) {
+      t += (now - last) / 1000;
+      if (t >= DUR) { if (loop) t %= DUR; else { t = DUR; playing = false; } }
+    }
+    last = now; render(t); ui(); requestAnimationFrame(frame);
+  }
+  $('#play').onclick = () => { playing = !playing; };
+  $('#restart').onclick = () => { t = 0; playing = true; };
+  $('#scrub').oninput = e => { t = e.target.value / 1000; playing = false; };
+  $$('#bgs button').forEach(b => b.onclick = () => setBg(b.dataset.bg));
+  $('#rec').onclick = () => { if (!KEY[bg] || bg !== 'magenta') setBg('magenta'); t = 0; playing = true; setClean(true); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); playing = !playing; }
+    else if (e.key === 'r' || e.key === 'R') { t = 0; playing = true; }
+    else if (e.key === 'h' || e.key === 'H') setClean(!document.body.classList.contains('clean'));
+    else if (e.key === 'b' || e.key === 'B') setBg(BGS[(BGS.indexOf(bg) + 1) % BGS.length]);
+  });
+  addEventListener('resize', fit);
+  window.__motion = { seek: v => { t = clamp(v, 0, DUR); playing = false; render(t); }, DUR };
+  setBg(bg); setClean(qs.get('clean') === '1');
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
