@@ -7,103 +7,96 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nookset">
-<meta name="theme-color" content="#f6f2ec">
+<meta name="theme-color" content="#ffffff">
 <title>Nookset AR room planner</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff8a4c'/%3E%3Cstop offset='1' stop-color='%23ff4f6d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Crect x='12' y='26' width='40' height='16' rx='5' fill='%23fff'/%3E%3Crect x='17' y='18' width='30' height='12' rx='5' fill='%23fff' opacity='.85'/%3E%3Crect x='16' y='42' width='4' height='6' rx='2' fill='%23fff'/%3E%3Crect x='44' y='42' width='4' height='6' rx='2' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FF5A36'/%3E%3Crect x='12' y='27' width='40' height='15' rx='6' fill='%23fff'/%3E%3Crect x='17' y='18' width='30' height='13' rx='6' fill='%23fff' opacity='.85'/%3E%3Crect x='16' y='42' width='4' height='7' rx='2' fill='%23fff'/%3E%3Crect x='44' y='42' width='4' height='7' rx='2' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" id="touchIcon" href="">
 <style>
 :root{
-  --bg:#f6f2ec; --card:#fff; --ink:#1e1c1a; --muted:#7d766d; --line:#e7e0d6;
-  --accent:#ff6a3d; --accent2:#ff4f6d; --soft:#efe8de;
+  --bg:#ffffff; --tile:#f3f2ef; --ink:#161616; --muted:#8a8780; --line:#ecebe7;
+  --accent:#ff5a36; --accent2:#ff8a3d;
   --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,system-ui,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;width:100%}
 button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+img{-webkit-user-drag:none}
 #app{position:fixed;inset:0;height:100dvh;overflow:hidden}
 
 .badge{position:fixed;z-index:50;top:calc(var(--st) + 8px);left:50%;transform:translateX(-50%);
-  font-size:11px;font-weight:600;letter-spacing:.2px;color:#fff;background:rgba(20,18,16,.55);
+  font-size:11px;font-weight:600;letter-spacing:.2px;color:#fff;background:rgba(22,22,22,.45);
   padding:5px 11px;border-radius:999px;white-space:nowrap;pointer-events:none;
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 
-.screen{position:absolute;inset:0;transform:translateX(100%);transition:transform .42s cubic-bezier(.2,.85,.25,1),opacity .42s;will-change:transform;background:var(--bg)}
-.screen.on{transform:none}
-.screen.left{transform:translateX(-26%);opacity:.6}
+.screen{position:absolute;inset:0;background:var(--bg);transition:transform .45s cubic-bezier(.2,.85,.25,1),opacity .35s;will-change:transform}
+#s-home{transform:none}
+#s-home.away{transform:scale(.94);opacity:0;pointer-events:none}
+#s-ar{transform:translateY(100%)}
+#s-ar.on{transform:none}
 .scroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-  padding:calc(var(--st) + 44px) 18px calc(var(--sb) + 28px)}
+  padding:calc(var(--st) + 42px) 20px calc(var(--sb) + 28px)}
 .scroll::-webkit-scrollbar{display:none}
 
 /* home */
-.head{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
-.appicon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;box-shadow:0 6px 14px rgba(255,90,70,.3)}
-.brand{font-size:23px;font-weight:800;letter-spacing:-.4px}
-.chip{margin-left:auto;font-size:12px;font-weight:700;color:var(--accent);background:#ffe9e0;padding:5px 10px;border-radius:999px}
-.hero{position:relative;background:#1f1d1b;color:#fff;border-radius:26px;padding:20px 18px;min-height:178px;overflow:hidden;box-shadow:0 14px 30px rgba(30,20,10,.18)}
-.hero h1{font-size:25px;line-height:1.08;margin:12px 0 8px;font-weight:800;letter-spacing:-.5px;max-width:58%}
-.hero p{font-size:13.5px;line-height:1.35;margin:0;color:#cfc8bf;max-width:56%}
-.arpill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,.12);padding:5px 10px;border-radius:999px}
-.hero .floor{position:absolute;right:-30px;bottom:18px;width:230px;height:70px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.22)}
-.hero img{position:absolute;right:-14px;bottom:4px;width:200px;height:200px;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
-.h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:24px 2px 12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tile{background:var(--card);border-radius:22px;padding:10px 12px 14px;text-align:left;box-shadow:0 2px 0 var(--line);transition:transform .15s}
-.tile:active,.card:active,.titem:active{transform:scale(.96)}
-.tile .ph{height:104px;border-radius:16px;background:var(--soft);overflow:hidden}
-.tile img{display:block;width:100%;height:100%;object-fit:contain}
-.tile b{display:block;font-size:16px;margin-top:10px}
-.tile span{font-size:12.5px;color:var(--muted)}
-.tile.sel{box-shadow:0 0 0 2.5px var(--accent)}
-
-/* catalog */
-.bar{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
-.round{width:42px;height:42px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:0 2px 0 var(--line)}
-.bar h2{font-size:26px;margin:0;font-weight:800;letter-spacing:-.5px}
-.sub{color:var(--muted);font-size:14px;margin:6px 2px 16px}
-.card{display:block;width:100%;background:var(--card);border-radius:24px;padding:12px;margin-bottom:14px;text-align:left;box-shadow:0 2px 0 var(--line);transition:transform .15s}
-.card .ph{height:210px;border-radius:18px;background:radial-gradient(120% 80% at 50% 90%,#e6ddd0 0,#f3eee7 60%);overflow:hidden}
-.card img{display:block;width:100%;height:100%;object-fit:contain}
-.card .row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px 2px}
-.card b{font-size:17px}
-.card small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
-.dots{display:flex;gap:5px}
-.dots i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
-.go{width:40px;height:40px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+.head{display:flex;align-items:center;gap:10px}
+.mark{width:40px;height:40px;border-radius:13px;background:var(--accent);display:grid;place-items:center}
+.brand{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.beta{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);background:var(--tile);padding:7px 12px;border-radius:999px}
+.title{font-size:32px;line-height:1.08;letter-spacing:-.9px;margin:22px 0 18px;font-weight:300}
+.title b{font-weight:800;display:block}
+.title i{font-style:normal;color:var(--accent)}
+.hero{position:relative;display:block;width:100%;height:172px;border-radius:30px;overflow:hidden;text-align:left;
+  background:radial-gradient(120% 140% at 100% 0%,#ffb067 0%,#ff7a3d 38%,#ff4d2e 100%);color:#fff;padding:22px;transition:transform .15s}
+.hero:active,.card:active,.chip:active{transform:scale(.97)}
+.hero h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.05;max-width:52%}
+.hero p{margin:8px 0 0;font-size:13px;opacity:.9;max-width:48%;line-height:1.3}
+.hero .ring{position:absolute;right:-10px;bottom:-4px;width:220px;height:62px;border-radius:50%;border:10px solid rgba(255,255,255,.28)}
+.hero img{position:absolute;right:-6px;bottom:2px;width:190px;height:190px;object-fit:contain;filter:drop-shadow(0 14px 16px rgba(120,30,0,.35))}
+.hero .cube{position:absolute;left:22px;bottom:20px;width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.chips{display:flex;gap:8px;margin:22px -20px 16px;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:7px;height:42px;padding:0 16px;border-radius:999px;background:var(--tile);font-size:15px;font-weight:600;transition:background .2s,color .2s,transform .15s}
+.chip svg{width:18px;height:18px}
+.chip.on{background:var(--ink);color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{text-align:left;transition:transform .15s,opacity .25s}
+.card .ph{position:relative;height:168px;border-radius:26px;background:var(--tile);overflow:hidden}
+.card img{display:block;width:100%;height:100%;object-fit:contain;padding:8px}
+.card .ar{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
+.card b{display:block;font-size:15px;font-weight:600;margin:10px 4px 0;letter-spacing:-.2px}
+.card.hide{display:none}
 
 /* AR */
 #s-ar{background:#111}
 #cam,#gl{position:absolute;inset:0;width:100%;height:100%}
 #cam{object-fit:cover;background:#111}
 #gl{touch-action:none}
-.glass{background:rgba(22,20,18,.48);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);color:#fff}
-.ar-top{position:absolute;left:0;right:0;top:calc(var(--st) + 38px);display:flex;align-items:center;justify-content:space-between;padding:0 14px;pointer-events:none}
+.glass{background:rgba(22,22,22,.42);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);color:#fff}
+.ar-top{position:absolute;left:0;right:0;top:calc(var(--st) + 38px);display:flex;align-items:center;justify-content:space-between;padding:0 16px;pointer-events:none}
 .ar-top>*{pointer-events:auto}
-.ar-top .round{background:rgba(22,20,18,.48);box-shadow:none;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
-.ar-title{font-weight:800;font-size:16px;padding:10px 16px;border-radius:999px}
-.hint{position:absolute;left:50%;top:calc(var(--st) + 96px);transform:translateX(-50%);font-size:14px;font-weight:600;padding:10px 16px;border-radius:999px;white-space:nowrap;transition:opacity .3s,transform .3s;display:flex;align-items:center;gap:8px}
+.circ{width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.ar-title{font-size:17px;font-weight:600;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+.hint{position:absolute;left:50%;top:calc(var(--st) + 100px);transform:translateX(-50%);font-size:14px;font-weight:600;padding:10px 16px;border-radius:999px;white-space:nowrap;transition:opacity .3s,transform .3s;display:flex;align-items:center;gap:8px}
 .hint.off{opacity:0;transform:translate(-50%,-6px)}
-.hint .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp 0.9s linear infinite}
+.hint .spin{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.dim{position:absolute;left:0;top:0;font-size:13px;font-weight:700;padding:6px 11px;border-radius:999px;transform:translate(-50%,-100%);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.dim{position:absolute;left:0;top:0;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;transform:translate(-50%,-100%);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .dim.on{opacity:1}
-.ar-bottom{position:absolute;left:0;right:0;bottom:0;padding:0 12px calc(var(--sb) + 14px)}
-.chips{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:12px;transition:opacity .25s,transform .25s}
-.chips.off{opacity:0;transform:translateY(8px);pointer-events:none}
-.sw{width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.55);transition:transform .15s}
-.sw.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--accent)}
+.swatches{position:absolute;left:50%;bottom:calc(var(--sb) + 150px);transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:999px;transition:opacity .25s,transform .25s}
+.swatches.off{opacity:0;transform:translate(-50%,10px);pointer-events:none}
+.sw{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);transition:transform .15s}
+.sw.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent)}
 .sw:active{transform:scale(.88)}
-.trash{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;margin-left:6px}
-.tray-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:26px}
-.tray{display:flex;gap:8px;overflow-x:auto;flex:1;scrollbar-width:none;padding:2px}
-.tray::-webkit-scrollbar{display:none}
-.titem{flex:none;width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.92);display:grid;place-items:center;transition:transform .15s,box-shadow .15s}
-.titem img{width:56px;height:56px;object-fit:contain}
-.titem.on{box-shadow:0 0 0 3px var(--accent)}
-.okbtn{flex:none;height:64px;min-width:64px;padding:0 18px;border-radius:20px;background:var(--accent);color:#fff;font-weight:800;font-size:17px}
-.okbtn:active{transform:scale(.95)}
-.ph-empty{width:60%;height:60%;border-radius:14px;background:linear-gradient(90deg,#ece5da,#f6f1ea,#ece5da);background-size:200% 100%;animation:sh 1.2s infinite}
-@keyframes sh{to{background-position:-200% 0}}
+.icn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16)}
+.okb{height:34px;padding:0 16px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:15px}
+.sheet{position:absolute;left:-6%;right:-6%;bottom:0;height:calc(var(--sb) + 132px);background:#fff;border-radius:50% 50% 0 0 / 56px 56px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.12)}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:#dcdad5;margin:10px auto 0}
+.car{display:flex;align-items:center;gap:12px;overflow-x:auto;scrollbar-width:none;padding:10px calc(6% + 20px) 0;height:104px}
+.car::-webkit-scrollbar{display:none}
+.it{flex:none;width:62px;height:62px;border-radius:50%;background:var(--tile);display:grid;place-items:center;transition:width .25s,height .25s,box-shadow .25s}
+.it img{width:86%;height:86%;object-fit:contain}
+.it.on{width:78px;height:78px;box-shadow:0 0 0 3px #fff,0 0 0 6px var(--accent)}
 </style>
 </head>
 <body>
@@ -111,55 +104,38 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
   <div class="badge">For illustration purposes only</div>
 
   <!-- 1. Home -->
-  <section id="s-home" class="screen on">
+  <section id="s-home" class="screen">
     <div class="scroll">
       <div class="head">
-        <div class="appicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/><path d="M5 17v2M19 17v2"/></svg></div>
+        <div class="mark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/><path d="M5 17v2M19 17v2"/></svg></div>
         <div class="brand lp">Nookset</div>
-        <div class="chip">Beta</div>
+        <div class="beta">Beta</div>
       </div>
-      <div class="hero">
-        <span class="arpill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg>AR view</span>
-        <h1>See furniture in your room</h1>
-        <p>Place 3D sofas, lamps and rugs in your room with your phone camera.</p>
-        <div class="floor"></div>
-        <img id="heroImg" alt="">
-      </div>
-      <div class="h2">What do you want to try in your room?</div>
-      <div class="grid" id="cats"></div>
+      <div class="title">Try furniture<b>in your room<i>.</i></b></div>
+      <button class="hero" id="hero">
+        <h2>See it in AR</h2>
+        <p>Point your camera at the floor</p>
+        <span class="ring"></span><img id="heroImg" alt="">
+        <span class="cube"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff5a36" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span>
+      </button>
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid"></div>
     </div>
   </section>
 
-  <!-- 2. Catalog -->
-  <section id="s-cat" class="screen">
-    <div class="scroll">
-      <div class="bar">
-        <button class="round" id="catBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <h2 id="catTitle" class="lp">Sofas</h2>
-      </div>
-      <div class="sub">Pick a model to see it in your room</div>
-      <div id="items"></div>
-    </div>
-  </section>
-
-  <!-- 3. AR -->
+  <!-- 2. AR -->
   <section id="s-ar" class="screen">
     <video id="cam" playsinline muted autoplay></video>
     <canvas id="gl"></canvas>
     <div class="ar-top">
-      <button class="round" id="arBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div class="ar-title glass lp">Nookset</div>
-      <button class="round" id="modeBtn" aria-label="View"><svg id="modeIco" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg></button>
+      <button class="circ" id="arBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="ar-title lp">Your room</div>
+      <button class="circ" id="modeBtn" aria-label="View"><svg id="modeIco" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg></button>
     </div>
     <div id="hint" class="hint glass off"></div>
     <div id="dim" class="dim glass"></div>
-    <div class="ar-bottom">
-      <div id="chips" class="chips off"></div>
-      <div class="tray-row glass">
-        <div id="tray" class="tray"></div>
-        <button id="okBtn" class="okbtn">OK</button>
-      </div>
-    </div>
+    <div id="swatches" class="swatches glass off"></div>
+    <div class="sheet"><div class="grab"></div><div class="car" id="car"></div></div>
   </section>
 </div>
 
@@ -177,22 +153,21 @@ const params = new URLSearchParams(location.search);
 /* ---------- home-screen icon (iOS needs PNG) ---------- */
 (function makeIcon() {
   const c = document.createElement('canvas'); c.width = c.height = 180; const x = c.getContext('2d');
-  const g = x.createLinearGradient(0, 0, 180, 180); g.addColorStop(0, '#ff8a4c'); g.addColorStop(1, '#ff4f6d');
-  x.fillStyle = g; x.fillRect(0, 0, 180, 180);
+  x.fillStyle = '#ff5a36'; x.fillRect(0, 0, 180, 180);
   const rr = (X, Y, W, H, R) => { x.beginPath(); x.roundRect ? x.roundRect(X, Y, W, H, R) : x.rect(X, Y, W, H); x.fill(); };
-  x.fillStyle = 'rgba(255,255,255,.85)'; rr(48, 52, 84, 34, 14);
-  x.fillStyle = '#fff'; rr(32, 76, 116, 44, 16); rr(44, 118, 10, 16, 4); rr(126, 118, 10, 16, 4);
+  x.fillStyle = 'rgba(255,255,255,.85)'; rr(48, 52, 84, 34, 16);
+  x.fillStyle = '#fff'; rr(32, 76, 116, 44, 18); rr(44, 118, 10, 18, 5); rr(126, 118, 10, 18, 5);
   $('#touchIcon').href = c.toDataURL('image/png');
 })();
 
-if (!window.THREE) { document.body.insertAdjacentHTML('beforeend', '<p style="position:fixed;bottom:40px;left:0;right:0;text-align:center;color:#7d766d">Connect to the internet and reload</p>'); return; }
+if (!window.THREE) { document.body.insertAdjacentHTML('beforeend', '<p style="position:fixed;bottom:40px;left:0;right:0;text-align:center;color:#8a8780">Connect to the internet and reload</p>'); return; }
 
 /* ---------- 3D helpers ---------- */
 const col = h => new THREE.Color(h).convertSRGBToLinear();
 const Mat = {
-  fabric: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .93, metalness: 0 }),
+  fabric: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .92, metalness: 0 }),
   wood: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .55, metalness: 0 }),
-  metal: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .32, metalness: .75 }),
+  metal: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .3, metalness: .75 }),
   matte: c => new THREE.MeshStandardMaterial({ color: col(c), roughness: .7, metalness: 0 }),
 };
 function shadowed(m, cast = true) { m.castShadow = cast; m.receiveShadow = true; return m; }
@@ -204,7 +179,7 @@ function rbox(w, h, d, r, mat) {
   s.lineTo(x + sw, y + sh - q); s.quadraticCurveTo(x + sw, y + sh, x + sw - q, y + sh);
   s.lineTo(x + q, y + sh); s.quadraticCurveTo(x, y + sh, x, y + sh - q);
   s.lineTo(x, y + q); s.quadraticCurveTo(x, y, x + q, y);
-  const g = new THREE.ExtrudeGeometry(s, { depth: Math.max(.001, d - 2 * b), bevelEnabled: true, bevelThickness: b, bevelSize: b, bevelSegments: 4, curveSegments: 8 });
+  const g = new THREE.ExtrudeGeometry(s, { depth: Math.max(.001, d - 2 * b), bevelEnabled: true, bevelThickness: b, bevelSize: b, bevelSegments: 5, curveSegments: 10 });
   g.center();
   return shadowed(new THREE.Mesh(g, mat));
 }
@@ -215,58 +190,62 @@ function canvasTex(w, h, draw) {
 }
 
 /* ---------- furniture builders ---------- */
+function armchair(o) {
+  // mid-century armchair: angled tapered legs, curved arms, reclined back
+  const g = new THREE.Group(), fab = Mat.fabric(o.color), lm = Mat.matte('#1c1c1c');
+  const legH = .3, seatY = legH + .07;
+  const base = rbox(.74, .14, .72, .05, fab); base.position.y = seatY; g.add(base);
+  const cush = rbox(.6, .13, .6, .055, fab); cush.position.set(0, seatY + .12, .05); g.add(cush);
+  const back = rbox(.74, .58, .15, .07, fab); back.position.set(0, seatY + .36, -.31); back.rotation.x = -.2; g.add(back);
+  [-1, 1].forEach(sx => {
+    const a = rbox(.12, .3, .7, .06, fab); a.position.set(sx * .37, seatY + .17, 0); a.rotation.z = sx * -.06; g.add(a);
+    const top = rbox(.15, .06, .62, .03, fab); top.position.set(sx * .385, seatY + .33, .02); g.add(top);
+  });
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+    const l = cyl(.012, .02, legH + .04, lm, 12); l.position.set(sx * .3, legH / 2, sz * .27);
+    l.rotation.z = sx * .16; l.rotation.x = sz * -.14; g.add(l);
+  });
+  return g;
+}
 function sofa(o) {
-  const { w = 2.1, D = .9, seats = 3, legH = .12, armW = .18, armH = .62, back = .44, color, leg = '#3b2a1f' } = o;
+  const { w = 2.1, D = .9, seats = 3, legH = .12, armW = .18, armH = .62, back = .44, color, leg = '#3b2a1f', r = .07 } = o;
   const g = new THREE.Group(), fab = Mat.fabric(color), lm = Mat.wood(leg), baseH = .2;
-  const base = rbox(w, baseH, D, .045, fab); base.position.y = legH + baseH / 2; g.add(base);
-  [-1, 1].forEach(sx => { const a = rbox(armW, armH - legH, D, .07, fab); a.position.set(sx * (w / 2 - armW / 2), legH + (armH - legH) / 2, 0); g.add(a); });
+  const base = rbox(w, baseH, D, .05, fab); base.position.y = legH + baseH / 2; g.add(base);
+  [-1, 1].forEach(sx => { const a = rbox(armW, armH - legH, D, r, fab); a.position.set(sx * (w / 2 - armW / 2), legH + (armH - legH) / 2, 0); g.add(a); });
   const inner = w - 2 * armW, cw = inner / seats;
   const bf = rbox(inner, back * .92, .12, .03, fab); bf.position.set(0, legH + baseH + back * .46 - .02, -D / 2 + .06); g.add(bf);
   for (let i = 0; i < seats; i++) {
     const cx = -inner / 2 + cw * (i + .5);
-    const c = rbox(cw - .012, .16, D - .24, .06, fab); c.position.set(cx, legH + baseH + .07, .1); g.add(c);
-    const bk = rbox(cw - .02, back, .2, .085, fab); bk.position.set(cx, legH + baseH + back / 2 + .02, -D / 2 + .19); bk.rotation.x = -.15; g.add(bk);
+    const c = rbox(cw - .012, .16, D - .24, .065, fab); c.position.set(cx, legH + baseH + .07, .1); g.add(c);
+    const bk = rbox(cw - .02, back, .2, .09, fab); bk.position.set(cx, legH + baseH + back / 2 + .02, -D / 2 + .19); bk.rotation.x = -.15; g.add(bk);
   }
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const l = cyl(.022, .015, legH, lm, 12); l.position.set(sx * (w / 2 - .07), legH / 2, sz * (D / 2 - .07)); g.add(l); });
   return g;
 }
 function floorLamp(o) {
-  const g = new THREE.Group(), metal = Mat.metal('#2b2a29');
-  const shade = new THREE.MeshStandardMaterial({ color: col(o.color), roughness: .9, side: THREE.DoubleSide, emissive: col('#ffcf8f'), emissiveIntensity: .35 });
-  const base = cyl(.17, .18, .03, metal, 40); base.position.y = .015; g.add(base);
-  const pole = cyl(.012, .012, 1.4, metal, 12); pole.position.y = .73; g.add(pole);
-  const sh = cyl(.15, .23, .32, shade, 48, true); sh.position.y = 1.5; g.add(sh);
+  const g = new THREE.Group(), metal = Mat.metal('#c9a46a');
+  const shade = new THREE.MeshStandardMaterial({ color: col(o.color), roughness: .85, side: THREE.DoubleSide, emissive: col('#ffcf8f'), emissiveIntensity: .3 });
+  const base = cyl(.16, .17, .03, Mat.matte('#1c1c1c'), 40); base.position.y = .015; g.add(base);
+  const pole = cyl(.011, .011, 1.4, metal, 12); pole.position.y = .73; g.add(pole);
+  const sh = cyl(.14, .24, .3, shade, 48, true); sh.position.y = 1.5; g.add(sh);
   const bulb = new THREE.Mesh(new THREE.SphereGeometry(.05, 16, 12), new THREE.MeshBasicMaterial({ color: col('#fff4dc') })); bulb.position.y = 1.43; g.add(bulb);
   const pl = new THREE.PointLight(0xffd9a0, .55, 3.2); pl.position.y = 1.4; g.add(pl);
   return g;
 }
 function globeLamp(o) {
-  const g = new THREE.Group(), metal = Mat.metal(o.metal || '#b8925a');
+  const g = new THREE.Group(), metal = Mat.metal('#c9a46a');
   const base = cyl(.15, .16, .025, metal, 40); base.position.y = .0125; g.add(base);
   const pole = cyl(.01, .01, 1.25, metal, 12); pole.position.y = .64; g.add(pole);
-  const glob = shadowed(new THREE.Mesh(new THREE.SphereGeometry(.2, 40, 28), new THREE.MeshStandardMaterial({ color: col(o.color), roughness: .35, emissive: col('#fff0d2'), emissiveIntensity: .75 })));
+  const glob = shadowed(new THREE.Mesh(new THREE.SphereGeometry(.2, 40, 28), new THREE.MeshStandardMaterial({ color: col(o.color), roughness: .35, emissive: col('#fff0d2'), emissiveIntensity: .7 })));
   glob.position.y = 1.45; g.add(glob);
   const pl = new THREE.PointLight(0xffe2b0, .5, 3); pl.position.y = 1.45; g.add(pl);
   return g;
-}
-function rugRect(o) {
-  const [a, b, c] = o.pal;
-  const tex = canvasTex(1024, 720, (x, W, H) => {
-    x.fillStyle = a; x.fillRect(0, 0, W, H);
-    x.strokeStyle = b; x.lineWidth = 26; x.strokeRect(40, 40, W - 80, H - 80);
-    x.lineWidth = 8; x.strokeRect(90, 90, W - 180, H - 180);
-    x.fillStyle = c;
-    for (let i = 0; i < 9; i++) { const y = 140 + i * 52; x.beginPath(); for (let k = 0; k <= 16; k++) { const px = 140 + k * ((W - 280) / 16); x.lineTo(px, y + (k % 2 ? 18 : -18)); } x.lineWidth = 10; x.strokeStyle = i % 2 ? c : b; x.stroke(); }
-    for (let n = 0; n < 9000; n++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .05})`; x.fillRect(Math.random() * W, Math.random() * H, 2, 2); }
-  });
-  const m = new THREE.Mesh(new THREE.BoxGeometry(2, .012, 1.4), new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }));
-  m.position.y = .006; m.receiveShadow = true; const g = new THREE.Group(); g.add(m); g.userData.flat = true; return g;
 }
 function rugRound(o) {
   const [a, b, c] = o.pal;
   const tex = canvasTex(1024, 1024, (x, W) => {
     x.fillStyle = a; x.fillRect(0, 0, W, W); const r0 = W / 2;
-    [[.96, b, 18], [.86, c, 8], [.62, b, 30], [.44, c, 8], [.22, b, 60]].forEach(([r, s, lw]) => { x.beginPath(); x.arc(r0, r0, r0 * r - lw / 2, 0, Math.PI * 2); x.lineWidth = lw; x.strokeStyle = s; x.stroke(); });
+    [[.95, b, 22], [.8, c, 10], [.58, b, 34], [.4, c, 10], [.2, b, 70]].forEach(([r, s, lw]) => { x.beginPath(); x.arc(r0, r0, r0 * r - lw / 2, 0, Math.PI * 2); x.lineWidth = lw; x.strokeStyle = s; x.stroke(); });
     for (let n = 0; n < 12000; n++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .05})`; x.fillRect(Math.random() * W, Math.random() * W, 2, 2); }
   });
   const m = new THREE.Mesh(new THREE.CylinderGeometry(.8, .8, .012, 72), new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }));
@@ -279,59 +258,35 @@ function coffeeTable(o) {
   for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3, l = cyl(.022, .016, .38, wd, 12); l.position.set(Math.cos(a) * .3, .19, Math.sin(a) * .3); g.add(l); }
   return g;
 }
-function sideTable(o) {
-  const g = new THREE.Group(), wd = Mat.wood(o.color), mt = Mat.metal('#2b2a29');
-  const top = rbox(.5, .035, .5, .014, wd); top.position.y = .55; g.add(top);
-  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const l = cyl(.012, .012, .53, mt, 10); l.position.set(sx * .2, .265, sz * .2); g.add(l); });
-  const sh = rbox(.42, .02, .42, .008, wd); sh.position.y = .2; g.add(sh);
-  return g;
-}
 function figTree(o) {
   const g = new THREE.Group(), pot = Mat.matte(o.color);
   const p = cyl(.2, .15, .36, pot, 40); p.position.y = .18; g.add(p);
   const soil = cyl(.185, .185, .02, Mat.matte('#4a3626'), 32); soil.position.y = .35; g.add(soil);
   const trunk = cyl(.022, .03, 1.05, Mat.wood('#6b4f37'), 10); trunk.position.y = .36 + .52; g.add(trunk);
-  const greens = ['#3f6b3a', '#4f7d45', '#365e33', '#5a8a4c'];
+  const greens = ['#3f8a4a', '#4f9d55', '#367a3f', '#62ad5c'];
   const pts = [[0, 1.62, 0, .26], [.2, 1.45, .08, .22], [-.2, 1.4, -.05, .23], [.05, 1.3, .22, .2], [-.08, 1.25, -.22, .2], [.22, 1.2, -.15, .18], [-.22, 1.15, .14, .18], [0, 1.05, 0, .16]];
-  pts.forEach(([x, y, z, r], i) => { const m = shadowed(new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), new THREE.MeshStandardMaterial({ color: col(greens[i % 4]), roughness: .75, flatShading: true }))); m.position.set(x, y, z); g.add(m); });
-  return g;
-}
-function fern(o) {
-  const g = new THREE.Group(), pot = Mat.matte(o.color);
-  const p = cyl(.19, .15, .28, pot, 40); p.position.y = .14; g.add(p);
-  const soil = cyl(.175, .175, .02, Mat.matte('#4a3626'), 32); soil.position.y = .27; g.add(soil);
-  const leaf = new THREE.SphereGeometry(1, 18, 8), greens = ['#4d7f3f', '#5d9147', '#3f6e36'];
-  for (let i = 0; i < 18; i++) {
-    const pivot = new THREE.Group(); pivot.position.y = .28; pivot.rotation.y = i * 2.4;
-    const tilt = new THREE.Group(); tilt.rotation.x = -(.35 + (i % 3) * .25); pivot.add(tilt);
-    const f = shadowed(new THREE.Mesh(leaf, new THREE.MeshStandardMaterial({ color: col(greens[i % 3]), roughness: .7 })));
-    f.scale.set(.055, .012, .34); f.position.z = .3; tilt.add(f); g.add(pivot);
-  }
+  pts.forEach(([x, y, z, r], i) => { const m = shadowed(new THREE.Mesh(new THREE.IcosahedronGeometry(r, 3), new THREE.MeshStandardMaterial({ color: col(greens[i % 4]), roughness: .8 }))); m.position.set(x, y, z); g.add(m); });
   return g;
 }
 
-const FABRIC = [['Sage', '#8fa58a'], ['Terracotta', '#c46f4e'], ['Cream', '#e6dccb'], ['Navy', '#33476e'], ['Charcoal', '#4a4a4f']];
-const WOOD = [['Oak', '#c49a6c'], ['Walnut', '#6e4a32'], ['White', '#ece8e1']];
-const POTS = [['Clay', '#c8714d'], ['White', '#efebe4'], ['Black', '#2c2b2a']];
-const SHADES = [['Linen', '#efe6d6'], ['Sand', '#d8c3a0'], ['Olive', '#8a8f5c']];
-const RUGS = [['Sand', ['#e7dccb', '#b9875e', '#6e5541']], ['Blue', ['#dfe4ea', '#33476e', '#9aa9bf']], ['Rust', ['#efe2d3', '#b4553a', '#e0a77e']]];
+const C = { mustard: ['Mustard', '#e8ad26'], sky: ['Sky', '#86a9d8'], teal: ['Teal', '#2f6b66'], blush: ['Blush', '#eab7ab'], coral: ['Coral', '#ef6a4b'], cream: ['Cream', '#ece4d6'] };
 const CATS = [
-  { id: 'sofas', name: 'Sofas' }, { id: 'chairs', name: 'Armchairs' }, { id: 'lamps', name: 'Lamps' },
-  { id: 'rugs', name: 'Rugs' }, { id: 'tables', name: 'Tables' }, { id: 'plants', name: 'Plants' },
+  { id: 'all', name: 'All', ico: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>' },
+  { id: 'chairs', name: 'Chairs', ico: '<path d="M7 11V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4"/><path d="M5 18v-5a2 2 0 0 1 4 0h6a2 2 0 0 1 4 0v5H5z"/><path d="M7 18v2M17 18v2"/>' },
+  { id: 'sofas', name: 'Sofas', ico: '<path d="M4 11V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v2"/><path d="M3 17v-4a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v4H3z"/><path d="M5 17v2M19 17v2"/>' },
+  { id: 'lamps', name: 'Lamps', ico: '<path d="M8 3h8l3 7H5z"/><path d="M12 10v10M8 21h8"/>' },
+  { id: 'decor', name: 'Decor', ico: '<path d="M7 15h10l-1.5 6h-7z"/><path d="M12 15V9M12 11c-3 0-5-2-5-5 3 0 5 2 5 5zM12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/>' },
 ];
 const ITEMS = [
-  { id: 'sofa3', cat: 'sofas', name: 'Oslo 3-seat sofa', size: '210 × 90 × 85 cm', dim: '210 × 90 cm', colors: FABRIC, build: c => sofa({ color: c }) },
-  { id: 'sofa2', cat: 'sofas', name: 'Bruno 2-seat sofa', size: '160 × 88 × 80 cm', dim: '160 × 88 cm', colors: FABRIC.slice(1).concat([FABRIC[0]]), build: c => sofa({ w: 1.6, D: .88, seats: 2, armW: .2, armH: .58, back: .4, color: c, leg: '#c49a6c' }) },
-  { id: 'arm1', cat: 'chairs', name: 'Mika armchair', size: '90 × 85 × 82 cm', dim: '90 × 85 cm', colors: FABRIC.slice(2).concat(FABRIC.slice(0, 2)), build: c => sofa({ w: .9, D: .85, seats: 1, armW: .17, armH: .6, back: .42, color: c }) },
-  { id: 'arm2', cat: 'chairs', name: 'Lune lounge chair', size: '78 × 80 × 76 cm', dim: '78 × 80 cm', colors: FABRIC.slice(3).concat(FABRIC.slice(0, 3)), build: c => sofa({ w: .78, D: .8, seats: 1, legH: .2, armW: .1, armH: .55, back: .36, color: c, leg: '#c49a6c' }) },
-  { id: 'lamp1', cat: 'lamps', name: 'Cone floor lamp', size: '160 cm tall', dim: '160 cm tall', colors: SHADES, build: c => floorLamp({ color: c }) },
-  { id: 'lamp2', cat: 'lamps', name: 'Globe floor lamp', size: '165 cm tall', dim: '165 cm tall', colors: [['Opal', '#f4efe6'], ['Amber', '#e9c58f'], ['Smoke', '#bdb7ae']], build: c => globeLamp({ color: c }) },
-  { id: 'rug1', cat: 'rugs', name: 'Dune striped rug', size: '200 × 140 cm', dim: '200 × 140 cm', colors: RUGS, build: c => rugRect({ pal: c }) },
-  { id: 'rug2', cat: 'rugs', name: 'Halo round rug', size: 'Ø 160 cm', dim: 'Ø 160 cm', colors: RUGS.slice(1).concat([RUGS[0]]), build: c => rugRound({ pal: c }) },
-  { id: 'table1', cat: 'tables', name: 'Pebble coffee table', size: 'Ø 90 × 42 cm', dim: 'Ø 90 cm', colors: WOOD, build: c => coffeeTable({ color: c }) },
-  { id: 'table2', cat: 'tables', name: 'Duo side table', size: '50 × 50 × 57 cm', dim: '50 × 50 cm', colors: WOOD.slice(1).concat([WOOD[0]]), build: c => sideTable({ color: c }) },
-  { id: 'plant1', cat: 'plants', name: 'Fig tree', size: '175 cm tall', dim: '175 cm tall', colors: POTS, build: c => figTree({ color: c }) },
-  { id: 'plant2', cat: 'plants', name: 'Fern', size: '70 cm tall', dim: '70 cm tall', colors: POTS.slice(1).concat([POTS[0]]), build: c => fern({ color: c }) },
+  { id: 'chair1', cat: 'chairs', name: 'Mustard armchair', dim: '74 × 72 cm', colors: [C.mustard, C.sky, C.teal, C.blush], build: c => armchair({ color: c }) },
+  { id: 'chair2', cat: 'chairs', name: 'Cloud lounge chair', dim: '82 × 78 cm', colors: [C.sky, C.blush, C.mustard, C.teal], build: c => sofa({ w: .82, D: .78, seats: 1, legH: .17, armW: .16, armH: .56, back: .4, color: c, leg: '#c49a6c', r: .08 }) },
+  { id: 'sofa1', cat: 'sofas', name: 'Soft 3-seat sofa', dim: '210 × 90 cm', colors: [C.teal, C.mustard, C.coral, C.sky], build: c => sofa({ color: c }) },
+  { id: 'sofa2', cat: 'sofas', name: 'Bruno 2-seat sofa', dim: '160 × 88 cm', colors: [C.coral, C.sky, C.teal, C.cream], build: c => sofa({ w: 1.6, D: .88, seats: 2, armW: .2, armH: .58, back: .4, color: c, leg: '#c49a6c' }) },
+  { id: 'lamp1', cat: 'lamps', name: 'Cone floor lamp', dim: '160 cm tall', colors: [C.cream, C.mustard, C.teal], build: c => floorLamp({ color: c }) },
+  { id: 'lamp2', cat: 'lamps', name: 'Globe lamp', dim: '165 cm tall', colors: [['Opal', '#f4efe6'], ['Amber', '#e9c58f'], C.blush], build: c => globeLamp({ color: c }) },
+  { id: 'plant1', cat: 'decor', name: 'Fig tree', dim: '175 cm tall', colors: [C.cream, C.coral, ['Black', '#2c2b2a']], build: c => figTree({ color: c }) },
+  { id: 'table1', cat: 'decor', name: 'Round table', dim: 'Ø 90 cm', colors: [['Oak', '#c49a6c'], ['Walnut', '#6e4a32'], ['White', '#ece8e1']], build: c => coffeeTable({ color: c }) },
+  { id: 'rug1', cat: 'decor', name: 'Round rug', dim: 'Ø 160 cm', colors: [['Sun', ['#f6ead6', '#e8ad26', '#ef6a4b']], ['Sky', ['#e6eef8', '#86a9d8', '#2f6b66']], ['Blush', ['#f8ece8', '#eab7ab', '#ef6a4b']]], build: c => rugRound({ pal: c }) },
 ];
 const swatchHex = v => Array.isArray(v) ? v[1] : v;
 const build = (item, ci) => item.build(item.colors[ci][1]);
@@ -341,67 +296,45 @@ function dispose(o) { o.traverse(n => { if (n.geometry) n.geometry.dispose(); if
 const thumbs = {};
 (function renderThumbs() {
   const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-  r.setPixelRatio(1); r.setSize(360, 360); r.outputEncoding = THREE.sRGBEncoding; r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+  r.setPixelRatio(1); r.setSize(480, 480); r.outputEncoding = THREE.sRGBEncoding; r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
   const s = new THREE.Scene();
-  s.add(new THREE.HemisphereLight(0xffffff, 0x9a8f80, .85));
-  const d = new THREE.DirectionalLight(0xffffff, .85); d.position.set(2, 4, 3); d.castShadow = true; d.shadow.mapSize.set(1024, 1024);
-  Object.assign(d.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2 }); d.shadow.radius = 4; s.add(d);
-  const sp = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.ShadowMaterial({ opacity: .18 })); sp.rotation.x = -Math.PI / 2; sp.receiveShadow = true; s.add(sp);
-  const cam = new THREE.PerspectiveCamera(28, 1, .01, 60), sph = new THREE.Sphere();
+  s.add(new THREE.HemisphereLight(0xffffff, 0xa49b90, .9));
+  const d = new THREE.DirectionalLight(0xffffff, .8); d.position.set(-2, 4, 3); d.castShadow = true; d.shadow.mapSize.set(1024, 1024);
+  Object.assign(d.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2 }); d.shadow.radius = 5; s.add(d);
+  const sp = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.ShadowMaterial({ opacity: .16 })); sp.rotation.x = -Math.PI / 2; sp.receiveShadow = true; s.add(sp);
+  const cam = new THREE.PerspectiveCamera(26, 1, .01, 60), sph = new THREE.Sphere();
   ITEMS.forEach(it => {
     const m = build(it, 0); s.add(m);
     new THREE.Box3().setFromObject(m).getBoundingSphere(sph);
-    const dir = new THREE.Vector3(1.1, m.userData.flat ? 1.5 : .8, 1.7).normalize();
-    cam.position.copy(sph.center).addScaledVector(dir, sph.radius / Math.sin(rad(14)) * 1.02); cam.lookAt(sph.center);
+    const dir = new THREE.Vector3(-1.05, m.userData.flat ? 1.6 : .55, 1.7).normalize();
+    cam.position.copy(sph.center).addScaledVector(dir, sph.radius / Math.sin(rad(13)) * 1.04); cam.lookAt(sph.center);
     r.render(s, cam); thumbs[it.id] = r.domElement.toDataURL('image/png');
     s.remove(m); dispose(m);
   });
   r.dispose(); if (r.forceContextLoss) r.forceContextLoss();
 })();
 
-/* ---------- screens ---------- */
-const screens = { home: $('#s-home'), cat: $('#s-cat'), ar: $('#s-ar') };
-const order = ['home', 'cat', 'ar'];
-let current = 'home';
+/* ---------- home ---------- */
+const home = $('#s-home'), arScreen = $('#s-ar');
 function show(name) {
-  const i = order.indexOf(name);
-  order.forEach((n, k) => { screens[n].classList.toggle('on', k === i); screens[n].classList.toggle('left', k < i); });
-  current = name;
-  if (name === 'ar') enterAR(); else leaveAR();
+  const ar = name === 'ar';
+  home.classList.toggle('away', ar); arScreen.classList.toggle('on', ar);
+  if (ar) enterAR(); else leaveAR();
 }
-$('#heroImg').src = thumbs.sofa3;
-$('#cats').innerHTML = CATS.map(c => {
-  const first = ITEMS.find(i => i.cat === c.id), n = ITEMS.filter(i => i.cat === c.id).length;
-  return `<button class="tile" data-cat="${c.id}"><div class="ph"><img src="${thumbs[first.id]}" alt=""></div><b>${c.name}</b><span>${n} models</span></button>`;
-}).join('');
-let motionAsked = false;
-$('#cats').addEventListener('click', e => {
-  const t = e.target.closest('.tile'); if (!t) return;
-  askMotion();
-  document.querySelectorAll('.tile').forEach(x => x.classList.toggle('sel', x === t));
-  openCat(t.dataset.cat);
-  setTimeout(() => { show('cat'); t.classList.remove('sel'); }, 220);
+const ICO = (p, c = 'currentColor', w = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const CUBE = '<path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/>';
+$('#heroImg').src = thumbs.chair1;
+$('#chips').innerHTML = CATS.map((c, i) => `<button class="chip${i ? '' : ' on'}" data-cat="${c.id}">${ICO(c.ico)}${c.name}</button>`).join('');
+$('#grid').innerHTML = ITEMS.map(it => `<button class="card" data-id="${it.id}" data-cat="${it.cat}"><div class="ph"><img src="${thumbs[it.id]}" alt=""><span class="ar">${ICO(CUBE, '#fff', 2)}</span></div><b>${it.name}</b></button>`).join('');
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('hide', b.dataset.cat !== 'all' && c.dataset.cat !== b.dataset.cat));
 });
-function openCat(id) {
-  $('#catTitle').textContent = CATS.find(c => c.id === id).name;
-  $('#items').innerHTML = ITEMS.filter(i => i.cat === id).map(it => `
-    <button class="card" data-id="${it.id}">
-      <div class="ph"><img src="${thumbs[it.id]}" alt=""></div>
-      <div class="row"><div><b>${it.name}</b><small>${it.size}</small></div>
-        <div style="display:flex;align-items:center;gap:12px"><div class="dots">${it.colors.slice(0, 4).map(c => `<i style="background:${swatchHex(c[1])}"></i>`).join('')}</div>
-        <span class="go"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg></span></div>
-      </div>
-    </button>`).join('');
-  screens.cat.querySelector('.scroll').scrollTop = 0;
-}
-$('#items').addEventListener('click', e => {
-  const c = e.target.closest('.card'); if (!c) return;
-  askMotion(); startCamera();
-  setPending(ITEMS.find(i => i.id === c.dataset.id));
-  setTimeout(() => show('ar'), 120);
-});
-$('#catBack').addEventListener('click', () => show('home'));
-$('#arBack').addEventListener('click', () => show('cat'));
+function openAR(item) { askMotion(); startCamera(); setPending(item); setTimeout(() => show('ar'), 90); }
+$('#grid').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) openAR(ITEMS.find(i => i.id === c.dataset.id)); });
+$('#hero').addEventListener('click', () => openAR(ITEMS[0]));
+$('#arBack').addEventListener('click', () => show('home'));
 
 /* hidden reset: long-press any title for 1 s */
 document.querySelectorAll('.lp').forEach(el => {
@@ -412,7 +345,7 @@ document.querySelectorAll('.lp').forEach(el => {
 function resetAll() {
   placed.forEach(o => { scene.remove(o); dispose(o); }); placed.length = 0;
   select(null); setPending(null); scanned = false; show('home');
-  screens.home.querySelector('.scroll').scrollTop = 0;
+  home.querySelector('.scroll').scrollTop = 0;
 }
 
 /* ---------- AR scene ---------- */
@@ -422,14 +355,15 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.outputEncoding =
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.setClearColor(0x000000, 0);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(66, 1, .02, 60); camera.position.set(0, 1.35, 0); camera.rotation.order = 'YXZ';
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8f8478, .8));
-const sun = new THREE.DirectionalLight(0xffffff, .85); sun.position.set(1.8, 4.5, 1.2); sun.castShadow = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8f8478, .85));
+const sun = new THREE.DirectionalLight(0xffffff, .8); sun.position.set(-1.8, 4.5, 1.2); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .5, far: 15 }); sun.shadow.bias = -.0005; sun.shadow.radius = 5;
 sun.target.position.set(0, 0, -2); scene.add(sun, sun.target);
 const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.ShadowMaterial({ opacity: .3 }));
 shadowPlane.rotation.x = -Math.PI / 2; shadowPlane.receiveShadow = true; scene.add(shadowPlane);
 
 const blobTex = canvasTex(128, 128, (x, W) => { const g = x.createRadialGradient(W / 2, W / 2, 0, W / 2, W / 2, W / 2); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.55, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, W); });
+const ringTex = canvasTex(256, 256, (x, W) => { const g = x.createRadialGradient(W / 2, W / 2, 0, W / 2, W / 2, W / 2); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.66, 'rgba(255,255,255,0)'); g.addColorStop(.8, 'rgba(255,255,255,.75)'); g.addColorStop(.9, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, W, W); });
 
 /* sample room (used when the camera is off or not available) */
 const room = new THREE.Group(); room.visible = false; scene.add(room);
@@ -441,12 +375,11 @@ const room = new THREE.Group(); room.visible = false; scene.add(room);
   planks.wrapS = planks.wrapT = THREE.RepeatWrapping; planks.repeat.set(3, 3);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshStandardMaterial({ map: planks, roughness: .65 }));
   floor.rotation.x = -Math.PI / 2; floor.position.set(0, -.001, -1.3); floor.receiveShadow = true; room.add(floor);
-  const wall = new THREE.MeshStandardMaterial({ color: col('#ece4d8'), roughness: 1, side: THREE.BackSide }), none = new THREE.MeshBasicMaterial({ visible: false });
+  const wall = new THREE.MeshStandardMaterial({ color: col('#e4e2de'), roughness: 1, side: THREE.BackSide }), none = new THREE.MeshBasicMaterial({ visible: false });
   const box = new THREE.Mesh(new THREE.BoxGeometry(6, 2.8, 7.4), [wall, wall, wall, none, wall, wall]); box.position.set(0, 1.4, -1.3); box.receiveShadow = true; room.add(box);
-  const win = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.7), new THREE.MeshBasicMaterial({ color: col('#f7f9fc') })); win.position.set(.9, 1.5, -4.99); room.add(win);
-  const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.62, 1.82), new THREE.MeshStandardMaterial({ color: col('#d6ccbe') })); frame.position.set(.9, 1.5, -4.995); room.add(frame);
-  const mull = new THREE.Mesh(new THREE.PlaneGeometry(.04, 1.7), frame.material); mull.position.set(.9, 1.5, -4.985); room.add(mull);
-  const skirt = new THREE.MeshStandardMaterial({ color: col('#f7f2ea') });
+  const frame = new THREE.Mesh(new THREE.PlaneGeometry(.9, 1.15), new THREE.MeshStandardMaterial({ color: col('#2a2a2a') })); frame.position.set(-.2, 1.65, -4.99); room.add(frame);
+  const art = new THREE.Mesh(new THREE.PlaneGeometry(.8, 1.05), new THREE.MeshStandardMaterial({ map: canvasTex(256, 336, (x, W, H) => { x.fillStyle = '#f2efea'; x.fillRect(0, 0, W, H); x.fillStyle = '#ef6a4b'; x.beginPath(); x.arc(W * .42, H * .58, W * .26, 0, Math.PI * 2); x.fill(); x.fillStyle = '#e8ad26'; x.fillRect(W * .5, H * .2, W * .28, W * .28); }) })); art.position.set(-.2, 1.65, -4.985); room.add(art);
+  const skirt = new THREE.MeshStandardMaterial({ color: col('#f4f2ee') });
   [[0, -4.99, 6, 0], [-2.99, -1.3, 7.4, Math.PI / 2], [2.99, -1.3, 7.4, -Math.PI / 2]].forEach(([x, z, w, ry]) => { const s = new THREE.Mesh(new THREE.BoxGeometry(w, .09, .02), skirt); s.position.set(x, .045, z); s.rotation.y = ry; room.add(s); });
 })();
 
@@ -457,7 +390,7 @@ const ringA = new THREE.Mesh(new THREE.RingGeometry(.15, .17, 64), retMat); cons
 const ringB = new THREE.Mesh(new THREE.RingGeometry(.22, .23, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .4, depthWrite: false }));
 [ringA, dotA, ringB].forEach(m => { m.rotation.x = -Math.PI / 2; m.renderOrder = 5; reticle.add(m); });
 reticle.position.y = .012; reticle.visible = false; scene.add(reticle);
-const selRing = new THREE.Mesh(new THREE.RingGeometry(.97, 1, 96), new THREE.MeshBasicMaterial({ color: col('#ff6a3d'), transparent: true, opacity: .95, depthWrite: false }));
+const selRing = new THREE.Mesh(new THREE.CircleGeometry(1.25, 96), new THREE.MeshBasicMaterial({ map: ringTex, transparent: true, depthWrite: false }));
 selRing.rotation.x = -Math.PI / 2; selRing.position.y = .016; selRing.renderOrder = 4; selRing.visible = false;
 const scanGeo = new THREE.BufferGeometry(), SCAN_N = 140;
 scanGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SCAN_N * 3), 3));
@@ -484,21 +417,21 @@ function pick(cx, cy) {
 
 function setPending(item) {
   pending = item;
-  renderTray();
-  if (!arOn) return;
-  if (item) { select(null); if (scanned) hint('Floor found. Tap to place'); }
+  if (item) select(null);
+  renderCar();
+  if (arOn && item && scanned) hint('Tap to place');
 }
-function renderTray() {
-  $('#tray').innerHTML = ITEMS.map(it => `<button class="titem${pending && pending.id === it.id ? ' on' : ''}" data-id="${it.id}"><img src="${thumbs[it.id]}" alt=""></button>`).join('');
-  const on = $('#tray .titem.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+function renderCar() {
+  const act = pending ? pending.id : selected ? selected.userData.item.id : null;
+  $('#car').innerHTML = ITEMS.map(it => `<button class="it${it.id === act ? ' on' : ''}" data-id="${it.id}" aria-label="${it.name}"><img src="${thumbs[it.id]}" alt=""></button>`).join('');
+  const on = $('#car .it.on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
 }
-$('#tray').addEventListener('click', e => { const b = e.target.closest('.titem'); if (b) setPending(ITEMS.find(i => i.id === b.dataset.id)); });
-$('#okBtn').addEventListener('click', () => { setPending(null); select(null); hint(null); });
+$('#car').addEventListener('click', e => { const b = e.target.closest('.it'); if (b) setPending(ITEMS.find(i => i.id === b.dataset.id)); });
 
 function makeInstance(item, ci) {
   const root = new THREE.Group(), model = build(item, ci); root.add(model);
   const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3());
-  root.userData = { isRoot: true, item, ci, model, h: size.y, r: Math.max(size.x, size.z) / 2 * 1.08, anim: performance.now() };
+  root.userData = { isRoot: true, item, ci, model, h: size.y, r: Math.max(size.x, size.z) / 2 * 1.05, anim: performance.now() };
   if (!model.userData.flat) {
     const blob = new THREE.Mesh(new THREE.PlaneGeometry(size.x * 1.25, size.z * 1.25), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, opacity: 0, depthWrite: false }));
     blob.rotation.x = -Math.PI / 2; blob.position.y = .003; blob.renderOrder = 1; root.add(blob); root.userData.blob = blob;
@@ -508,30 +441,32 @@ function makeInstance(item, ci) {
 function place() {
   const p = centerFloor(); if (!p || !pending) return;
   const o = makeInstance(pending, 0); o.position.set(p.x, 0, p.z);
-  o.rotation.y = Math.atan2(camera.position.x - p.x, camera.position.z - p.z);
-  scene.add(o); placed.push(o); pending = null; renderTray(); select(o);
-  hint('Drag to move. Twist with two fingers to rotate');
+  o.rotation.y = Math.atan2(camera.position.x - p.x, camera.position.z - p.z) + .35;
+  scene.add(o); placed.push(o); pending = null; select(o);
+  hint('Drag to move · Twist to rotate'); clearTimeout(place.t); place.t = setTimeout(() => { if (!pending) hint(null); }, 2400);
   if (navigator.vibrate) navigator.vibrate(12);
 }
 function select(o) {
   selected = o;
   if (selRing.parent) selRing.parent.remove(selRing);
-  if (o) { o.add(selRing); selRing.scale.setScalar(o.userData.r); selRing.visible = true; dimUntil = performance.now() + 2600; renderChips(); $('#chips').classList.remove('off'); }
-  else { selRing.visible = false; $('#chips').classList.add('off'); dimUntil = 0; }
+  if (o) { o.add(selRing); selRing.scale.setScalar(o.userData.r); selRing.visible = true; dimUntil = performance.now() + 2600; renderSwatches(); $('#swatches').classList.remove('off'); }
+  else { selRing.visible = false; $('#swatches').classList.add('off'); dimUntil = 0; }
+  if (!pending) renderCar();
 }
-function renderChips() {
+function renderSwatches() {
   const it = selected.userData.item;
-  $('#chips').innerHTML = it.colors.map((c, i) => `<button class="sw${i === selected.userData.ci ? ' on' : ''}" data-ci="${i}" aria-label="${c[0]}" style="background:${swatchHex(c[1])}"></button>`).join('') +
-    `<button class="trash glass" aria-label="Remove"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`;
+  $('#swatches').innerHTML = it.colors.map((c, i) => `<button class="sw${i === selected.userData.ci ? ' on' : ''}" data-ci="${i}" aria-label="${c[0]}" style="background:${swatchHex(c[1])}"></button>`).join('') +
+    `<button class="icn trash" aria-label="Remove">${ICO('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', '#fff', 2)}</button><button class="okb">OK</button>`;
 }
-$('#chips').addEventListener('click', e => {
+$('#swatches').addEventListener('click', e => {
   if (!selected) return;
+  if (e.target.closest('.okb')) { select(null); hint(null); return; }
   if (e.target.closest('.trash')) { const o = selected; select(null); scene.remove(o); placed.splice(placed.indexOf(o), 1); dispose(o); return; }
   const b = e.target.closest('.sw'); if (!b) return;
   const ci = +b.dataset.ci, ud = selected.userData; if (ci === ud.ci) return;
   selected.remove(ud.model); dispose(ud.model);
   ud.model = build(ud.item, ci); ud.ci = ci; selected.add(ud.model); ud.model.scale.setScalar(.94); ud.pop = performance.now();
-  renderChips();
+  renderSwatches();
 });
 
 /* touch: tap = place / select, drag = move, two-finger twist = rotate */
@@ -569,7 +504,7 @@ const ICO_ROOM = '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9
 function setMode(m) {
   mode = m; const cam = m === 'camera';
   video.style.visibility = cam ? 'visible' : 'hidden'; room.visible = !cam; shadowPlane.visible = cam;
-  scene.background = cam ? null : col('#d8d0c4');
+  scene.background = cam ? null : col('#d9d6d1');
   $('#modeIco').innerHTML = cam ? ICO_ROOM : ICO_CAM;
 }
 async function startCamera() {
@@ -583,7 +518,7 @@ async function startCamera() {
 $('#modeBtn').addEventListener('click', () => { if (mode === 'camera') setMode('room'); else if (stream) setMode('camera'); else startCamera(); });
 
 /* phone motion: keeps placed furniture anchored while the phone turns */
-let devQ = null, yawFix = null; const zee = new THREE.Vector3(0, 0, 1), q1 = new THREE.Quaternion(-Math.sqrt(.5), 0, 0, Math.sqrt(.5)), q0 = new THREE.Quaternion(), eul = new THREE.Euler(), tgtQ = new THREE.Quaternion(), fixQ = new THREE.Quaternion();
+let devQ = null, yawFix = null, motionAsked = false; const zee = new THREE.Vector3(0, 0, 1), q1 = new THREE.Quaternion(-Math.sqrt(.5), 0, 0, Math.sqrt(.5)), q0 = new THREE.Quaternion(), eul = new THREE.Euler(), tgtQ = new THREE.Quaternion(), fixQ = new THREE.Quaternion();
 const staticQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(rad(-27), 0, 0, 'YXZ'));
 function onOri(e) {
   if (e.beta == null) return;
@@ -605,7 +540,7 @@ function askMotion() {
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 function startScan() {
-  scanned = false; scanT0 = performance.now(); hint('Move your phone slowly to find the floor', true);
+  scanned = false; scanT0 = performance.now(); hint('Point at the floor', true);
   const c = centerFloor() || new THREE.Vector3(0, 0, -1.7), a = scanGeo.attributes.position.array;
   for (let i = 0; i < SCAN_N; i++) { const r = Math.sqrt(Math.random()) * 2.2, t = Math.random() * Math.PI * 2; a[i * 3] = c.x + Math.cos(t) * r; a[i * 3 + 1] = .004; a[i * 3 + 2] = c.z + Math.sin(t) * r * 1.3; }
   scanGeo.attributes.position.needsUpdate = true; scanGeo.setDrawRange(0, 0); scanMat.opacity = .9; scanPts.visible = true;
@@ -613,7 +548,7 @@ function startScan() {
 function enterAR() {
   arOn = true; yawFix = null; resize(); camera.quaternion.copy(staticQ);
   if (!stream && mode === 'camera' && !room.visible) startCamera();
-  requestAnimationFrame(() => { updateCamera(1); if (!scanned) startScan(); else if (pending) hint('Floor found. Tap to place'); else hint(null); });
+  requestAnimationFrame(() => { updateCamera(1); if (!scanned) startScan(); else if (pending) hint('Tap to place'); else hint(null); });
   requestAnimationFrame(loop);
 }
 function leaveAR() { arOn = false; hint(null); }
@@ -631,7 +566,7 @@ function loop(now) {
   if (!scanned) {
     const k = (now - scanT0) / 1900;
     scanGeo.setDrawRange(0, Math.floor(clamp(k, 0, 1) * SCAN_N));
-    if (k >= 1) { scanned = true; hint(pending ? 'Floor found. Tap to place' : null); }
+    if (k >= 1) { scanned = true; hint(pending ? 'Tap to place' : null); }
   } else if (scanPts.visible) { scanMat.opacity -= .03; if (scanMat.opacity <= 0) scanPts.visible = false; }
   const c = scanned && pending ? centerFloor() : null;
   reticle.visible = !!c;
@@ -650,7 +585,7 @@ function loop(now) {
   renderer.render(scene, camera);
 }
 setMode(params.get('room') === '1' ? 'room' : 'camera');
-renderTray();
+renderCar();
 })();
 </script>
 </body>
