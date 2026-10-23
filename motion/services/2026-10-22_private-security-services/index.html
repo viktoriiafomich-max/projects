@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Private Security Motion</title>
+<style>
+  :root { --bg:#0d0f14; --ink:#fff; --muted:#9aa3b2; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; background:var(--bg); color:var(--ink);
+    font-family:-apple-system, system-ui, sans-serif; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:16px; }
+  #wrap { position:relative; }
+  #stage { position:absolute; top:0; left:0; width:1080px; height:1920px; transform-origin:0 0;
+    overflow:hidden; border-radius:36px; background:#111; }
+  .scene { position:absolute; inset:0; opacity:0; transition:opacity .45s ease; }
+  .scene.on { opacity:1; }
+  .scene svg { width:100%; height:100%; display:block; }
+  .shotlabel { position:absolute; left:40px; bottom:60px; max-width:640px; font:600 26px/1.3 system-ui, sans-serif;
+    color:rgba(255,255,255,.55); background:rgba(0,0,0,.35); padding:10px 16px; border-radius:12px; }
+  /* overlay: keep out of right ~15% and bottom ~20% (TikTok UI) */
+  #overlay { position:absolute; left:60px; width:800px; top:300px; text-align:center; }
+  .chunk { font-family:"Arial Rounded MT Bold","Arial Black",sans-serif; font-weight:900;
+    text-transform:uppercase; font-size:84px; line-height:1.08; letter-spacing:.5px;
+    -webkit-text-stroke:3px #111; paint-order:stroke fill;
+    text-shadow:0 6px 0 #111, 0 10px 24px rgba(0,0,0,.6); }
+  .chunk.hook { font-size:100px; }
+  .w { display:inline-block; opacity:0; transform:scale(.4) translateY(30px); margin:0 .12em; }
+  .w.in { animation:pop .32s cubic-bezier(.2,1.6,.4,1) forwards; }
+  @keyframes pop { to { opacity:1; transform:none; } }
+  .hook .w.in { animation:pop .32s cubic-bezier(.2,1.6,.4,1) forwards, wob 1.2s .4s ease-in-out infinite alternate; }
+  @keyframes wob { from { transform:rotate(-1.5deg) scale(1); } to { transform:rotate(1.5deg) scale(1.04); } }
+  .emoji { font-size:72px; margin-top:20px; opacity:0; transition:opacity .3s; }
+  .emoji.in { opacity:1; }
+  #progress { position:absolute; left:0; top:0; height:8px; background:rgba(255,255,255,.7); width:0; }
+  #controls { display:flex; gap:12px; align-items:center; }
+  button { font:600 15px system-ui, sans-serif; padding:9px 18px; border-radius:999px; border:1px solid #3a4150;
+    background:#1b1f28; color:var(--ink); cursor:pointer; }
+  button:hover { background:#262b37; }
+  #meta { font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <!-- Scene: storefront at dusk with guard at the door -->
+    <div class="scene" id="s-store">
+      <svg viewBox="0 0 1080 1920">
+        <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2340"/><stop offset=".55" stop-color="#3b3a63"/><stop offset="1" stop-color="#16161e"/></linearGradient></defs>
+        <rect width="1080" height="1920" fill="url(#dusk)"/>
+        <rect x="80" y="760" width="920" height="900" fill="#2a2730"/>
+        <rect x="80" y="700" width="920" height="90" fill="#c9553f"/>
+        <rect x="140" y="860" width="420" height="520" fill="#f2c46b" opacity=".85"/>
+        <rect x="620" y="860" width="320" height="800" fill="#3d3a46"/>
+        <rect x="640" y="880" width="280" height="760" fill="#f2c46b" opacity=".55"/>
+        <g transform="translate(470 1080)">
+          <circle cx="60" cy="40" r="46" fill="#e2b48c"/>
+          <rect x="10" y="-6" width="100" height="30" rx="10" fill="#14161c"/>
+          <rect x="0" y="92" width="120" height="260" rx="34" fill="#14161c"/>
+          <rect x="18" y="150" width="84" height="34" rx="6" fill="#f4d34a"/>
+          <text x="60" y="175" font-size="22" font-weight="800" text-anchor="middle" fill="#14161c" font-family="Arial Black,sans-serif">SECURITY</text>
+          <rect x="14" y="350" width="40" height="190" fill="#1f2230"/><rect x="66" y="350" width="40" height="190" fill="#1f2230"/>
+        </g>
+        <rect y="1660" width="1080" height="260" fill="#111318"/>
+      </svg>
+      <div class="shotlabel">Shot: UGC phone footage, small shop at dusk, guard standing calmly at the door</div>
+    </div>
+    <!-- Scene: home exterior, guard walking past -->
+    <div class="scene" id="s-home">
+      <svg viewBox="0 0 1080 1920">
+        <defs><linearGradient id="eve" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#28466b"/><stop offset=".6" stop-color="#7d8fb3"/><stop offset="1" stop-color="#2d3b2c"/></linearGradient></defs>
+        <rect width="1080" height="1920" fill="url(#eve)"/>
+        <polygon points="160,980 540,680 920,980" fill="#5b3b33"/>
+        <rect x="220" y="980" width="640" height="560" fill="#e8dfd0"/>
+        <rect x="300" y="1080" width="150" height="150" fill="#f6d47e"/><rect x="630" y="1080" width="150" height="150" fill="#f6d47e"/>
+        <rect x="480" y="1270" width="120" height="270" fill="#6b4a3a"/>
+        <rect y="1540" width="1080" height="380" fill="#3c5a37"/>
+        <g transform="translate(820 1300)">
+          <circle cx="50" cy="34" r="38" fill="#c99a76"/>
+          <rect x="8" y="-4" width="84" height="26" rx="9" fill="#14161c"/>
+          <rect x="0" y="78" width="100" height="220" rx="30" fill="#14161c"/>
+          <rect x="14" y="128" width="72" height="28" rx="5" fill="#f4d34a"/>
+          <rect x="12" y="296" width="34" height="160" fill="#1f2230"/><rect x="56" y="296" width="34" height="160" fill="#1f2230"/>
+        </g>
+      </svg>
+      <div class="shotlabel">Shot: handheld, family home at evening, guard walking past the front yard</div>
+    </div>
+    <!-- Scene: patrol walk along storefronts -->
+    <div class="scene" id="s-patrol">
+      <svg viewBox="0 0 1080 1920">
+        <rect width="1080" height="1920" fill="#14182a"/>
+        <g opacity=".9">
+          <rect x="0" y="700" width="360" height="980" fill="#262a3c"/><rect x="40" y="820" width="280" height="360" fill="#7fa7d9" opacity=".6"/>
+          <rect x="370" y="640" width="340" height="1040" fill="#2c2438"/><rect x="410" y="760" width="260" height="420" fill="#e6a35c" opacity=".6"/>
+          <rect x="720" y="720" width="360" height="960" fill="#232d2c"/><rect x="760" y="840" width="280" height="340" fill="#9bd3a6" opacity=".5"/>
+        </g>
+        <rect y="1680" width="1080" height="240" fill="#0e1018"/>
+        <ellipse cx="300" cy="1640" rx="220" ry="40" fill="#f6e7a1" opacity=".18"/>
+        <g transform="translate(180 1240)">
+          <circle cx="50" cy="34" r="38" fill="#b9845f"/>
+          <rect x="8" y="-4" width="84" height="26" rx="9" fill="#14161c"/>
+          <rect x="0" y="78" width="100" height="220" rx="30" fill="#14161c"/>
+          <rect x="14" y="128" width="72" height="28" rx="5" fill="#f4d34a"/>
+          <rect x="12" y="296" width="34" height="160" fill="#1f2230"/><rect x="56" y="296" width="34" height="160" fill="#1f2230" transform="rotate(8 73 296)"/>
+        </g>
+      </svg>
+      <div class="shotlabel">Shot: night patrol, guard walking along closed storefronts (no weapons, no cameras)</div>
+    </div>
+    <!-- Scene: event entrance -->
+    <div class="scene" id="s-event">
+      <svg viewBox="0 0 1080 1920">
+        <defs><radialGradient id="lights" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#ff9fc8"/><stop offset=".5" stop-color="#6b3fa0"/><stop offset="1" stop-color="#181226"/></radialGradient></defs>
+        <rect width="1080" height="1920" fill="url(#lights)"/>
+        <g fill="#ffe9a8" opacity=".85"><circle cx="160" cy="600" r="10"/><circle cx="300" cy="560" r="10"/><circle cx="440" cy="540" r="10"/><circle cx="580" cy="540" r="10"/><circle cx="720" cy="560" r="10"/><circle cx="860" cy="600" r="10"/></g>
+        <rect x="260" y="800" width="560" height="860" fill="#2a1d3a"/>
+        <rect x="380" y="1000" width="320" height="660" fill="#f2c98a" opacity=".5"/>
+        <rect x="200" y="1500" width="680" height="16" rx="8" fill="#c9a24a"/>
+        <g transform="translate(160 1260)">
+          <circle cx="50" cy="34" r="38" fill="#8a5a3c"/>
+          <rect x="0" y="78" width="100" height="220" rx="30" fill="#14161c"/>
+          <rect x="14" y="128" width="72" height="28" rx="5" fill="#f4d34a"/>
+          <rect x="12" y="296" width="34" height="140" fill="#1f2230"/><rect x="56" y="296" width="34" height="140" fill="#1f2230"/>
+        </g>
+        <rect y="1660" width="1080" height="260" fill="#120d1a"/>
+      </svg>
+      <div class="shotlabel">Shot: event entrance with string lights, guard greeting guests at the rope</div>
+    </div>
+    <!-- Scene: shop owner relieved at counter -->
+    <div class="scene" id="s-owner">
+      <svg viewBox="0 0 1080 1920">
+        <defs><linearGradient id="warm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7d9a8"/><stop offset="1" stop-color="#b8784a"/></linearGradient></defs>
+        <rect width="1080" height="1920" fill="url(#warm)"/>
+        <g fill="#8a5a3a" opacity=".5"><rect x="80" y="620" width="920" height="24"/><rect x="80" y="860" width="920" height="24"/></g>
+        <g fill="#e5f0f7"><rect x="120" y="540" width="80" height="80" rx="10"/><rect x="230" y="560" width="70" height="60" rx="10"/><rect x="760" y="770" width="90" height="90" rx="10"/><rect x="870" y="790" width="70" height="70" rx="10"/></g>
+        <g transform="translate(400 1040)">
+          <circle cx="140" cy="100" r="100" fill="#d9a07a"/>
+          <path d="M90 120 Q140 170 190 120" stroke="#5a2e1e" stroke-width="12" fill="none" stroke-linecap="round"/>
+          <circle cx="105" cy="80" r="11" fill="#2a1a12"/><circle cx="175" cy="80" r="11" fill="#2a1a12"/>
+          <rect x="20" y="210" width="240" height="320" rx="60" fill="#3f7f74"/>
+        </g>
+        <rect y="1480" width="1080" height="440" fill="#6b3f26"/>
+      </svg>
+      <div class="shotlabel">Shot: small-shop owner at the counter, relieved smile, natural light</div>
+    </div>
+
+    <div id="progress"></div>
+    <div id="overlay"></div>
+  </div>
+</div>
+<div id="controls">
+  <button id="replay" type="button">Replay</button>
+  <span id="meta">Variant 1 · AD × TikTok · ~14.5 s loop</span>
+</div>
+
+<script>
+// Overlay chunks = Variant 1 full text from text.md, split per shot.
+const SHOTS = [
+  { scene:"s-store",  t:0,    d:3.0, color:"#ffd23f", hook:true,  emoji:"🤔", text:"Need security for your home or business?" },
+  { scene:"s-home",   t:3.0,  d:2.0, color:"#ffffff", text:"Private security services may provide trained guards" },
+  { scene:"s-home",   t:5.0,  d:1.8, color:"#8fd3ff", text:"to help protect your property." },
+  { scene:"s-patrol", t:6.8,  d:1.8, color:"#ffffff", text:"Options may include regular patrols," },
+  { scene:"s-event",  t:8.6,  d:1.8, color:"#ff9ec7", text:"a guard on site, or event security." },
+  { scene:"s-owner",  t:10.4, d:1.6, color:"#ffd23f", emoji:"✨", text:"It may cost less than you think!" },
+  { scene:"s-owner",  t:12.0, d:2.5, color:"#ffffff", text:"Learn more about Private Security Services!" },
+];
+const TOTAL = 14.5;
+const overlay = document.getElementById("overlay"), progress = document.getElementById("progress");
+const scenes = [...document.querySelectorAll(".scene")];
+let timers = [], startT = 0, raf = 0;
+
+function fit() {
+  const stage = document.getElementById("stage"), wrap = document.getElementById("wrap");
+  const s = Math.min((innerWidth - 32) / 1080, (innerHeight - 90) / 1920);
+  stage.style.transform = `scale(${s})`;
+  wrap.style.width = 1080 * s + "px"; wrap.style.height = 1920 * s + "px";
+}
+
+function show(shot) {
+  scenes.forEach(el => el.classList.toggle("on", el.id === shot.scene));
+  overlay.innerHTML = "";
+  overlay.style.top = shot.hook ? "260px" : "320px";
+  const div = document.createElement("div");
+  div.className = "chunk" + (shot.hook ? " hook" : "");
+  div.style.color = shot.color;
+  shot.text.split(" ").forEach((word, i) => {
+    const w = document.createElement("span");
+    w.className = "w"; w.textContent = word;
+    w.style.animationDelay = (i * (shot.hook ? 0.16 : 0.09)) + "s";
+    div.appendChild(w);
+    requestAnimationFrame(() => w.classList.add("in"));
+  });
+  overlay.appendChild(div);
+  if (shot.emoji) {
+    const e = document.createElement("div");
+    e.className = "emoji"; e.textContent = (shot.emoji + " ").repeat(3).trim();
+    overlay.appendChild(e);
+    timers.push(setTimeout(() => e.classList.add("in"), 600));
+  }
+}
+
+function tick() {
+  const el = (performance.now() - startT) / 1000;
+  progress.style.width = Math.min(el / TOTAL, 1) * 100 + "%";
+  raf = requestAnimationFrame(tick);
+}
+
+function play() {
+  timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf);
+  startT = performance.now(); tick();
+  SHOTS.forEach(s => timers.push(setTimeout(() => show(s), s.t * 1000)));
+  timers.push(setTimeout(play, TOTAL * 1000));
+}
+
+addEventListener("resize", fit);
+document.getElementById("replay").addEventListener("click", play);
+fit(); play();
+</script>
+</body>
+</html>
