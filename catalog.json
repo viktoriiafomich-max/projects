@@ -32,6 +32,17 @@
       "topic": "tech",
       "date": "2026-10-23",
       "task": "tasks/tech/2026-10-23_app-development-2026-2"
+    },
+    {
+      "section": "motion",
+      "path": "motion/tech/2026-10-24_app-development-2026/",
+      "title": "App Development 2026: Halloween wallpaper motion v1",
+      "q": "App Development 2026",
+      "partner": "ad",
+      "platforms": "tiktok",
+      "topic": "tech",
+      "date": "2026-10-24",
+      "task": "tasks/tech/2026-10-24_app-development-2026"
     }
   ]
 }
