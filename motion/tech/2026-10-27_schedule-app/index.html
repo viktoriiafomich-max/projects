@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule App — calendar motion v1</title>
+<style>
+  :root{ --ui:#0E1220; --uiText:#E8ECF6; --uiMute:#8A93AD; --ink:#1d1530; --ink2:#4a4360; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--ui);color:var(--uiText);font-family:system-ui,sans-serif;overflow:hidden;display:flex;flex-direction:column}
+  #viewport{flex:1;position:relative;min-height:0}
+  #stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;transform-origin:0 0;background:#000;
+    font-family:"SF Pro Display",-apple-system,"Inter","Helvetica Neue",system-ui,sans-serif;color:var(--ink)}
+  .abs{position:absolute}
+  #scene,#cam,#fade{position:absolute;inset:0;transform-origin:0 0}
+  #sky{position:absolute;inset:0;background:linear-gradient(180deg,#b9e6f8 0%,#cfe6f1 18%,#f1d9e6 46%,#f8cdbf 72%,#f6c3ae 100%)}
+  #mtn{position:absolute;left:0;bottom:0;width:1080px;height:520px}
+  #fade{background:#000;pointer-events:none;z-index:50}
+  .bokeh{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0) 70%)}
+
+  /* phone */
+  #phone{position:absolute;left:270px;top:400px;width:540px;height:1110px;border-radius:92px;z-index:10;
+    background:linear-gradient(145deg,#6a5a7c 0%,#2a2233 22%,#16111d 60%,#54466a 100%);
+    box-shadow:0 0 0 2px rgba(255,255,255,.18) inset,0 40px 80px rgba(70,40,110,.35)}
+  #phone .btn{position:absolute;width:6px;border-radius:3px;background:#3b3046}
+  #glow{position:absolute;inset:-26px;border-radius:118px;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(190,150,255,.0) 86%,rgba(190,150,255,.55) 94%,rgba(255,170,220,0) 100%);filter:blur(10px)}
+  #screen{position:absolute;left:14px;top:14px;width:512px;height:1082px;border-radius:78px;overflow:hidden;background:#fff}
+  #island{position:absolute;left:191px;top:18px;width:130px;height:38px;border-radius:19px;background:#0b0910;z-index:20}
+  #dark{position:absolute;inset:0;background:#0d0a16;z-index:15}
+  #flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,#fff,#f3e9ff 60%,#e4d4ff);z-index:16;opacity:0}
+  #sheen{position:absolute;left:-200px;top:400px;width:200px;height:560px;z-index:6;pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(214,190,255,.45),rgba(255,255,255,0));transform:skewX(-14deg)}
+
+  .avatar{position:absolute;border-radius:50%;overflow:hidden;border:3px solid #fff;background:#eee}
+  .avatar svg{width:100%;height:100%;display:block}
+  .round{position:absolute;width:62px;height:62px;border-radius:50%;border:1.5px solid #e6e1ee;background:#fff;display:grid;place-items:center}
+  .round svg{width:26px;height:26px}
+  .title{position:absolute;left:28px;top:176px;font-size:35px;font-weight:700;letter-spacing:-.4px;color:var(--ink)}
+  .date{position:absolute;left:28px;top:226px;font-size:19px;font-weight:500;color:var(--ink2)}
+
+  .pill{position:absolute;top:276px;width:66px;height:116px;border-radius:33px;background:#fff;text-align:center}
+  .pill b{display:block;margin-top:14px;font-size:20px;font-weight:600;color:var(--ink)}
+  .pill i{position:absolute;left:9px;top:54px;width:48px;height:48px;border-radius:50%;background:#eee8ff;color:#b6a3f5;
+    font-style:normal;font-size:18px;font-weight:600;display:grid;place-items:center}
+  .pill.on{box-shadow:0 0 0 2px #f7b37a inset,0 0 0 3px #cbb4ff inset}
+  .pill.on i{background:linear-gradient(140deg,#ff7fb9 0%,#c88cff 45%,#ffb36e 100%);color:#fff}
+
+  .tl{position:absolute;left:24px;width:64px;font-size:17px;font-weight:600;color:var(--ink);line-height:1}
+  .tl small{display:block;font-size:12px;font-weight:500;color:#6b6480;margin:3px 0 0 26px}
+  .card{position:absolute;left:96px;width:394px;border-radius:26px;padding:22px 20px 0 30px}
+  .card .bar{position:absolute;left:14px;top:26px;bottom:26px;width:4px;border-radius:2px}
+  .card h4{font-size:19.5px;font-weight:650;color:var(--ink);line-height:1.25;letter-spacing:-.1px}
+  .chip{display:inline-block;margin-top:12px;font-size:16px;font-weight:500;padding:6px 10px;border-radius:8px}
+  .card .stack{position:absolute;right:16px;bottom:22px;display:flex}
+  .card .stack .avatar{position:relative;width:34px;height:34px;border-width:2px;margin-left:-10px}
+  .c1{top:418px;height:126px;background:#fff1f7;box-shadow:0 0 0 1.5px #ffe1ee inset}
+  .c1 .bar{background:#f06aa6} .c1 .chip{background:#ffe2ee;color:#e2508e}
+  .c2{top:564px;height:116px;background:#eaf6ff;box-shadow:0 0 0 1.5px #d6ecfd inset}
+  .c2 .bar{background:#3b9ff0} .c2 .chip{background:#d8eeff;color:#2f8ad8}
+  .c3{top:810px;height:116px;background:#f7f2ff;box-shadow:0 0 0 1.5px #ece3ff inset}
+  .c3 .bar{background:#bba2ff} .c3 .chip{background:#efe8ff;color:#a48af0}
+  #brk{position:absolute;left:28px;top:704px;width:462px;height:84px}
+  #brk .hatch{position:absolute;left:68px;right:0;top:0;bottom:0;border-radius:22px;
+    background:repeating-linear-gradient(135deg,#f6f3f9 0 10px,#fbf9fd 10px 20px)}
+  #brk .line{position:absolute;left:0;right:0;top:41px;height:2px;background:linear-gradient(90deg,#c9b3ff,#ffc3a6)}
+  #brk .tag{position:absolute;left:22px;top:28px;font-size:14px;font-weight:600;color:#fff;padding:5px 10px;border-radius:8px;
+    background:linear-gradient(90deg,#b99cff,#ffb48f)}
+  #brk .bt{position:absolute;left:230px;top:44px;font-size:15px;font-weight:500;color:var(--ink2)}
+  #slot{position:absolute;left:96px;top:704px;width:394px;height:116px;border-radius:26px;opacity:0;pointer-events:none;
+    box-shadow:0 0 0 3px rgba(181,140,255,.9),0 0 30px rgba(181,140,255,.6)}
+  #fab{position:absolute;left:412px;top:872px;width:80px;height:80px;border-radius:50%;z-index:8;
+    background:linear-gradient(145deg,#c39cff,#9f7cff);box-shadow:0 12px 26px rgba(150,110,255,.45);display:grid;place-items:center}
+  #fab svg{width:34px;height:34px}
+  #tabs{position:absolute;left:22px;top:958px;width:468px;height:88px;border-radius:44px;background:#26104f;z-index:7;
+    box-shadow:0 0 0 3px #3a1d70 inset}
+  #tabs .tb{position:absolute;top:14px;width:60px;height:60px;border-radius:50%;background:#3b2373;display:grid;place-items:center}
+  #tabs .tb svg{width:26px;height:26px}
+  #tabs .act{position:absolute;left:300px;top:12px;width:156px;height:64px;border-radius:32px;background:#fff;display:flex;align-items:center;gap:10px;padding-left:6px;
+    font-size:17px;font-weight:600;color:var(--ink)}
+  #tabs .act i{width:52px;height:52px;border-radius:50%;background:linear-gradient(140deg,#ff9cc4,#c99bff 50%,#ffbb83);display:grid;place-items:center}
+  #tabs .act svg{width:24px;height:24px}
+  #home{position:absolute;left:186px;top:1062px;width:140px;height:6px;border-radius:3px;background:#cfcad6}
+
+  #touch{position:absolute;left:0;top:0;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;z-index:30;pointer-events:none;
+    background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,255,255,.75) 45%,rgba(200,170,255,.35) 70%,rgba(200,170,255,0) 72%);
+    box-shadow:0 6px 18px rgba(90,60,150,.25);opacity:0}
+  #ring{position:absolute;left:0;top:0;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;z-index:29;pointer-events:none;
+    border:3px solid rgba(170,130,255,.8);opacity:0}
+
+  /* floating widgets */
+  .w{position:absolute;border-radius:30px;background:rgba(255,255,255,.93);box-shadow:0 18px 40px rgba(110,70,140,.16)}
+  #w1{left:82px;top:300px;width:300px;height:118px;background:#fff2f8;padding:22px 20px 0 30px;z-index:12}
+  #w1 .bar{position:absolute;left:12px;top:22px;bottom:22px;width:4px;border-radius:2px;background:#f06aa6}
+  #w1 h4{font-size:17px;font-weight:650;line-height:1.25}
+  #w1 .chip{background:#ffe2ee;color:#e2508e;font-size:14px;padding:4px 8px;margin-top:8px}
+  #w1 .stack{position:absolute;right:16px;bottom:20px;display:flex}
+  #w1 .stack .avatar{position:relative;width:30px;height:30px;border-width:2px;margin-left:-9px}
+  #w2{left:90px;top:640px;width:330px;height:82px;border-radius:22px;background:#f3eeff;z-index:5;display:flex;align-items:center;gap:16px;padding-left:12px}
+  #w2 .ico{width:56px;height:56px;border-radius:16px;background:#fff;display:grid;place-items:center}
+  #w2 .ico svg{width:34px;height:34px}
+  #w2 b{display:block;font-size:17px;font-weight:650}
+  #w2 span{font-size:14px;color:#7c7591}
+  #w3{left:732px;top:384px;width:250px;height:84px;border-radius:42px;z-index:12;display:flex;align-items:center;gap:12px;padding-left:30px;
+    font-size:22px;font-weight:600;box-shadow:0 0 0 2px #cdb8ff inset,0 18px 40px rgba(110,70,140,.16)}
+  #w3 svg{width:28px;height:28px}
+  #w3 .cnt{margin-left:auto;margin-right:18px;width:40px;height:40px;border-radius:50%;background:linear-gradient(145deg,#c7a6ff,#a888ff);color:#fff;
+    font-size:17px;font-weight:700;display:grid;place-items:center}
+  #w4{left:782px;top:640px;width:250px;height:120px;z-index:12;background:none;box-shadow:none}
+  #w4 .pill{top:0;width:72px;height:118px;border-radius:36px;box-shadow:0 14px 30px rgba(110,70,140,.14)}
+  #w4 .pill i{left:12px}
+  #w4 .pill.on{box-shadow:0 0 0 2px #f7b37a inset,0 0 0 3px #cbb4ff inset,0 14px 30px rgba(110,70,140,.14)}
+  #w5{left:84px;top:1040px;width:236px;height:220px;background:#f6f1ff;padding:30px 22px;z-index:12}
+  #w5 b{display:block;font-size:22px;font-weight:700;line-height:1.2}
+  #w5 .row{display:flex;justify-content:space-between;margin-top:42px;font-size:17px;font-weight:500;color:var(--ink2)}
+  #w5 .track{margin-top:12px;height:16px;border-radius:8px;background:#fff;overflow:hidden}
+  #w5 .fill{height:100%;width:0;border-radius:8px;background:repeating-linear-gradient(135deg,#c6a8ff 0 8px,#f5b0c8 8px 16px,#ffc39a 16px 24px)}
+  #w6{left:762px;top:996px;width:216px;height:184px;border-radius:30px;z-index:14;padding:26px 22px;color:#fff;overflow:hidden;
+    background:linear-gradient(150deg,#c8a3ff,#a47eff)}
+  #w6 .plus{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.28);display:grid;place-items:center;font-size:30px;font-weight:300;line-height:1}
+  #w6 span{display:block;margin-top:24px;font-size:20px;font-weight:500;opacity:.9}
+  #w6 b{display:block;font-size:31px;font-weight:700;letter-spacing:-.3px}
+  #w6 svg.deco{position:absolute;right:-30px;bottom:-10px;width:120px;opacity:.25}
+  #w7{left:812px;top:1290px;width:200px;height:80px;z-index:12;background:none;box-shadow:none}
+  #w7 .avatar{width:78px;height:78px;top:0;border-width:4px;box-shadow:0 10px 22px rgba(110,70,140,.18)}
+
+  .badge{position:absolute;left:50%;top:1610px;transform:translateX(-50%);font:600 24px/1 system-ui,sans-serif;color:rgba(255,255,255,.92);
+    background:rgba(60,30,90,.38);padding:10px 20px;border-radius:999px;white-space:nowrap;z-index:40}
+  body.nobadge .badge{display:none}
+
+  #bar{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px 16px;background:#151A2B;border-top:1px solid #232A40;font:600 14px/1 system-ui,sans-serif}
+  #bar button,#bar select{font:inherit;color:var(--uiText);background:#232A40;border:1px solid #2F3754;border-radius:9px;padding:9px 12px;cursor:pointer}
+  #scrub{flex:1;min-width:140px;accent-color:#b44cff}
+  #time{font-variant-numeric:tabular-nums;color:var(--uiMute);min-width:88px}
+  .hintbar{color:var(--uiMute);width:100%;font-weight:500}
+  body.clean #bar{display:none}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+  <div id="scene">
+    <div id="sky"></div>
+    <svg id="mtn" viewBox="0 0 1080 520" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8fb4"/><stop offset=".55" stop-color="#d98ad6"/><stop offset="1" stop-color="#b9a0ec"/></linearGradient>
+        <linearGradient id="m2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7a6c3"/><stop offset="1" stop-color="#c795e6"/></linearGradient>
+        <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a2f0"/><stop offset="1" stop-color="#a99af0"/></linearGradient>
+      </defs>
+      <path d="M0 330 L120 270 L210 300 L330 200 L420 250 L520 120 L560 140 L610 95 L690 180 L760 160 L860 240 L960 210 L1080 280 L1080 520 L0 520Z" fill="url(#m2)" opacity=".7"/>
+      <path d="M0 400 L90 360 L180 380 L300 290 L380 330 L470 230 L540 270 L600 210 L700 300 L800 280 L900 350 L1000 320 L1080 360 L1080 520 L0 520Z" fill="url(#m1)"/>
+      <path d="M470 230 L540 270 L520 300 L560 330 L600 210 Z" fill="#ffd0e0" opacity=".55"/>
+      <path d="M0 470 L160 430 L300 455 L460 400 L620 450 L780 410 L940 450 L1080 430 L1080 520 L0 520Z" fill="url(#m3)" opacity=".9"/>
+    </svg>
+    <div id="bokehs"></div>
+  </div>
+
+  <div id="cam">
+    <div class="w" id="w2"><div class="ico"><svg viewBox="0 0 34 34"><rect x="4" y="10" width="26" height="19" rx="4" fill="#8c5cf0"/><rect x="4" y="10" width="26" height="8" rx="4" fill="#a57bff"/><path d="M12 10V7.5A2.5 2.5 0 0 1 14.5 5h5A2.5 2.5 0 0 1 22 7.5V10" fill="none" stroke="#6b3fd6" stroke-width="2.4"/><rect x="14.5" y="16" width="5" height="4" rx="1" fill="#fff"/></svg></div><div><b>Work</b><span>0 notes · No notes yet</span></div></div>
+
+    <div id="phone">
+      <div id="glow"></div>
+      <div class="btn" style="left:-5px;top:210px;height:60px"></div>
+      <div class="btn" style="left:-5px;top:300px;height:96px"></div>
+      <div class="btn" style="left:-5px;top:410px;height:96px"></div>
+      <div class="btn" style="right:-5px;top:330px;height:140px"></div>
+      <div id="screen">
+        <div id="island"></div>
+        <div class="avatar" id="me" style="left:26px;top:80px;width:66px;height:66px;border-width:0"></div>
+        <div class="round" id="r1" style="left:338px;top:82px"><svg viewBox="0 0 24 24" fill="none" stroke="#2a2340" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/><circle cx="9" cy="14" r=".9" fill="#2a2340"/><circle cx="12" cy="14" r=".9" fill="#2a2340"/><circle cx="15" cy="14" r=".9" fill="#2a2340"/></svg></div>
+        <div class="round" id="r2" style="left:418px;top:82px"><svg viewBox="0 0 24 24" fill="#2a2340"><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/></svg></div>
+        <div class="title" id="ttl">My Calendar</div>
+        <div class="date" id="dt">Thursday, January 16</div>
+        <div id="days"></div>
+
+        <div class="tl" id="t1" style="top:424px">08:30<small>AM</small></div>
+        <div class="tl" id="t2" style="top:570px">11:30<small>AM</small></div>
+        <div class="tl" id="t3" style="top:816px"><span class="tv">02:30</span><small class="ap">PM</small></div>
+
+        <div class="card c1" id="c1"><div class="bar"></div><h4>Morning push-ups<br>&amp; stretching</h4><span class="chip">08:30 AM - 9:30 AM</span><div class="stack" data-av="0,1,2"></div></div>
+        <div class="card c2" id="c2"><div class="bar"></div><h4>Client meeting</h4><span class="chip">11:30 AM - 1:00 PM</span><div class="stack" data-av="1,2,0"></div></div>
+        <div id="brk"><div class="hatch"></div><div class="line"></div><span class="tag">Break 1h</span><span class="bt">01:00 PM - 2:00 PM</span></div>
+        <div id="slot"></div>
+        <div class="card c3" id="c3"><div class="bar"></div><h4>Share concepts with the team</h4><span class="chip">02:30 PM - 4:30 PM</span><div class="stack" data-av="2,0,1"></div></div>
+        <div id="sheen"></div>
+        <div id="fab"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"><rect x="3.5" y="5" width="13" height="13" rx="3"/><path d="M3.5 9.5h13M7.5 3v3.5M12.5 3v3.5M18.5 14v6M15.5 17h6"/></svg></div>
+        <div id="tabs">
+          <div class="tb" style="left:14px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="tb" style="left:84px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 3v3M15 3v3M8.5 11h7M8.5 15h5"/></svg></div>
+          <div class="tb" style="left:154px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="5" y="3.5" width="14" height="17" rx="3"/><path d="M9 3.5v17M12 8h4M12 12h4"/></svg></div>
+          <div class="tb" style="left:224px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><rect x="5" y="4.5" width="14" height="16" rx="3"/><path d="M9.5 3v3h5V3M8.5 11l1.3 1.3 2.2-2.3M13.5 11.5h2M8.5 16l1.3 1.3 2.2-2.3M13.5 16.5h2"/></svg></div>
+          <div class="act"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></i>Calendar</div>
+        </div>
+        <div id="home"></div>
+        <div id="ring"></div><div id="touch"></div>
+        <div id="flash"></div>
+        <div id="dark"></div>
+      </div>
+    </div>
+
+    <div class="w" id="w1"><div class="bar"></div><h4>Morning push-ups<br>&amp; stretching</h4><span class="chip">08:30 AM - 9:30 AM</span><div class="stack" data-av="0,1,2"></div></div>
+    <div class="w" id="w3"><svg viewBox="0 0 24 24" fill="none" stroke="#6d6585" stroke-width="1.6" stroke-linecap="round"><rect x="5" y="4.5" width="14" height="16" rx="3"/><path d="M9.5 3v3h5V3M8.5 11l1.3 1.3 2.2-2.3M13.5 11.5h2M8.5 16l1.3 1.3 2.2-2.3M13.5 16.5h2"/></svg>My Tasks<span class="cnt" id="cnt">17</span></div>
+    <div class="w" id="w4"></div>
+    <div class="w" id="w5"><b>Breathe &amp;<br>stretch</b><div class="row"><span>Progress</span><span id="pct">0%</span></div><div class="track"><div class="fill" id="fill"></div></div></div>
+    <div class="w" id="w6"><div class="plus">+</div><span>Create</span><b>New Note</b><svg class="deco" viewBox="0 0 100 100" fill="none" stroke="#fff" stroke-width="5"><path d="M10 30 50 10 90 30 90 70 50 90 10 70Z M10 30 50 50 90 30 M50 50V90"/></svg></div>
+    <div class="w" id="w7"></div>
+  </div>
+
+  <div class="badge">For illustration purposes only</div>
+  <div id="fade"></div>
+</div></div>
+<div id="bar">
+  <button id="play">Pause</button><button id="restart">Restart</button>
+  <input id="scrub" type="range" min="0" max="11000" value="0"><span id="time">0.00 / 11.00 s</span>
+  <select id="bgsel"><option value="scene">Scene</option><option value="green">Green key</option><option value="magenta">Magenta key</option><option value="black">Black</option></select>
+  <button id="rec">Record mode</button>
+  <div class="hintbar">9:16 creative. Record mode / H / ?clean=1 hides controls · ?bg=green|magenta|black · ?badge=0 hides the badge · Space pause · R restart · ?t=sec to seek.</div>
+</div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920, DUR = 11;
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const inOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const outCubic = x => 1 - Math.pow(1 - x, 3);
+  const outBack = (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+  const inBack = (x, s = 1.7) => (s + 1) * x * x * x - s * x * x;
+  const noise = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const lerp = (a, b, k) => a + (b - a) * k;
+
+  /* ---------- illustrated avatars (invented people, no photos) ---------- */
+  const AV = [['#f7c6a5', '#3b2a22', '#ff9a7a'], ['#e9b48f', '#c9a16a', '#7fb8f0'], ['#d9a27e', '#2b2230', '#b48cff'], ['#f3cfb4', '#5a3a2a', '#f6a6c8']];
+  const avatar = i => { const [skin, hair, bg] = AV[i]; return `<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="${bg}"/><path d="M6 40c1-9 7-13 14-13s13 4 14 13z" fill="#fff" opacity=".9"/><circle cx="20" cy="18" r="8" fill="${skin}"/><path d="M11.5 17c0-6 4-9.5 8.5-9.5s8.8 3 8.6 9c-1.6-2.4-4.6-3.6-8.6-3.4-3.6.1-6.6 1.4-8.5 3.9z" fill="${hair}"/></svg>`; };
+  $$('.stack').forEach(s => s.innerHTML = s.dataset.av.split(',').map(i => `<div class="avatar">${avatar(+i)}</div>`).join(''));
+  $('#me').innerHTML = avatar(3);
+  $('#w7').innerHTML = [0, 1, 2].map(i => `<div class="avatar" style="left:${i * 56}px">${avatar(i)}</div>`).join('');
+
+  /* week strip (Thursday 16 selected) + side widget copy */
+  const DAYS = [['T', 14], ['W', 15], ['T', 16], ['F', 17], ['S', 18], ['S', 19]];
+  $('#days').innerHTML = DAYS.map(([d, n], i) => `<div class="pill${n === 16 ? ' on' : ''}" style="left:${18 + i * 80}px"><b>${d}</b><i>${n}</i></div>`).join('');
+  $('#w4').innerHTML = [['W', 15], ['T', 16], ['F', 17]].map(([d, n], i) => `<div class="pill${n === 16 ? ' on' : ''}" style="left:${i * 80 - 10}px"><b>${d}</b><i>${n}</i></div>`).join('');
+  $('#bokehs').innerHTML = Array.from({ length: 16 }, (_, k) => `<div class="bokeh"></div>`).join('');
+  const bok = $$('.bokeh'), pills = $$('#days .pill');
+
+  /* ---------- timeline ---------- */
+  const T_TAP0 = 1.3;                       // wake tap
+  const T_HOLD = 5.0, T_DRAG0 = 5.3, T_DRAG1 = 6.2;   // long-press + drag card 3 into the break slot
+  const T_FAB = 6.95;                       // tap the add button → task counter +1
+  const PUSH0 = 7.5, PUSH1 = 10.2, OUT0 = 10.2, OUT1 = 11;
+  const WID = ['#w1', '#w2', '#w3', '#w4', '#w5', '#w6', '#w7'].map(s => $(s));
+  const WSIDE = [-1, -1, 1, 1, -1, 1, 1];   // which side each widget drifts to on the push-in
+
+  const set = (el, o, tf) => { el.style.opacity = o.toFixed(3); if (tf != null) el.style.transform = tf; };
+  const appear = (t, a, d = .45) => outCubic(seg(t, a, a + d));
+  const pop = (t, a, d = .55) => { const k = seg(t, a, a + d); return [clamp(k * 2.2), .7 + .3 * outBack(k)]; };
+
+  // touch indicator: approach (fade/scale in) → press at tp → ripple → leave
+  function touch(t, x, y, tp, hold = 0) {
+    const a = seg(t, tp - .28, tp), r = seg(t, tp + hold + .05, tp + hold + .35);
+    const press = t >= tp && t < tp + hold + .12 ? .86 : lerp(1.35, 1, outCubic(a));
+    return { on: a > 0 && r < 1, o: Math.min(a, 1 - r) * .95, s: press, x, y, rip: seg(t, tp, tp + .55) };
+  }
+
+  function render(t) {
+    /* scene + fades */
+    $('#fade').style.opacity = Math.max(1 - seg(t, 0, .45), inOut(seg(t, OUT0, OUT1))).toFixed(3);
+    bok.forEach((b, k) => {
+      const sz = 14 + noise(k) * 30, x = noise(k + 9) * W, y0 = 300 + noise(k + 3) * 1300, sp = 20 + noise(k + 5) * 40;
+      b.style.width = b.style.height = sz.toFixed(0) + 'px';
+      b.style.left = (x + Math.sin(t * .6 + k) * 18).toFixed(1) + 'px'; b.style.top = (y0 - t * sp).toFixed(1) + 'px';
+      b.style.opacity = ((.25 + .45 * noise(k + 11)) * seg(t, .6, 1.6)).toFixed(3);
+    });
+
+    /* camera: push-in + parallax for the hero shot */
+    const push = inOut(seg(t, PUSH0, PUSH1)), cs = 1.12 * (1 + .05 * push); // base framing 1.12 around the phone centre
+    $('#cam').style.transform = `translate(${540 * (1 - cs)}px,${955 * (1 - cs) - 40}px) scale(${cs})`;
+    $('#scene').style.transform = `translate(${540 * -.025 * push}px,${960 * -.025 * push}px) scale(${1 + .025 * push})`;
+
+    /* phone rises in, floats */
+    const rise = seg(t, .2, 1.15), ph = $('#phone');
+    const fl = Math.sin(t * 1.3) * 6 * seg(t, 1.2, 2);
+    ph.style.opacity = clamp(rise * 2.5).toFixed(3);
+    ph.style.transform = `translateY(${(lerp(520, 0, outBack(rise, 1.2)) + fl).toFixed(2)}px) scale(${lerp(.86, 1, outCubic(rise)).toFixed(4)})`;
+    const glow = .35 + .25 * Math.sin(t * 2.2) + .4 * seg(t, PUSH0, PUSH0 + .6) + .5 * Math.max(0, 1 - Math.abs(t - T_TAP0 - .1) / .4);
+    $('#glow').style.opacity = (clamp(glow) * seg(t, .8, 1.3) * (1 - seg(t, OUT0, OUT0 + .5))).toFixed(3);
+
+    /* wake tap: dark screen → flash → app */
+    $('#dark').style.opacity = (1 - seg(t, T_TAP0 + .02, T_TAP0 + .2)).toFixed(3);
+    $('#flash').style.opacity = (t < T_TAP0 ? 0 : Math.max(0, 1 - seg(t, T_TAP0 + .1, T_TAP0 + .55)) * seg(t, T_TAP0, T_TAP0 + .1)).toFixed(3);
+
+    /* app UI stagger */
+    const A0 = T_TAP0 + .25;
+    [['#me', 0], ['#r1', .05], ['#r2', .1], ['#ttl', .1], ['#dt', .16]].forEach(([s, d]) => { const k = appear(t, A0 + d); set($(s), k, `translateY(${(1 - k) * 18}px)`); });
+    pills.forEach((p, i) => { const [o, s] = pop(t, A0 + .3 + i * .06); set(p, o, `scale(${s})`); });
+    [['#t1', '#c1'], ['#t2', '#c2'], [null, '#brk'], ['#t3', '#c3']].forEach(([l, c], i) => {
+      const k = appear(t, A0 + .55 + i * .14, .5);
+      if (l) set($(l), k);
+      if (c !== '#c3') set($(c), k, `translateX(${(1 - k) * 70}px)`);
+    });
+    const tabs = appear(t, A0 + .9, .55); set($('#tabs'), tabs, `translateY(${(1 - tabs) * 130}px)`);
+    set($('#home'), tabs);
+    const [fo, fs] = pop(t, A0 + 1.2); const fabPress = t > T_FAB && t < T_FAB + .12 ? .9 : 1;
+    set($('#fab'), fo, `scale(${fs * fabPress})`);
+
+    /* soft highlight travels across today's schedule */
+    const sh = seg(t, 3.5, 4.5);
+    $('#sheen').style.opacity = (Math.sin(sh * Math.PI)).toFixed(3);
+    $('#sheen').style.transform = `translateX(${lerp(0, 900, inOut(sh))}px) skewX(-14deg)`;
+
+    /* card 3: appears, long-press lift, drag into the break slot, settle */
+    const k3 = appear(t, A0 + .55 + 3 * .14, .5);
+    const lift = seg(t, T_HOLD, T_HOLD + .22) * (1 - seg(t, T_DRAG1, T_DRAG1 + .2));
+    const dg = inOut(seg(t, T_DRAG0, T_DRAG1)), settle = t > T_DRAG1 ? Math.sin(seg(t, T_DRAG1, T_DRAG1 + .35) * Math.PI) * -4 : 0;
+    const dy = -106 * dg;
+    const c3 = $('#c3');
+    set(c3, k3, `translate(${(1 - k3) * 70}px,${(dy + settle).toFixed(2)}px) scale(${1 + .045 * lift}) rotate(${-1.2 * lift * (1 - dg * .6)}deg)`);
+    c3.style.boxShadow = `0 0 0 1.5px #ece3ff inset, 0 ${(26 * lift).toFixed(1)}px ${(50 * lift).toFixed(1)}px rgba(120,80,200,${(.28 * lift).toFixed(3)})`;
+    c3.style.zIndex = 5;
+    const bk = inOut(seg(t, T_DRAG0 + .25, T_DRAG1 + .05));
+    $('#brk').style.transform = `translate(${(1 - appear(t, A0 + .55 + 2 * .14, .5)) * 70}px,${(126 * bk).toFixed(2)}px)`;
+    $('#slot').style.opacity = (seg(t, T_DRAG0 + .3, T_DRAG1 - .1) * (1 - seg(t, T_DRAG1 + .25, T_DRAG1 + .7))).toFixed(3);
+    const dropped = t >= T_DRAG1;
+    c3.querySelector('.chip').textContent = dropped ? '01:00 PM - 3:00 PM' : '02:30 PM - 4:30 PM';
+    $('#brk .bt').textContent = dropped ? '03:00 PM - 4:00 PM' : '01:00 PM - 2:00 PM';
+    $('#t3 .tv').textContent = dropped ? '01:00' : '02:30';
+    const tl3 = $('#t3'); tl3.style.top = (dropped ? 710 : 816) + 'px';
+    tl3.style.opacity = (k3 * (1 - seg(t, T_HOLD, T_HOLD + .15) + seg(t, T_DRAG1 + .1, T_DRAG1 + .35))).toFixed(3) * 1;
+    if (t > T_HOLD && t < T_DRAG1 + .1) tl3.style.opacity = 0;
+
+    /* touches */
+    const tp = [touch(t, 256, 540, T_TAP0), touch(t, 300, 866 + dy, T_HOLD, T_DRAG1 - T_HOLD), touch(t, 452, 912, T_FAB)].find(o => o.on);
+    const th = $('#touch'), ring = $('#ring');
+    if (tp) { set(th, tp.o, `translate(${tp.x}px,${tp.y}px) scale(${tp.s})`); set(ring, (1 - tp.rip) * .9 * (tp.rip > 0 ? 1 : 0), `translate(${tp.x}px,${tp.y}px) scale(${1 + 1.8 * outCubic(tp.rip)})`); }
+    else { th.style.opacity = 0; ring.style.opacity = 0; }
+
+    /* floating widgets pop around the phone, drift outward on the push-in */
+    WID.forEach((w, i) => {
+      const [o, s] = pop(t, 3.0 + i * .12, .6), bob = Math.sin(t * 1.1 + i * 1.7) * 7 * seg(t, 3.6, 4.2);
+      set(w, o * (1 - seg(t, OUT0, OUT0 + .4)), `translate(${(WSIDE[i] * 12 * push).toFixed(2)}px,${bob.toFixed(2)}px) scale(${s.toFixed(4)})`);
+    });
+    const pr = inOut(seg(t, 3.9, 5.0));
+    $('#fill').style.width = (80 * pr).toFixed(2) + '%'; $('#pct').textContent = Math.round(80 * pr) + '%';
+    const bump = Math.sin(seg(t, T_FAB + .1, T_FAB + .45) * Math.PI);
+    $('#cnt').textContent = t >= T_FAB + .15 ? '18' : '17';
+    $('#cnt').style.transform = `scale(${1 + .3 * bump})`;
+    $('#w6').style.boxShadow = `0 18px 40px rgba(110,70,140,.16), 0 0 ${(40 * bump).toFixed(1)}px rgba(170,120,255,${(.7 * bump).toFixed(3)})`;
+  }
+
+  /* ---------- playback + controls ---------- */
+  const qs = new URLSearchParams(location.search);
+  let t = qs.has('t') ? clamp(+qs.get('t'), 0, DUR) : 0, playing = !qs.has('t'), last = null;
+  const loop = qs.get('loop') !== '0', stage = $('#stage');
+  $('#scrub').max = Math.round(DUR * 1000);
+  function setBg(v) {
+    const key = { green: '#00b140', magenta: '#ff00ff', black: '#000' }[v];
+    $('#scene').style.display = key ? 'none' : ''; stage.style.background = key || '#000';
+    $('#fade').style.display = key ? 'none' : '';
+    $('#bgsel').value = v in { green: 1, magenta: 1, black: 1 } ? v : 'scene';
+    $$('.w,#phone').forEach(e => e.style.filter = key && v !== 'black' ? 'drop-shadow(0 0 0 transparent)' : '');
+  }
+  function fit() {
+    const vp = $('#viewport').getBoundingClientRect(), s = Math.min(vp.width / W, vp.height / H);
+    stage.style.transform = `translate(${(vp.width - W * s) / 2}px,${(vp.height - H * s) / 2}px) scale(${s})`;
+    render(t);
+  }
+  const setClean = on => { document.body.classList.toggle('clean', on); document.body.style.background = on ? '#000' : ''; fit(); };
+  const ui = () => { $('#scrub').value = Math.round(t * 1000); $('#time').textContent = `${t.toFixed(2)} / ${DUR.toFixed(2)} s`; $('#play').textContent = playing ? 'Pause' : 'Play'; };
+  function frame(now) {
+    if (playing && last != null) { t += (now - last) / 1000; if (t >= DUR) { if (loop) t %= DUR; else { t = DUR; playing = false; } } }
+    last = now; render(t); ui(); requestAnimationFrame(frame);
+  }
+  $('#play').onclick = () => { playing = !playing; };
+  $('#restart').onclick = () => { t = 0; playing = true; };
+  $('#scrub').oninput = e => { t = e.target.value / 1000; playing = false; };
+  $('#rec').onclick = () => { t = 0; playing = true; setClean(true); };
+  $('#bgsel').onchange = e => setBg(e.target.value);
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); playing = !playing; }
+    else if (e.key === 'r' || e.key === 'R') { t = 0; playing = true; }
+    else if (e.key === 'h' || e.key === 'H') setClean(!document.body.classList.contains('clean'));
+  });
+  addEventListener('resize', fit);
+  window.__motion = { seek: v => { t = clamp(v, 0, DUR); playing = false; render(t); }, DUR, get ready() { return true; } };
+  document.body.classList.toggle('nobadge', qs.get('badge') === '0');
+  setBg(qs.get('bg') || 'scene');
+  setClean(qs.get('clean') === '1');
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -54,6 +54,17 @@
       "topic": "finance",
       "date": "2026-10-27",
       "task": "tasks/finance/2026-10-26_open-debit-card-online"
+    },
+    {
+      "section": "motion",
+      "path": "motion/tech/2026-10-27_schedule-app/",
+      "title": "Schedule App: calendar motion v1",
+      "q": "Schedule App",
+      "partner": "",
+      "platforms": "",
+      "topic": "tech",
+      "date": "2026-10-27",
+      "task": "tasks/tech/2026-10-27_schedule-app"
     }
   ]
 }
