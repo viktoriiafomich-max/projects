@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card design app — motion</title>
+<style>
+  :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #1b1a22; font-family: var(--font); color: #1F1640; overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  /* backgrounds */
+  #bg { position: absolute; inset: 0; }
+  #bg .grad { position: absolute; inset: 0; background: linear-gradient(180deg, #A6DBF3 0%, #CFE3EE 28%, #F3D9DE 58%, #F9C6AA 100%); }
+  #bg svg { position: absolute; left: 0; bottom: 0; width: 1080px; height: 640px; }
+  #stage.bg-magenta #bg, #stage.bg-green #bg, #stage.bg-black #bg, #stage.bg-checker #bg { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key .sh { box-shadow: none !important; filter: none !important; }
+
+  #world { position: absolute; inset: 0; transform-origin: 540px 900px; }
+
+  /* phone */
+  #phone { position: absolute; left: 260px; top: 330px; width: 560px; height: 1160px; border-radius: 92px;
+    background: linear-gradient(135deg, #5A5068 0%, #2E2838 35%, #463D55 70%, #24202C 100%);
+    box-shadow: 0 50px 90px rgba(70, 40, 90, .35), 0 12px 30px rgba(70, 40, 90, .25); }
+  #phone::before { content: ""; position: absolute; inset: 3px; border-radius: 89px;
+    background: linear-gradient(160deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.18)); }
+  #rim { position: absolute; inset: 12px; border-radius: 80px; background: #0d0b12; }
+  #screen { position: absolute; inset: 16px; border-radius: 76px; overflow: hidden; background: #fff; }
+  #screenLight { position: absolute; inset: 0; background: #0d0b12; pointer-events: none; z-index: 5; }
+  #island { position: absolute; left: 50%; top: 22px; width: 132px; height: 38px; margin-left: -66px; border-radius: 20px; background: #000; z-index: 6; }
+  #glass { position: absolute; inset: 0; z-index: 7; pointer-events: none;
+    background: linear-gradient(125deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 100%); }
+
+  #screens { position: absolute; left: 0; top: 0; width: 1056px; height: 100%; display: flex; }
+  .scr { position: relative; width: 528px; height: 100%; background: linear-gradient(180deg, #FFFFFF 0%, #F7F3FF 100%); }
+  .title { position: absolute; left: 40px; top: 96px; font-size: 46px; font-weight: 900; letter-spacing: -.5px; color: #1F1640; }
+
+  .card { position: absolute; width: 450px; height: 284px; border-radius: 26px; overflow: hidden; }
+  .card .ly { position: absolute; inset: 0; opacity: 0; }
+  .card .sheen { position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 38%); }
+  .card .band { position: absolute; top: -20%; width: 34%; height: 140%; left: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.32), rgba(255,255,255,0)); }
+  #card1 { left: 39px; top: 178px; box-shadow: 0 18px 36px rgba(90, 60, 140, .22); }
+
+  #grid { position: absolute; left: 39px; top: 506px; width: 450px; display: grid; grid-template-columns: 210px 210px; column-gap: 30px; row-gap: 26px; }
+  .tile { position: relative; width: 210px; height: 132px; border-radius: 22px; padding: 9px; background: #fff;
+    box-shadow: 0 8px 20px rgba(90, 60, 140, .12); }
+  .tile .sw { width: 100%; height: 100%; border-radius: 15px; }
+  .tile .ring { position: absolute; inset: -6px; border-radius: 27px; border: 6px solid #8E6CF0; opacity: 0; }
+
+  .btn { position: absolute; left: 39px; top: 1000px; width: 450px; height: 92px; border-radius: 46px; background: #1F1640;
+    color: #fff; font-size: 34px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .btn span { position: absolute; }
+
+  #card2wrap { position: absolute; left: 39px; top: 300px; width: 450px; height: 284px; perspective: 1400px; }
+  #card2 { left: 0; top: 0; box-shadow: 0 26px 46px rgba(90, 60, 140, .28); }
+  #floorShadow { position: absolute; left: 89px; top: 640px; width: 350px; height: 40px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(90,60,140,.22), rgba(90,60,140,0) 70%); }
+
+  /* floating UI cards */
+  #phone { z-index: 1; } #ripple { z-index: 2; } #hand { z-index: 4; }
+  .fl { position: absolute; z-index: 3; background: rgba(255,255,255,.92); border-radius: 34px; box-shadow: 0 18px 40px rgba(110, 70, 150, .18); }
+  #f1 { left: 70px; top: 200px; height: 104px; padding: 0 30px 0 22px; display: flex; align-items: center; gap: 18px; font-size: 32px; font-weight: 900; }
+  #f2 { left: 650px; top: 280px; height: 92px; padding: 0 32px 0 24px; display: flex; align-items: center; gap: 14px; font-size: 32px; font-weight: 800;
+    border: 3px solid #CDB8FA; border-radius: 46px; }
+  .ico { width: 60px; height: 60px; border-radius: 18px; background: linear-gradient(135deg, #B9A7F5, #8E6CF0); display: flex; align-items: center; justify-content: center; }
+  #f3 { left: 800px; top: 1200px; width: 210px; height: 84px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .dot { width: 24px; height: 24px; border-radius: 50%; background: #E9E2FA; }
+  .dot i { display: block; width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #B9A7F5, #F7B9A1); transform: scale(0); }
+  #f4 { left: 30px; top: 1000px; width: 250px; height: 120px; display: flex; align-items: center; justify-content: center; }
+  .swc { width: 76px; height: 76px; border-radius: 50%; border: 5px solid #fff; margin-left: -16px; box-shadow: 0 6px 14px rgba(90,60,140,.18); }
+  .swc:first-child { margin-left: 0; }
+
+  /* hand + ripple */
+  #hand { position: absolute; left: 0; top: 0; width: 320px; height: 900px; transform-origin: 112px 12px; filter: drop-shadow(0 26px 30px rgba(80, 40, 60, .28)); }
+  #ripple { position: absolute; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; background: rgba(142, 108, 240, .35); opacity: 0; }
+
+  #disc { position: absolute; left: 50%; top: 1588px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.72); color: #3A2F55; font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+  /* controls */
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bg">
+    <div class="grad"></div>
+    <svg viewBox="0 0 1080 640" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="mBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9B6D6"/><stop offset="1" stop-color="#C9B3EE"/></linearGradient>
+        <linearGradient id="mFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F59AB8"/><stop offset=".55" stop-color="#C79AE8"/><stop offset="1" stop-color="#9F8BE6"/></linearGradient>
+        <linearGradient id="mLit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD0DE"/><stop offset="1" stop-color="#F7A6C2"/></linearGradient>
+        <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9C6AA" stop-opacity="0"/><stop offset="1" stop-color="#F3D9DE" stop-opacity=".55"/></linearGradient>
+      </defs>
+      <path d="M0 330 L120 260 L210 300 L330 190 L420 250 L520 170 L640 260 L760 200 L880 270 L1000 220 L1080 260 L1080 640 L0 640 Z" fill="url(#mBack)" opacity=".75"/>
+      <path d="M0 470 L140 380 L250 420 L380 290 L470 340 L600 200 L700 300 L780 260 L900 360 L1010 320 L1080 360 L1080 640 L0 640 Z" fill="url(#mFront)"/>
+      <path d="M600 200 L700 300 L640 330 L610 280 L560 330 L520 300 Z" fill="url(#mLit)" opacity=".9"/>
+      <path d="M380 290 L470 340 L420 360 L390 330 L350 360 Z" fill="url(#mLit)" opacity=".8"/>
+      <path d="M780 260 L900 360 L850 370 L800 320 L760 350 Z" fill="url(#mLit)" opacity=".75"/>
+      <rect x="0" y="300" width="1080" height="340" fill="url(#haze)"/>
+    </svg>
+  </div>
+
+  <div id="world">
+    <div class="fl sh" id="f1"><div class="ico"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg></div>Card design</div>
+    <div class="fl sh" id="f2"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8E6CF0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>Preview</div>
+
+    <div id="phone" class="sh">
+      <div id="rim"></div>
+      <div id="screen">
+        <div id="screens">
+          <div class="scr" id="s1">
+            <div class="title">Card design</div>
+            <div class="card" id="card1"></div>
+            <div id="grid"></div>
+            <div class="btn" id="bNext"><span>Next</span></div>
+          </div>
+          <div class="scr" id="s2">
+            <div class="title">Preview</div>
+            <div id="floorShadow"></div>
+            <div id="card2wrap"><div class="card" id="card2"></div></div>
+            <div class="btn" id="bCont"><span id="tCont">Continue</span><span id="tMore">Learn more</span></div>
+          </div>
+        </div>
+        <div id="screenLight"></div>
+        <div id="island"></div>
+        <div id="glass"></div>
+      </div>
+    </div>
+
+    <div class="fl sh" id="f3"><div class="dot"><i></i></div><div class="dot"><i></i></div><div class="dot"><i></i></div><div class="dot"><i></i></div><div class="dot"><i></i></div></div>
+    <div class="fl sh" id="f4"><div class="swc"></div><div class="swc"></div><div class="swc"></div></div>
+
+    <div id="ripple"></div>
+    <svg id="hand" class="sh" viewBox="0 0 320 900" aria-hidden="true">
+      <defs>
+        <linearGradient id="skinX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#D49A7B"/><stop offset=".35" stop-color="#F1C9AE"/><stop offset=".58" stop-color="#F7D9C3"/><stop offset="1" stop-color="#D69F80"/></linearGradient>
+        <linearGradient id="fingX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#D59C7D"/><stop offset=".4" stop-color="#F4D0B7"/><stop offset=".62" stop-color="#F8DCC8"/><stop offset="1" stop-color="#D9A383"/></linearGradient>
+        <linearGradient id="nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8DCD3"/><stop offset="1" stop-color="#EBB9AC"/></linearGradient>
+        <linearGradient id="knit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#DCCFBB"/><stop offset=".45" stop-color="#F3EBDD"/><stop offset="1" stop-color="#D8CAB5"/></linearGradient>
+        <radialGradient id="knuck" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#F6D5BE"/><stop offset="1" stop-color="#DDA788"/></radialGradient>
+      </defs>
+      <path d="M150 420 C140 600 124 760 114 900 L298 900 C290 760 280 600 272 420 Z" fill="url(#skinX)"/>
+      <path d="M100 640 C106 760 96 840 90 900 L312 900 C302 840 294 760 292 640 Q196 612 100 640 Z" fill="url(#knit)"/>
+      <g stroke="#CDBFA8" stroke-width="4" opacity=".7"><path d="M120 650 L114 900"/><path d="M150 642 L146 900"/><path d="M180 638 L178 900"/><path d="M210 638 L210 900"/><path d="M240 640 L242 900"/><path d="M270 645 L274 900"/></g>
+      <path d="M128 250 C120 330 132 420 165 455 C200 480 255 470 280 430 C300 395 298 330 290 270 C285 235 255 222 220 226 L150 232 C138 234 130 240 128 250 Z" fill="url(#skinX)"/>
+      <ellipse cx="180" cy="238" rx="27" ry="21" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="228" cy="240" rx="26" ry="20" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="270" cy="254" rx="22" ry="18" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <path d="M134 336 C106 320 88 294 92 270 C96 252 114 252 124 262 C137 276 147 294 152 304 Z" fill="url(#fingX)"/>
+      <path d="M86 40 C86 18 100 8 112 8 C126 8 138 20 138 40 L142 252 C142 264 130 272 114 272 C98 272 86 264 86 252 Z" fill="url(#fingX)"/>
+      <path d="M96 122 Q112 128 128 122" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M94 196 Q113 204 134 196" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M98 30 C98 18 106 13 112 13 C120 13 127 18 127 30 L127 62 C127 70 120 74 112 74 C104 74 98 70 98 62 Z" fill="url(#nail)"/>
+      <ellipse cx="107" cy="32" rx="4" ry="11" fill="#fff" opacity=".55"/>
+    </svg>
+  </div>
+
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="12" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 12;
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+
+  // ---- easing ----
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOutCubic = p => 1 - Math.pow(1 - p, 3);
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eOutBack = p => { const c = 1.70158, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const eInBack = p => { const c = 1.70158; return (c + 1) * p * p * p - c * p * p; };
+
+  // ---- card designs (matte, blank) ----
+  const D = [
+    'linear-gradient(135deg,#B9A7F5,#F7B9A1)',
+    'radial-gradient(ellipse at 22% 30%,rgba(255,255,255,.95) 0 16%,transparent 42%),radial-gradient(ellipse at 76% 72%,rgba(196,180,232,.75) 0 14%,transparent 46%),radial-gradient(ellipse at 60% 20%,rgba(230,220,245,.9) 0 10%,transparent 34%),linear-gradient(120deg,#EEE8F5,#D9D0EC 45%,#F4EFF8)',
+    'linear-gradient(135deg,#2B2731,#3D3845 55%,#24212A)',
+    'radial-gradient(circle,#fff 0 16%,transparent 19%) 0 0/64px 64px,radial-gradient(circle,#EC8DB0 0 13%,transparent 16%) 32px 32px/64px 64px,linear-gradient(135deg,#F9D4E1,#F3B5CB)',
+    'radial-gradient(ellipse at 25% 35%,rgba(255,255,255,.95) 0 14%,transparent 30%),radial-gradient(ellipse at 70% 60%,rgba(255,255,255,.9) 0 15%,transparent 33%),radial-gradient(ellipse at 45% 88%,rgba(255,255,255,.8) 0 11%,transparent 27%),linear-gradient(180deg,#8FC9F2,#C2E4FA)',
+    'linear-gradient(135deg,#A8E6CF,#DCF5E8)',
+    'linear-gradient(135deg,#8E6CF0,#C98BC8 50%,#F6A26B)'
+  ];
+  // grid tiles = designs 1..6
+  const grid = $('#grid');
+  const tiles = [];
+  for (let i = 1; i <= 6; i++) {
+    const el = document.createElement('div'); el.className = 'tile sh';
+    el.innerHTML = `<div class="sw" style="background:${D[i]}"></div><div class="ring"></div>`;
+    grid.appendChild(el); tiles.push(el);
+  }
+  const buildCard = card => {
+    const ls = D.map(bg => { const l = document.createElement('div'); l.className = 'ly'; l.style.background = bg; card.appendChild(l); return l; });
+    const sh = document.createElement('div'); sh.className = 'sheen'; card.appendChild(sh);
+    const band = document.createElement('div'); band.className = 'band'; card.appendChild(band);
+    return { ls, band };
+  };
+  const C1 = buildCard($('#card1')), C2 = buildCard($('#card2'));
+
+  // ---- timeline ----
+  // taps: time, target, design picked (tile index -> design tile+1)
+  const TAPS = [
+    { t: 3.35, el: () => tiles[0], design: 1 },
+    { t: 4.15, el: () => tiles[1], design: 2 },
+    { t: 4.95, el: () => tiles[5], design: 6 },
+    { t: 5.9, el: () => $('#bNext') },
+    { t: 8.85, el: () => $('#bCont') }
+  ];
+  const FINAL = 6;
+  const designAt = t => {
+    let prev = 0, cur = 0, since = -9;
+    for (const k of TAPS) if (k.design != null && t >= k.t) { prev = cur; cur = k.design; since = k.t; }
+    return { prev, cur, p: eInOut(seg(t, since, since + .35)) };
+  };
+  const paintCard = (C, d) => C.ls.forEach((l, i) => {
+    if (i === d.cur) { l.style.opacity = d.p; l.style.zIndex = 2; }
+    else if (i === d.prev) { l.style.opacity = 1; l.style.zIndex = 1; }
+    else { l.style.opacity = 0; l.style.zIndex = 0; }
+  });
+
+  let S = 1;
+  const center = el => {
+    const r = el.getBoundingClientRect(), sr = stage.getBoundingClientRect(), wr = world.getBoundingClientRect();
+    const ws = wr.width / sr.width; // world scale inside stage
+    const x = ((r.left + r.width / 2) - wr.left) / S / ws, y = ((r.top + r.height / 2) - wr.top) / S / ws;
+    return { x, y };
+  };
+
+  // hand waypoints: [start, end, fromTarget, toTarget]
+  const OFF = () => ({ x: 1180, y: 2150 });
+  const REST = () => { const c = center($('#bCont')); return { x: c.x + 150, y: c.y + 230 }; };
+  const MOVES = [
+    [2.6, 3.2, OFF, () => center(tiles[0])],
+    [3.55, 3.95, () => center(tiles[0]), () => center(tiles[1])],
+    [4.35, 4.75, () => center(tiles[1]), () => center(tiles[5])],
+    [5.2, 5.7, () => center(tiles[5]), () => center($('#bNext'))],
+    [6.15, 6.75, () => center($('#bNext')), REST],
+    [8.2, 8.65, REST, () => center($('#bCont'))],
+    [9.35, 10.0, () => center($('#bCont')), OFF]
+  ];
+  const handPos = t => {
+    if (t < MOVES[0][0]) return { ...OFF(), v: 0 };
+    for (let i = 0; i < MOVES.length; i++) {
+      const [a, b, f, g] = MOVES[i];
+      const next = MOVES[i + 1];
+      if (t <= b) {
+        if (t < a) { const p = MOVES[i - 1][3](); return { ...p, v: 0 }; }
+        const raw = seg(t, a, b);
+        const p = i === 0 ? eOutBack(raw) : i === MOVES.length - 1 ? eInBack(raw) : eInOut(raw);
+        const A = f(), B = g();
+        const v = (B.x - A.x) * (raw > 0 && raw < 1 ? Math.sin(Math.PI * raw) : 0);
+        return { x: lerp(A.x, B.x, p), y: lerp(A.y, B.y, p), v };
+      }
+      if (!next) return { ...OFF(), v: 0 };
+      if (t < next[0]) { const p = g(); return { ...p, v: 0 }; }
+    }
+    return { ...OFF(), v: 0 };
+  };
+  const pressAt = t => { // 0..1 press, lift 0..1
+    let press = 0, lift = 0;
+    for (const k of TAPS) {
+      const d = t - k.t;
+      if (d > -.22 && d < -.06) lift = Math.max(lift, Math.sin(Math.PI * seg(d, -.22, -.06)));
+      if (d >= -.06 && d < .14) press = Math.max(press, Math.sin(Math.PI * seg(d, -.06, .14)));
+    }
+    return { press, lift };
+  };
+
+  const els = {
+    phone: $('#phone'), light: $('#screenLight'), screens: $('#screens'), hand: $('#hand'), ripple: $('#ripple'),
+    f: ['#f1', '#f2', '#f3', '#f4'].map($), dots: [...document.querySelectorAll('#f3 .dot i')], swc: [...document.querySelectorAll('#f4 .swc')],
+    t1: document.querySelector('#s1 .title'), card1: $('#card1'), next: $('#bNext'), card2: $('#card2'), tCont: $('#tCont'), tMore: $('#tMore'),
+    titles2: document.querySelector('#s2 .title')
+  };
+
+  function render(t) {
+    // world: subtle camera push at start and end, fade out at the end
+    const camIn = lerp(.955, 1, eInOut(seg(t, .6, 2.2)));
+    const camEnd = lerp(1, 1.07, eInOut(seg(t, 10.1, 11.7)));
+    world.style.transform = `scale(${camIn * camEnd})`;
+    world.style.opacity = 1 - eInOut(seg(t, 11.2, 11.95));
+
+    // phone springs up + idle float
+    const pin = seg(t, .25, 1.15);
+    const bob = Math.sin(t * 1.6) * 4;
+    els.phone.style.transform = `translateY(${lerp(560, 0, eOutBack(pin)) + bob}px)`;
+    els.phone.style.opacity = eOutCubic(seg(t, .25, .6));
+    els.light.style.opacity = 1 - eOutCubic(seg(t, 1.0, 1.5));
+
+    // screen 1 content
+    els.t1.style.opacity = eOutCubic(seg(t, 1.3, 1.7));
+    els.t1.style.transform = `translateY(${lerp(20, 0, eOutCubic(seg(t, 1.3, 1.7)))}px)`;
+    const cp = seg(t, 1.45, 1.95);
+    els.card1.style.opacity = eOutCubic(cp);
+    els.card1.style.transform = `scale(${lerp(.85, 1, eOutBack(cp))})`;
+    tiles.forEach((el, i) => {
+      const p = seg(t, 2.0 + i * .07, 2.4 + i * .07);
+      el.style.opacity = eOutCubic(p);
+      el.style.transform = `translateY(${lerp(40, 0, eOutBack(p))}px)`;
+    });
+    const np = seg(t, 2.45, 2.85);
+    els.next.style.opacity = eOutCubic(np);
+    els.next.style.transform = `translateY(${lerp(30, 0, eOutBack(np))}px)`;
+
+    // design state
+    const d = designAt(t);
+    paintCard(C1, d); paintCard(C2, d);
+    C1.band.style.transform = `translateX(${lerp(-160, 1500, seg(t, 1.9, 3.0))}px)`;
+    TAPS.forEach((k, i) => {
+      if (k.design == null) return;
+      const tile = tiles[k.design - 1];
+      const on = d.cur === k.design && t >= k.t;
+      tile.querySelector('.ring').style.opacity = on ? eOutCubic(seg(t, k.t, k.t + .2)) : 0;
+    });
+    // tile press scale
+    TAPS.forEach(k => {
+      const el = k.el(); if (!el.classList.contains('tile') && !el.classList.contains('btn')) return;
+      const dd = t - k.t; const pr = dd >= -.06 && dd < .14 ? Math.sin(Math.PI * seg(dd, -.06, .14)) : 0;
+      const base = el.classList.contains('tile') ? el.style.transform : '';
+      if (pr > 0) el.style.transform = (el.classList.contains('tile') ? base + ' ' : '') + `scale(${1 - .045 * pr})`;
+      else if (el.classList.contains('btn')) el.style.transform = el.id === 'bNext' ? els.next.style.transform : '';
+    });
+
+    // screen slide to preview
+    const sp = eInOut(seg(t, 6.0, 6.55));
+    els.screens.style.transform = `translateX(${-528 * sp}px)`;
+    // preview card rotation + sheen band
+    const rp = seg(t, 6.5, 9.0);
+    const amp = Math.sin(Math.PI * rp);
+    const rotY = 24 * amp * Math.sin(2 * Math.PI * (t - 6.5) / 2.5);
+    const settle = eInOut(seg(t, 9.0, 9.5));
+    els.card2.style.transform = `rotateY(${rotY * (1 - settle)}deg) rotateX(${6 * amp * (1 - settle)}deg)`;
+    C2.band.style.transform = `translateX(${lerp(-160, 520, (rotY + 24) / 48)}px)`;
+    // continue -> learn more
+    const lm = eInOut(seg(t, 9.05, 9.4));
+    els.tCont.style.opacity = 1 - lm; els.tMore.style.opacity = lm;
+
+    // floating cards
+    const fT = [1.3, 1.45, 1.6, 1.75];
+    els.f.forEach((el, i) => {
+      const p = seg(t, fT[i], fT[i] + .5);
+      const fl = Math.sin(t * 1.3 + i * 1.7) * 5;
+      el.style.opacity = eOutCubic(p);
+      el.style.transform = `translateY(${lerp(36, 0, eOutBack(p)) + fl}px) scale(${lerp(.88, 1, eOutBack(p))})`;
+    });
+    // dots: fill gradually, never complete
+    const fills = [1.9, 5.05, 6.7];
+    els.dots.forEach((dt, i) => {
+      const at = fills[i];
+      dt.style.transform = `scale(${at == null ? 0 : eOutBack(seg(t, at, at + .35))})`;
+    });
+    // swatches: first circle shows the latest picked design
+    const swOrder = [d.cur === 0 ? 0 : d.cur, 3, 5];
+    els.swc.forEach((s, i) => { s.style.background = D[swOrder[i]]; });
+    let pop = 0; TAPS.forEach(k => { if (k.design != null) pop = Math.max(pop, Math.sin(Math.PI * seg(t, k.t, k.t + .3))); });
+    els.swc[0].style.transform = `scale(${1 + .18 * pop})`;
+
+    // hand
+    const hp = handPos(t);
+    const { press, lift } = pressAt(t);
+    const sc = 1.45 * (1 - .07 * press);
+    const rot = -14 + clamp(hp.v / 40, -8, 8) + Math.sin(t * 2.1) * .8;
+    const idleY = Math.sin(t * 2.4) * 3;
+    els.hand.style.transform = `translate(${hp.x - 112}px, ${hp.y - 12 - 22 * lift + idleY}px) rotate(${rot}deg) scale(${sc})`;
+    // ripple at the latest tap
+    let rk = null; for (const k of TAPS) if (t >= k.t && t < k.t + .45) rk = k;
+    if (rk) {
+      const c = center(rk.el()); const p = seg(t, rk.t, rk.t + .45);
+      els.ripple.style.left = c.x + 'px'; els.ripple.style.top = c.y + 'px';
+      els.ripple.style.transform = `scale(${lerp(.2, 1.1, eOutCubic(p))})`; els.ripple.style.opacity = .9 * (1 - p);
+    } else els.ripple.style.opacity = 0;
+  }
+
+  // ---- layout / controls ----
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const setBg = v => { stage.className = 'bg-' + v + (v === 'scene' ? '' : (v === 'checker' ? '' : ' key')); document.body.style.background = clean ? ({ scene: '#F3D9DE', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#1b1a22'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tick = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tick);
+  };
+  layout(); ui();
+  requestAnimationFrame(tick);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>

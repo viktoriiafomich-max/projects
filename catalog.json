@@ -43,6 +43,17 @@
       "topic": "tech",
       "date": "2026-10-24",
       "task": "tasks/tech/2026-10-24_app-development-2026"
+    },
+    {
+      "section": "motion",
+      "path": "motion/finance/2026-10-26_open-debit-card-online/",
+      "title": "Open Debit Card Online: card design app motion v1",
+      "q": "Open Debit Card Online",
+      "partner": "ad",
+      "platforms": "tiktok",
+      "topic": "finance",
+      "date": "2026-10-27",
+      "task": "tasks/finance/2026-10-26_open-debit-card-online"
     }
   ]
 }
