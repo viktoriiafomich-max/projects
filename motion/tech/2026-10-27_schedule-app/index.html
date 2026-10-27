@@ -125,9 +125,15 @@
   #w7{left:812px;top:1290px;width:200px;height:80px;z-index:12;background:none;box-shadow:none}
   #w7 .avatar{width:78px;height:78px;top:0;border-width:4px;box-shadow:0 10px 22px rgba(110,70,140,.18)}
 
-  .badge{position:absolute;left:50%;top:1610px;transform:translateX(-50%);font:600 24px/1 system-ui,sans-serif;color:rgba(255,255,255,.92);
+  .badge{position:absolute;left:50%;top:120px;transform:translateX(-50%);font:600 24px/1 system-ui,sans-serif;color:rgba(255,255,255,.92);
     background:rgba(60,30,90,.38);padding:10px 20px;border-radius:999px;white-space:nowrap;z-index:40}
   body.nobadge .badge{display:none}
+  /* ad text, one line at a time, under the phone (above the fade so the CTA stays readable to the end) */
+  #cap{position:absolute;left:0;right:0;top:1640px;height:110px;z-index:60;display:flex;justify-content:center;align-items:center;pointer-events:none}
+  #cap span{display:inline-block;white-space:nowrap;padding:16px 30px;border-radius:26px;background:rgba(38,16,79,.62);color:#fff;
+    font:800 46px/1.1 "SF Pro Rounded","Arial Rounded MT Bold","SF Pro Display",-apple-system,system-ui,sans-serif;letter-spacing:-.3px;
+    text-shadow:0 2px 10px rgba(20,6,40,.35);transform-origin:50% 50%}
+  body.nocap #cap{display:none}
 
   #bar{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 16px 16px;background:#151A2B;border-top:1px solid #232A40;font:600 14px/1 system-ui,sans-serif}
   #bar button,#bar select{font:inherit;color:var(--uiText);background:#232A40;border:1px solid #2F3754;border-radius:9px;padding:9px 12px;cursor:pointer}
@@ -207,6 +213,7 @@
   </div>
 
   <div class="badge">For illustration purposes only</div>
+  <div id="cap"><span></span></div>
   <div id="fade"></div>
 </div></div>
 <div id="bar">
@@ -214,7 +221,7 @@
   <input id="scrub" type="range" min="0" max="11000" value="0"><span id="time">0.00 / 11.00 s</span>
   <select id="bgsel"><option value="scene">Scene</option><option value="green">Green key</option><option value="magenta">Magenta key</option><option value="black">Black</option></select>
   <button id="rec">Record mode</button>
-  <div class="hintbar">9:16 creative. Record mode / H / ?clean=1 hides controls · ?bg=green|magenta|black · ?badge=0 hides the badge · Space pause · R restart · ?t=sec to seek.</div>
+  <div class="hintbar">9:16 creative. Record mode / H / ?clean=1 hides controls · ?bg=green|magenta|black · ?badge=0 hides the badge · ?captions=0 hides the ad text · Space pause · R restart · ?t=sec to seek.</div>
 </div>
 
 <script>
@@ -251,6 +258,13 @@
   const PUSH0 = 7.5, PUSH1 = 10.2, OUT0 = 10.2, OUT1 = 11;
   const WID = ['#w1', '#w2', '#w3', '#w4', '#w5', '#w6', '#w7'].map(s => $(s));
   const WSIDE = [-1, -1, 1, 1, -1, 1, 1];   // which side each widget drifts to on the push-in
+
+  // ad text (text.md variant 6) split into one-line chunks, timed to the beats (drag line lands on the drag)
+  const CAP = [[.3, 'Stop rewriting your schedule on paper!'], [1.9, 'Appointment scheduling apps may put'], [3.0, 'appointments, meetings and reminders'],
+    [4.1, 'in one calm view.'], [5.0, 'You might move a booking'], [5.8, 'with a single drag,'], [6.5, 'possibly without a phone call.'],
+    [7.4, 'It could save more time'], [8.1, 'than you expect.'], [8.8, 'Learn broadly about'], [9.6, 'applications for appointment scheduling!']];
+  const capEl = $('#cap span');
+  let capIdx = -1;
 
   const set = (el, o, tf) => { el.style.opacity = o.toFixed(3); if (tf != null) el.style.transform = tf; };
   const appear = (t, a, d = .45) => outCubic(seg(t, a, a + d));
@@ -345,6 +359,15 @@
     const bump = Math.sin(seg(t, T_FAB + .1, T_FAB + .45) * Math.PI);
     $('#cnt').textContent = t >= T_FAB + .15 ? '18' : '17';
     $('#cnt').style.transform = `scale(${1 + .3 * bump})`;
+    /* captions: cut-in with a short rise, never two lines at once; long lines shrink to fit 1000 px */
+    let ci = -1; CAP.forEach(([s0], k) => { if (t >= s0) ci = k; });
+    if (ci !== capIdx) { capIdx = ci; capEl.textContent = ci < 0 ? '' : CAP[ci][1]; capEl.style.scale = ''; const w = capEl.offsetWidth; capEl.dataset.fit = Math.min(1, 1000 / (w || 1)); }
+    if (ci < 0) capEl.style.opacity = 0;
+    else {
+      const s0 = CAP[ci][0], e0 = ci < CAP.length - 1 ? CAP[ci + 1][0] : DUR + 1, k = outCubic(seg(t, s0, s0 + .18)), o = k * (1 - seg(t, e0 - .1, e0));
+      capEl.style.opacity = o.toFixed(3);
+      capEl.style.transform = `translateY(${((1 - k) * 18).toFixed(1)}px) scale(${(+capEl.dataset.fit * (.96 + .04 * k)).toFixed(4)})`;
+    }
     $('#w6').style.boxShadow = `0 18px 40px rgba(110,70,140,.16), 0 0 ${(40 * bump).toFixed(1)}px rgba(170,120,255,${(.7 * bump).toFixed(3)})`;
   }
 
@@ -384,6 +407,7 @@
   addEventListener('resize', fit);
   window.__motion = { seek: v => { t = clamp(v, 0, DUR); playing = false; render(t); }, DUR, get ready() { return true; } };
   document.body.classList.toggle('nobadge', qs.get('badge') === '0');
+  document.body.classList.toggle('nocap', qs.get('captions') === '0');
   setBg(qs.get('bg') || 'scene');
   setClean(qs.get('clean') === '1');
   requestAnimationFrame(frame);
