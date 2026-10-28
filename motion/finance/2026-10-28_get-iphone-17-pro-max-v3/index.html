@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone upgrade — motion v3</title>
+<style>
+  :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #05081a; font-family: var(--font); overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  #bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 44%, #16244a 0%, #0a1330 45%, #04071a 100%); }
+  #bgGlow { position: absolute; left: 140px; top: 360px; width: 800px; height: 1000px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(64,124,255,.28), rgba(64,124,255,0) 65%); }
+  #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key .sh { filter: none !important; box-shadow: none !important; }
+
+  #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
+  #beam { position: absolute; left: 0; top: -400px; width: 300px; height: 2800px; transform-origin: 150px 1400px;
+    background: linear-gradient(90deg, rgba(150,190,255,0), rgba(170,205,255,.28), rgba(150,190,255,0)); mix-blend-mode: screen; }
+  #halo { position: absolute; left: 190px; top: 410px; width: 700px; height: 900px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(70,140,255,.45), rgba(70,140,255,0) 62%); }
+  #selGlow { position: absolute; left: 0; top: 0; width: 520px; height: 760px; margin: -380px 0 0 -260px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,150,80,.55), rgba(255,150,80,0) 62%); opacity: 0; }
+
+  /* phone (iPhone-17-Pro-style form, no logo) */
+  .space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 860px; }
+  .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 72px; }
+  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 38%, var(--hi) 52%, var(--fr) 66%, var(--fd)); }
+  .face { backface-visibility: hidden; overflow: hidden; }
+  .back { background: linear-gradient(165deg, var(--c1) 0%, var(--c2) 100%); }
+  .plateau { position: absolute; left: 0; top: 0; width: 100%; height: 300px; border-radius: 72px 72px 52px 52px;
+    background: linear-gradient(170deg, var(--pl) 0%, var(--c2) 140%); box-shadow: 0 14px 22px rgba(0,0,0,.32), 0 3px 0 rgba(0,0,0,.18), inset 0 -4px 0 rgba(0,0,0,.12), inset 0 3px 0 rgba(255,255,255,.45); filter: brightness(1.06); }
+  .glass { position: absolute; left: 34px; right: 34px; top: 334px; bottom: 34px; border-radius: 42px;
+    background: linear-gradient(165deg, var(--gl), var(--c2) 160%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
+  .lens { position: absolute; width: 112px; height: 112px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #0a0e1c 0 24%, #1a2a58 28%, #04060d 40%, #20242c 46%, #0c0e13 58%, #3b3f47 64%, #0e1015 72%, var(--rim) 77%, var(--rim) 100%);
+    box-shadow: 0 6px 12px rgba(0,0,0,.4), inset 0 0 0 3px rgba(255,255,255,.35); }
+  .lens::after { content: ""; position: absolute; left: 36px; top: 30px; width: 18px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.5); transform: rotate(-30deg); }
+  .flash { position: absolute; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, #fff, #f2ecdc 55%, #c8c2b2); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
+  .lidar { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #333, #050505 70%); }
+  .mic { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: rgba(0,0,0,.6); }
+  .front { background: #050608; }
+  .front .scr { position: absolute; inset: 13px; border-radius: 60px; overflow: hidden; background: #03050b; }
+  .front svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .front .isl { position: absolute; left: 50%; top: 30px; width: 124px; height: 36px; margin-left: -62px; border-radius: 18px; background: #000; }
+  .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.45) 48%, rgba(255,255,255,0) 58%); }
+
+  #shade { position: absolute; inset: 0; background: #04071a; }
+
+  /* configurator panel (no personal data) */
+  #panel { position: absolute; left: 140px; top: 960px; width: 800px; height: 520px; border-radius: 60px;
+    background: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.06)); border: 2px solid rgba(255,255,255,.26);
+    box-shadow: 0 40px 80px rgba(0,0,0,.45); }
+  .sd { position: absolute; top: 40px; width: 18px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.25); }
+  .sd i { position: absolute; inset: 0; border-radius: 9px; background: #fff; opacity: 0; }
+  .row { position: absolute; left: 60px; right: 60px; height: 96px; border-radius: 30px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.14); }
+  .chip { position: absolute; top: 18px; width: 60px; height: 60px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
+  #chipRing { position: absolute; width: 82px; height: 82px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 16px rgba(255,255,255,.7); }
+  #oldPh { position: absolute; left: 40px; top: 12px; }
+  #slot { position: absolute; right: 40px; top: 14px; width: 68px; height: 68px; border-radius: 50%; border: 3px dashed rgba(255,255,255,.4); }
+  #slotFill { position: absolute; inset: -3px; }
+  #track { position: absolute; left: 140px; right: 140px; top: 46px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); }
+  .seg { position: absolute; top: 37px; width: 120px; height: 22px; border-radius: 11px; background: rgba(255,255,255,.18); }
+  .seg i { position: absolute; inset: 0; border-radius: 11px; background: linear-gradient(90deg, #9BE22A, #C8F55A); box-shadow: 0 0 14px rgba(182,242,60,.8); opacity: 0; }
+  #pill { position: absolute; left: 190px; top: 420px; width: 420px; height: 74px; border-radius: 37px;
+    background: linear-gradient(180deg, #ff9a52, #e8641e); box-shadow: 0 14px 28px rgba(232,100,30,.45), inset 0 2px 0 rgba(255,255,255,.45); }
+  #dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; box-shadow: 0 0 22px 6px rgba(255,220,190,.9); opacity: 0; }
+  #ripple { position: absolute; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; border: 6px solid rgba(255,255,255,.85); opacity: 0; }
+  .pt { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #fff3e6; box-shadow: 0 0 10px rgba(255,210,170,.9); }
+
+  /* box (plain, no logo) */
+  #boxBack, #boxFront { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  #inner { position: absolute; left: 290px; top: 1110px; width: 500px; height: 70px;
+    background: linear-gradient(180deg, #1c1f26, #3a3e47); clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%); }
+  #lidBack { position: absolute; left: 290px; top: 880px; width: 500px; height: 230px; border-radius: 22px 22px 6px 6px;
+    background: linear-gradient(180deg, #f4f5f7, #d9dce1); box-shadow: inset 0 -10px 20px rgba(0,0,0,.08); }
+  #front3 { position: absolute; left: 270px; top: 1170px; width: 540px; height: 330px; border-radius: 10px 10px 26px 26px;
+    background: linear-gradient(180deg, #ffffff 0%, #eceef1 55%, #d5d8de 100%); box-shadow: 0 40px 70px rgba(0,0,0,.45), inset 0 3px 0 rgba(255,255,255,.9); }
+  #front3::after { content: ""; position: absolute; left: 30px; right: 30px; top: 22px; height: 2px; background: rgba(0,0,0,.06); }
+  #lidPersp { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; perspective: 1400px; perspective-origin: 540px 900px; }
+  #lidFront { position: absolute; left: 280px; top: 950px; width: 520px; height: 230px; border-radius: 22px 22px 8px 8px; transform-origin: 50% 100%;
+    background: linear-gradient(0deg, #ffffff, #e2e5ea); box-shadow: 0 -6px 18px rgba(0,0,0,.12); }
+  #burst { position: absolute; left: 140px; top: 760px; width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,240,220,.7), rgba(255,170,110,.25) 35%, rgba(255,170,110,0) 65%); opacity: 0; }
+  .cf { position: absolute; width: 18px; height: 30px; margin: -15px 0 0 -9px; border-radius: 3px; }
+
+  #disc { position: absolute; left: 50%; top: 1560px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.14); color: rgba(255,255,255,.85); font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bgall"><div id="bg"></div><div id="bgGlow"></div></div>
+
+  <div id="world">
+    <div id="beam"></div>
+    <div id="halo"></div>
+    <div id="selGlow"></div>
+    <div id="burst"></div>
+
+    <div id="boxBack"><div id="lidBack"></div><div id="inner"></div></div>
+
+    <div class="space" id="spB"><div class="p3" id="pB"></div></div>
+    <div class="space" id="spS"><div class="p3" id="pS"></div></div>
+    <div class="space" id="spO"><div class="p3" id="pO"></div></div>
+
+    <div id="boxFront"><div id="front3"></div></div>
+    <div id="lidPersp"><div id="lidFront"></div></div>
+
+    <div id="shade"></div>
+
+    <div id="panel" class="sh">
+      <div class="sd" style="left:355px"><i></i></div><div class="sd" style="left:391px"><i></i></div><div class="sd" style="left:427px"><i></i></div>
+      <div class="row" style="top:92px">
+        <div class="chip" style="left:190px;background:radial-gradient(circle at 35% 30%,#f2f3f4,#bfc3c7)"></div>
+        <div class="chip" style="left:310px;background:radial-gradient(circle at 35% 30%,#ffa463,#d4601f)"></div>
+        <div class="chip" style="left:430px;background:radial-gradient(circle at 35% 30%,#56648f,#222b48)"></div>
+        <div id="chipRing" style="left:299px;top:7px"></div>
+      </div>
+      <div class="row" style="top:204px">
+        <svg id="oldPh" width="44" height="72" viewBox="0 0 44 72"><rect x="2" y="2" width="40" height="68" rx="9" fill="#2a2f3a" stroke="#9aa3b2" stroke-width="3"/><path d="M10 14 L24 30 L16 38 L30 56 M24 30 L34 22 M16 38 L8 44" stroke="#dfe6f2" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <div id="track"></div>
+        <div id="slot"><svg id="slotFill" width="68" height="68" viewBox="0 0 68 68"><circle id="slotC" cx="34" cy="34" r="31" fill="none" stroke="#C8F55A" stroke-width="5" stroke-linecap="round" transform="rotate(-90 34 34)"/></svg></div>
+      </div>
+      <div class="row" style="top:316px">
+        <div class="seg" style="left:60px"><i></i></div><div class="seg" style="left:200px"><i></i></div><div class="seg" style="left:340px"><i></i></div><div class="seg" style="left:480px"><i></i></div>
+      </div>
+      <div id="pill"></div>
+    </div>
+    <div id="dot"></div>
+    <div id="ripple"></div>
+    <div id="pts"></div>
+    <div id="cfs"></div>
+  </div>
+
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="13" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 13;
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+  const CONFETTI = q.get('confetti') === '1';
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOut = p => 1 - Math.pow(1 - p, 3);
+  const eIn = p => p * p * p;
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eOutBack = p => { const c = 1.6, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+
+  const FIN = {
+    silver: { c1: '#f1f2f3', c2: '#cdd0d4', pl: '#e6e8ea', gl: '#f5f6f7', rim: '#cfd3d8', fr: '#d7dadd', fd: '#979ca2', hi: '#ffffff' },
+    orange: { c1: '#f7954a', c2: '#cf5a18', pl: '#f08540', gl: '#fa9d5d', rim: '#e07733', fr: '#e8813f', fd: '#9a4512', hi: '#ffd2b0' },
+    blue:   { c1: '#47567f', c2: '#1f2744', pl: '#3b4870', gl: '#4c5b86', rim: '#56648f', fr: '#46537a', fd: '#1b2139', hi: '#9aa8d4' }
+  };
+  const WALL = `<svg viewBox="0 0 394 854" preserveAspectRatio="none"><defs><filter id="wg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="wl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6ff"/><stop offset=".7" stop-color="#7fb4ff"/><stop offset="1" stop-color="#f3d1a8"/></linearGradient></defs>
+    <g fill="none" stroke="url(#wl)" stroke-width="5" filter="url(#wg)" stroke-linecap="round">
+    <path d="M40 120 L300 120 Q350 120 350 170 L350 250 Q350 300 300 300 L90 300 Q40 300 40 350 L40 420"/>
+    <path d="M60 470 L300 470 Q350 470 350 520 L350 560 Q350 600 310 600 Q270 600 270 650 L270 700 Q270 750 320 750 L360 750"/>
+    <path d="M40 640 L190 640 Q230 640 230 690 L230 780"/></g>
+    <rect x="0" y="660" width="394" height="120" fill="url(#wl)" opacity=".12"/></svg>`;
+  const PHONE = `<div class="face back"><div class="glass"></div><div class="plateau">
+      <div class="lens" style="left:30px;top:24px"></div><div class="lens" style="left:30px;top:156px"></div><div class="lens" style="left:152px;top:90px"></div>
+      <div class="flash" style="left:330px;top:34px"></div><div class="lidar" style="left:331px;top:178px"></div><div class="mic" style="left:349px;top:128px"></div></div>
+      <div class="sheen sb"></div></div>
+    <div class="face front"><div class="scr">${WALL}</div><div class="isl"></div><div class="sheen sf"></div></div>`;
+  const D = 34, N = 14;
+  const build = (p, fin) => {
+    p.innerHTML = PHONE;
+    for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; p.insertBefore(s, p.firstChild); }
+    p.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
+    p.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
+    for (const k in FIN[fin]) p.style.setProperty('--' + k, FIN[fin][k]);
+    return { p, sb: p.querySelector('.sb'), sf: p.querySelector('.sf'), sp: p.parentNode };
+  };
+  const PS = build($('#pS'), 'silver'), PO = build($('#pO'), 'orange'), PB = build($('#pB'), 'blue');
+
+  // keyframes: [t, x, y, z, ry, rx, rz, s, opacity]
+  const KS = [
+    [0.0, 0, 50, -380, 150, -4, -6, .92, 1], [1.8, 0, 0, 0, 160, -4, -5, 1.0, 1], [2.4, 0, -30, -100, 180, 0, 0, .6, 1],
+    [3.3, 0, -30, -100, 180, 0, 0, .6, 1], [3.9, 120, -30, -650, 180, 0, 0, .55, 0], [13, 120, -30, -650, 180, 0, 0, .55, 0]];
+  const KO = [
+    [0.0, 520, -30, -200, 180, 0, 0, .55, 0], [2.1, 520, -30, -200, 180, 0, 0, .55, 0], [2.6, 310, -30, -160, 180, 0, 0, .58, 1],
+    [3.35, 310, -30, -160, 180, 0, 0, .58, 1], [4.0, 0, -40, 0, 180, 0, 0, .82, 1], [4.6, 0, -60, 0, 198, -3, -3, .9, 1],
+    [5.0, 0, -440, -200, 180, 4, 0, .48, 1], [7.7, 0, -440, -200, 186, 4, 0, .48, 1], [8.4, 0, -10, 0, 360, 0, 0, .95, 1],
+    [9.0, 0, -10, 0, 362, 0, 0, .95, 1], [9.6, 0, -40, 0, 525, -4, -5, .92, 1], [10.0, 0, -200, 0, 540, 0, -3, .55, 1],
+    [10.55, 0, 468, 0, 540, 0, 0, .34, 1], [13, 0, 468, 0, 540, 0, 0, .34, 1]];
+  const KB = [
+    [0.0, -520, -30, -200, 180, 0, 0, .55, 0], [2.2, -520, -30, -200, 180, 0, 0, .55, 0], [2.7, -310, -30, -160, 180, 0, 0, .58, 1],
+    [3.35, -310, -30, -160, 180, 0, 0, .58, 1], [3.95, -440, -30, -650, 180, 0, 0, .5, 0], [13, -440, -30, -650, 180, 0, 0, .5, 0]];
+  const at = (K, t) => {
+    let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++;
+    const a = K[i], b = K[i + 1];
+    const raw = seg(t, a[0], b[0]);
+    const p = (K === KO && a[0] === 10.0) ? eIn(raw) : (i === 0 ? eOut(raw) : eInOut(raw));
+    return a.slice(1).map((v, j) => lerp(v, b[j + 1], p));
+  };
+  const place = (ph, v, bob) => {
+    const [x, y, z, ry, rx, rz, s, o] = v;
+    ph.p.style.transform = `translate(${x}px, ${y + bob}px) translateZ(${z}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${s})`;
+    ph.sp.style.opacity = o;
+    const sp = ((ry % 360) + 360) % 360;
+    ph.sb.style.transform = `translateX(${(sp - 180) * 1.2}%)`;
+    ph.sf.style.transform = `translateX(${((sp + 180) % 360 - 180) * -1.2}%)`;
+    ph.sf.style.opacity = .4;
+  };
+
+  // particles + sparkles + optional confetti
+  const PTS = [];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
+    PTS.push({ el, x0: 170 + (i * 97) % 740, y0: 990 + (i * 53) % 470, dx: ((i * 41) % 120) - 60, dy: -120 - (i * 29) % 160, d: (i % 7) * .05 });
+  }
+  const SPK = [];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
+    const a = -Math.PI / 2 + ((i / 21) - .5) * 2.4;
+    SPK.push({ el, a, r: 220 + (i * 47) % 260, d: (i % 5) * .06 });
+  }
+  const CF = [];
+  if (CONFETTI) {
+    const cols = ['#ff8a3d', '#ffd166', '#7fb4ff', '#ffffff', '#c8f55a', '#f472b6'];
+    for (let i = 0; i < 70; i++) {
+      const el = document.createElement('div'); el.className = 'cf'; el.style.background = cols[i % cols.length]; $('#cfs').appendChild(el);
+      CF.push({ el, x: (i * 157) % 1080, d: (i % 10) * .09, sp: 900 + (i * 61) % 600, sw: 30 + (i * 13) % 50, r0: (i * 47) % 360, rv: 200 + (i * 31) % 400 });
+    }
+  }
+
+  const PILL = { x: 140 + 190 + 210, y: 960 + 420 + 37 };
+  const OLD0 = { x: 140 + 60 + 40 + 22, y: 960 + 204 + 12 + 36 }, SLOT = { x: 140 + 800 - 60 - 40 - 34, y: 960 + 204 + 14 + 34 };
+  const slotL = 2 * Math.PI * 31; $('#slotC').style.strokeDasharray = slotL;
+
+  function render(t) {
+    const cam = lerp(.93, 1, eOut(seg(t, 0, 1.8))) * lerp(1, 1.04, eInOut(seg(t, 11.2, 13)));
+    world.style.transform = `scale(${cam})`;
+    $('#shade').style.opacity = 1 - eOut(seg(t, .1, 1.0));
+
+    const b1 = seg(t, .25, 1.6), b2 = seg(t, 8.4, 9.3);
+    const bp = b2 > 0 ? b2 : b1;
+    $('#beam').style.transform = `translateX(${lerp(-500, 1400, eInOut(bp))}px) rotate(18deg)`;
+    $('#beam').style.opacity = Math.sin(Math.PI * bp);
+    $('#halo').style.opacity = eOut(seg(t, .4, 1.8)) * (1 - .5 * eInOut(seg(t, 9.8, 10.4)));
+
+    const bob = Math.sin(t * 1.4) * 5;
+    place(PS, at(KS, t), bob); place(PB, at(KB, t), Math.sin(t * 1.4 + 1) * 5);
+    const vo = at(KO, t); place(PO, vo, t < 10 ? bob : 0);
+
+    // selection: light dot taps the orange phone, warm glow under it
+    const sg = $('#selGlow');
+    sg.style.left = (540 + vo[0]) + 'px'; sg.style.top = (860 + vo[1]) + 'px';
+    sg.style.opacity = Math.sin(Math.PI * seg(t, 3.1, 4.4)) * .9;
+
+    // configurator panel
+    const pin = seg(t, 4.9, 5.35), pout = eInOut(seg(t, 7.65, 8.05));
+    const press = Math.sin(Math.PI * seg(t, 7.3, 7.5));
+    const panel = $('#panel');
+    panel.style.opacity = eOut(pin) * (1 - pout);
+    panel.style.transform = `translateY(${lerp(80, 0, eOutBack(pin))}px) scale(${(1 - .02 * press) * lerp(1, .88, pout)})`;
+    document.querySelectorAll('.sd i').forEach((d, i) => d.style.opacity = eOut(seg(t, [5.3, 6.15, 6.9][i], [5.5, 6.35, 7.1][i])));
+    $('#chipRing').style.transform = `scale(${1 + .12 * Math.sin(Math.PI * seg(t, 5.35, 5.75))})`;
+    // trade-in: old cracked phone slides into the slot, slot fills
+    const tr = eInOut(seg(t, 5.7, 6.25));
+    const op = $('#oldPh');
+    op.style.transform = `translateX(${(SLOT.x - OLD0.x) * tr}px) scale(${1 - .45 * tr}) rotate(${-8 * tr}deg)`;
+    op.style.opacity = 1 - eInOut(seg(t, 6.1, 6.3));
+    $('#slotC').style.strokeDashoffset = slotL * (1 - eOut(seg(t, 6.15, 6.55)));
+    // split payment segments
+    document.querySelectorAll('.seg i').forEach((g, i) => g.style.opacity = eOut(seg(t, 6.45 + i * .14, 6.6 + i * .14)));
+    $('#pill').style.transform = `scale(${1 - .06 * press})`;
+    $('#pill').style.filter = `brightness(${1 + .3 * press})`;
+
+    // light dot: taps orange phone (3.15), then travels to the pill (7.3)
+    const dot = $('#dot');
+    let dx = null, dy = null, dO = 0;
+    const d1 = seg(t, 2.85, 3.15);
+    if (t >= 2.85 && t < 3.4) { dx = lerp(1100, 540 + 310, eOut(d1)); dy = lerp(1500, 860, eOut(d1)); dO = 1 - seg(t, 3.2, 3.4); }
+    const d2 = seg(t, 7.0, 7.3);
+    if (t >= 7.0 && t < 7.55) { dx = lerp(980, PILL.x, eOut(d2)); dy = lerp(1650, PILL.y, eOut(d2)); dO = 1 - seg(t, 7.35, 7.55); }
+    if (dx != null) { dot.style.left = dx + 'px'; dot.style.top = dy + 'px'; }
+    dot.style.opacity = dO;
+    const R = $('#ripple');
+    let rr = null;
+    if (t >= 3.15 && t < 3.65) rr = { x: 540 + 310, y: 860 - 30, p: seg(t, 3.15, 3.65) };
+    if (t >= 7.35 && t < 7.9) rr = { x: PILL.x, y: PILL.y, p: seg(t, 7.35, 7.9) };
+    if (rr) { R.style.left = rr.x + 'px'; R.style.top = rr.y + 'px'; R.style.transform = `scale(${lerp(.4, 2.0, eOut(rr.p))})`; R.style.opacity = .9 * (1 - rr.p); }
+    else R.style.opacity = 0;
+
+    PTS.forEach(o => {
+      const p = seg(t, 7.6 + o.d, 8.6 + o.d);
+      o.el.style.left = (o.x0 + o.dx * eOut(p)) + 'px'; o.el.style.top = (o.y0 + o.dy * eOut(p)) + 'px';
+      o.el.style.opacity = Math.sin(Math.PI * p) * .9;
+    });
+
+    // box: rises, phone falls in, lid closes
+    const bx = eOutBack(seg(t, 9.3, 9.9));
+    const by = lerp(700, 0, bx);
+    $('#boxBack').style.transform = `translateY(${by}px)`;
+    $('#boxFront').style.transform = `translateY(${by}px)`;
+    $('#boxBack').style.opacity = $('#boxFront').style.opacity = clamp(seg(t, 9.3, 9.6) * 2);
+    const lid = seg(t, 10.7, 11.15);
+    $('#lidBack').style.opacity = t < 10.7 ? 1 : 0;
+    $('#inner').style.opacity = 1 - eInOut(seg(t, 10.95, 11.15));
+    const lf = $('#lidFront');
+    lf.style.opacity = t >= 10.7 ? 1 : 0;
+    lf.style.transform = `translateY(${by}px) rotateX(${lerp(0, -86, eInOut(lid))}deg)`;
+    const land = Math.sin(Math.PI * seg(t, 10.55, 10.75));
+    $('#boxFront').style.transform = `translateY(${by + 8 * land}px) scaleY(${1 - .03 * land})`;
+
+    // celebration: warm light burst + rising sparkles (+ optional confetti)
+    const bu = seg(t, 11.1, 12.2);
+    $('#burst').style.opacity = Math.sin(Math.PI * Math.min(1, bu * 1.3)) * .9 + .25 * seg(t, 12.0, 13);
+    $('#burst').style.transform = `scale(${lerp(.5, 1.15, eOut(bu))})`;
+    SPK.forEach(o => {
+      const p = seg(t, 11.15 + o.d, 12.4 + o.d);
+      o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px';
+      o.el.style.top = (1160 + Math.sin(o.a) * o.r * eOut(p)) + 'px';
+      o.el.style.opacity = Math.sin(Math.PI * p);
+    });
+    CF.forEach(o => {
+      const tt = t - (11.1 + o.d);
+      if (tt < 0) { o.el.style.opacity = 0; return; }
+      o.el.style.opacity = 1;
+      o.el.style.left = (o.x + Math.sin(tt * 3 + o.r0) * o.sw) + 'px';
+      o.el.style.top = (-60 + o.sp * tt) + 'px';
+      o.el.style.transform = `rotate(${o.r0 + o.rv * tt}deg) scaleX(${Math.cos(tt * 6 + o.r0)})`;
+    });
+  }
+
+  // ---- layout / controls ----
+  let S = 1;
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#04071a', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#05081a'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tick = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tick);
+  };
+  layout(); ui();
+  requestAnimationFrame(tick);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>
