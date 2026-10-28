@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone upgrade — motion v2</title>
+<style>
+  :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #05081a; font-family: var(--font); overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  #bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 44%, #13234d 0%, #0a1330 45%, #04071a 100%); }
+  #bgGlow { position: absolute; left: 140px; top: 360px; width: 800px; height: 1000px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(64,124,255,.32), rgba(64,124,255,0) 65%); }
+  #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key .sh { filter: none !important; box-shadow: none !important; }
+
+  #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
+  #beam { position: absolute; left: 0; top: -400px; width: 300px; height: 2800px; transform-origin: 150px 1400px;
+    background: linear-gradient(90deg, rgba(150,190,255,0), rgba(170,205,255,.30), rgba(150,190,255,0)); mix-blend-mode: screen; }
+  #halo { position: absolute; left: 190px; top: 410px; width: 700px; height: 900px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(70,140,255,.5), rgba(70,140,255,0) 62%); }
+
+  .space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 860px; }
+  .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d;
+    --f1: #dfe3e8; --f2: #8c939c; --fr: #b9bfc7; --fd: #6c727b; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 66px; }
+  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 40%, #f4f6f8 52%, var(--fr) 64%, var(--fd)); }
+  .face { backface-visibility: hidden; overflow: hidden; }
+  .back { background: linear-gradient(160deg, var(--f1) 0%, var(--f2) 100%); }
+  .back .brush { position: absolute; inset: 0; opacity: .18;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 1px, rgba(0,0,0,0) 1px 4px); }
+  .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 58%); }
+  .module { position: absolute; left: 26px; top: 26px; width: 206px; height: 214px; border-radius: 52px;
+    background: linear-gradient(150deg, rgba(255,255,255,.28), rgba(0,0,0,.18)); box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), 0 6px 14px rgba(0,0,0,.25); }
+  .lens { position: absolute; width: 84px; height: 84px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #0b1020 0 26%, #1c2b55 30%, #050811 44%, #2a2f38 46%, #11141a 60%, #6a717c 64%, #2b3038 72%, #c9ced6 76%, #6b717a 100%);
+    box-shadow: 0 4px 8px rgba(0,0,0,.45); }
+  .lens::after { content: ""; position: absolute; left: 28px; top: 22px; width: 14px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.55); transform: rotate(-30deg); }
+  .flash { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, #fff6dc, #d9c79a 70%, #8a7f66); }
+  .mic { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #2a2f38; }
+  .front { background: #050608; }
+  .front .scr { position: absolute; inset: 14px; border-radius: 54px; overflow: hidden;
+    background: radial-gradient(ellipse 70% 50% at 30% 30%, #3a6cff 0%, rgba(58,108,255,0) 60%),
+                radial-gradient(ellipse 60% 45% at 75% 75%, #1636a8 0%, rgba(22,54,168,0) 65%),
+                linear-gradient(170deg, #0b1844 0%, #050816 55%, #0a1a52 100%); }
+  .front .wave { position: absolute; left: -20%; top: 40%; width: 140%; height: 34%; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(110,160,255,.55), rgba(110,160,255,0) 60%); transform: rotate(-18deg); }
+  .front .flow { position: absolute; left: -10%; top: -60%; width: 120%; height: 50%;
+    background: linear-gradient(180deg, rgba(120,190,255,0), rgba(150,210,255,.75), rgba(120,190,255,0)); transform: rotate(-12deg); }
+  .front .isl { position: absolute; left: 50%; top: 30px; width: 120px; height: 34px; margin-left: -60px; border-radius: 18px; background: #000; }
+
+  #shade { position: absolute; inset: 0; background: #04071a; }
+  #fx { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+
+  .gcard { position: absolute; width: 230px; height: 290px; margin: -145px 0 0 -115px; border-radius: 36px;
+    background: linear-gradient(160deg, rgba(255,255,255,.17), rgba(255,255,255,.04));
+    border: 2px solid rgba(255,255,255,.22); box-shadow: 0 30px 60px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+  .gcard .sel { position: absolute; inset: -8px; border-radius: 42px; border: 4px solid rgba(140,190,255,.95); box-shadow: 0 0 24px rgba(110,170,255,.8); opacity: 0; }
+
+  .sw { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; box-shadow: 0 10px 20px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.35); overflow: hidden; }
+  .sw .lt { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.85), rgba(255,255,255,0) 65%); opacity: 0; }
+  .swr { position: absolute; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 4px solid #8fc0ff; box-shadow: 0 0 18px rgba(120,180,255,.8); opacity: 0; }
+
+  #panel { position: absolute; left: 150px; top: 1010px; width: 780px; height: 430px; border-radius: 58px;
+    background: linear-gradient(160deg, rgba(255,255,255,.22), rgba(255,255,255,.07)); border: 2px solid rgba(255,255,255,.28);
+    box-shadow: 0 40px 80px rgba(0,0,0,.45); overflow: hidden; }
+  #panel .fld { position: absolute; left: 60px; width: 660px; height: 64px; border-radius: 32px; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.18); }
+  #panel .gi { position: absolute; width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,.35); }
+  #pill { position: absolute; left: 160px; top: 320px; width: 460px; height: 78px; border-radius: 39px;
+    background: linear-gradient(180deg, #5d95ff, #2457e6); box-shadow: 0 14px 28px rgba(36,87,230,.5), inset 0 2px 0 rgba(255,255,255,.45); }
+  #dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #eaf3ff; box-shadow: 0 0 22px 6px rgba(150,200,255,.9); opacity: 0; }
+  #ripple { position: absolute; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; border: 6px solid rgba(255,255,255,.85); opacity: 0; }
+  #conf { position: absolute; left: 540px; top: 1225px; width: 0; height: 0; }
+  #confDisc { position: absolute; left: -110px; top: -110px; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #7fb0ff, #2c62ea 60%, #1a3fb0); box-shadow: 0 20px 40px rgba(30,80,220,.5), inset 0 3px 0 rgba(255,255,255,.5); }
+  .pt { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #dbe9ff; box-shadow: 0 0 10px rgba(170,210,255,.9); }
+
+  #disc { position: absolute; left: 50%; top: 1480px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.14); color: rgba(255,255,255,.85); font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bgall"><div id="bg"></div><div id="bgGlow"></div></div>
+
+  <div id="world">
+    <div id="beam"></div>
+    <div id="halo"></div>
+
+    <div class="space" id="space2"><div class="p3" id="pB"></div></div>
+
+    <div class="gcard sh" id="c0"><svg width="140" height="230" viewBox="0 0 150 250"><rect x="10" y="5" width="130" height="240" rx="26" fill="#c9ced6"/><rect x="20" y="16" width="62" height="64" rx="18" fill="#9aa1ab"/><circle cx="38" cy="34" r="12" fill="#14182a"/><circle cx="38" cy="62" r="12" fill="#14182a"/><circle cx="64" cy="48" r="12" fill="#14182a"/></svg><div class="sel"></div></div>
+    <div class="gcard sh" id="c1"><svg width="140" height="230" viewBox="0 0 150 250"><defs><linearGradient id="wp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a6cff"/><stop offset=".6" stop-color="#081640"/><stop offset="1" stop-color="#1636a8"/></linearGradient></defs><rect x="10" y="5" width="130" height="240" rx="26" fill="#050608"/><rect x="16" y="11" width="118" height="228" rx="21" fill="url(#wp)"/><rect x="58" y="18" width="34" height="9" rx="4.5" fill="#000"/></svg><div class="sel"></div></div>
+    <div class="gcard sh" id="c2"><svg width="140" height="230" viewBox="0 0 150 250"><rect x="62" y="5" width="26" height="240" rx="12" fill="#b7bdc5"/><rect x="58" y="60" width="6" height="34" rx="3" fill="#8b929b"/><rect x="58" y="104" width="6" height="22" rx="3" fill="#8b929b"/></svg><div class="sel"></div></div>
+    <div class="gcard sh" id="c3"><svg width="170" height="170" viewBox="0 0 170 170"><rect x="5" y="5" width="160" height="160" rx="44" fill="#a7aeb8"/><circle cx="52" cy="52" r="32" fill="#14182a" stroke="#c9ced6" stroke-width="6"/><circle cx="52" cy="120" r="32" fill="#14182a" stroke="#c9ced6" stroke-width="6"/><circle cx="118" cy="86" r="32" fill="#14182a" stroke="#c9ced6" stroke-width="6"/><circle cx="44" cy="44" r="6" fill="#fff" opacity=".6"/></svg><div class="sel"></div></div>
+
+    <div class="sw sh" id="s0" style="left:405px;top:1395px"><div class="lt"></div></div>
+    <div class="sw sh" id="s1" style="left:495px;top:1395px"><div class="lt"></div></div>
+    <div class="sw sh" id="s2" style="left:585px;top:1395px"><div class="lt"></div></div>
+    <div class="sw sh" id="s3" style="left:675px;top:1395px"><div class="lt"></div></div>
+    <div class="swr" id="swr"></div>
+
+    <div class="space" id="space1"><div class="p3" id="pA"></div></div>
+    <div id="shade"></div>
+
+    <svg id="fx" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <linearGradient id="arcG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9cc4ff" stop-opacity="0"/><stop offset=".5" stop-color="#d9e8ff"/><stop offset="1" stop-color="#9cc4ff" stop-opacity="0"/></linearGradient>
+      </defs>
+      <ellipse id="arc" cx="540" cy="860" rx="420" ry="140" fill="none" stroke="url(#arcG)" stroke-width="5" filter="url(#glow)"/>
+      <g id="optic" fill="none" stroke="#bcd8ff" filter="url(#glow)">
+        <circle id="op1" r="150" stroke-width="4"/><circle id="op2" r="190" stroke-width="2" stroke-dasharray="14 18"/>
+      </g>
+      <circle id="ringC" cx="540" cy="860" r="460" fill="none" stroke="#cfe2ff" stroke-width="8" filter="url(#glow)"/>
+    </svg>
+
+    <div id="panel" class="sh">
+      <div class="fld" style="top:60px"></div><div class="fld" style="top:146px"></div>
+      <div class="gi" style="left:60px;top:250px"></div><div class="gi" style="left:96px;top:250px;border-radius:50%"></div><div class="gi" style="left:132px;top:250px"></div>
+      <div id="pill"></div>
+    </div>
+    <div id="dot"></div>
+    <div id="ripple"></div>
+    <div id="conf"><div id="confDisc"></div>
+      <svg id="confIcon" width="220" height="220" viewBox="-110 -110 220 220" style="position:absolute;left:-110px;top:-110px">
+        <rect id="ci" x="-34" y="-58" width="68" height="116" rx="16" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+        <circle id="cd" cx="-14" cy="-36" r="7" fill="#fff"/>
+      </svg>
+    </div>
+    <div id="pts"></div>
+  </div>
+
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="11.5" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 11.5;
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOut = p => 1 - Math.pow(1 - p, 3);
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eOutBack = p => { const c = 1.6, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => { const A = hex(a), B = hex(b); return 'rgb(' + A.map((v, i) => Math.round(lerp(v, B[i], p))).join(',') + ')'; };
+
+  // build two identical phones (hero + ghost)
+  const PHONE = `<div class="face back"><div class="brush"></div>
+      <div class="module"><div class="lens" style="left:18px;top:16px"></div><div class="lens" style="left:18px;top:114px"></div><div class="lens" style="left:108px;top:65px"></div>
+      <div class="flash" style="left:150px;top:22px"></div><div class="mic" style="left:160px;top:170px"></div></div><div class="sheen sb"></div></div>
+    <div class="face front"><div class="scr"><div class="wave"></div><div class="flow"></div></div><div class="isl"></div><div class="sheen sf"></div></div>`;
+  const D = 34, N = 14;
+  const build = p => {
+    p.innerHTML = PHONE;
+    for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; p.insertBefore(s, p.firstChild); }
+    p.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
+    p.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
+    return { p, sb: p.querySelector('.sb'), sf: p.querySelector('.sf'), flow: p.querySelector('.flow') };
+  };
+  const A = build($('#pA')), B = build($('#pB'));
+
+  const FIN = [
+    { f1: '#e3e7ec', f2: '#8d949d', fr: '#c3c8cf', fd: '#6d737c' },
+    { f1: '#5d79a8', f2: '#1b2b4a', fr: '#7d8fae', fd: '#2c3a55' },
+    { f1: '#d8c8b3', f2: '#8e7d68', fr: '#c4b6a3', fd: '#74685a' },
+    { f1: '#5a5d63', f2: '#1f2125', fr: '#6e7279', fd: '#2c2e33' }
+  ];
+  ['#s0', '#s1', '#s2', '#s3'].forEach((id, i) => $(id).style.background = `radial-gradient(circle at 35% 30%, ${FIN[i].f1}, ${FIN[i].f2})`);
+  const setFinish = (ph, a, b, p) => { for (const k of ['f1', 'f2', 'fr', 'fd']) ph.p.style.setProperty('--' + k, mix(FIN[a][k], FIN[b][k], p)); };
+
+  // hero phone keyframes: [t, x, y, z, ry, rx, rz, s]
+  const K = [
+    [0.0, 0, 50, -380, 148, -4, -6, .92],
+    [1.7, 0, 0, 0, 162, -4, -5, 1.0],
+    [2.25, 0, -20, -40, 360, 0, 0, .9],
+    [2.6, 0, -40, -200, 360, 0, 0, .58],
+    [3.9, 0, -40, -200, 378, 0, 0, .58],
+    [4.25, 0, 0, 0, 362, 0, 0, .95],
+    [4.75, 154, 600, 120, 540, -6, -3, 1.9],
+    [5.15, 154, 600, 120, 548, -6, -3, 1.9],
+    [5.55, 0, -10, 0, 720, 0, 0, .95],
+    [6.05, 0, -10, 0, 722, 0, 0, .95],
+    [6.4, 0, -380, -220, 724, 4, 0, .5],
+    [7.9, 0, -380, -220, 726, 4, 0, .5],
+    [8.7, 0, -20, 60, 885, -4, -5, 1.05],
+    [11.5, 0, -40, 150, 900, -5, -6, 1.14]
+  ];
+  const phoneAt = t => {
+    let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++;
+    const a = K[i], b = K[i + 1], p = i === 0 ? eOut(seg(t, a[0], b[0])) : eInOut(seg(t, a[0], b[0]));
+    return a.slice(1).map((v, j) => lerp(v, b[j + 1], p));
+  };
+  const place = (ph, x, y, z, ry, rx, rz, s, bob) => {
+    ph.p.style.transform = `translate(${x}px, ${y + bob}px) translateZ(${z}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${s})`;
+    const sp = ((ry % 360) + 360) % 360;
+    ph.sb.style.transform = `translateX(${(sp - 180) * 1.2}%)`;
+    ph.sf.style.transform = `translateX(${((sp + 180) % 360 - 180) * -1.2}%)`;
+    ph.sf.style.opacity = .5;
+  };
+
+  // particles (panel dissolve)
+  const PTS = [];
+  for (let i = 0; i < 28; i++) {
+    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
+    const x0 = 180 + (i * 97) % 720, y0 = 1040 + (i * 53) % 380;
+    PTS.push({ el, x0, y0, dx: ((i * 41) % 120) - 60, dy: -120 - (i * 29) % 160, d: (i % 7) * .05 });
+  }
+
+  const el = id => document.getElementById(id);
+  const cards = ['c0', 'c1', 'c2', 'c3'].map(el), sws = ['s0', 's1', 's2', 's3'].map(el);
+  const CP = [[230, 520], [850, 520], [230, 1110], [850, 1110]];
+  const PILL = { x: 150 + 160 + 230, y: 1010 + 320 + 39 };
+
+  function render(t) {
+    const cam = lerp(.93, 1, eOut(seg(t, 0, 1.8))) * lerp(1, 1.05, eInOut(seg(t, 8.6, 11.5)));
+    world.style.transform = `scale(${cam})`;
+    $('#shade').style.opacity = 1 - eOut(seg(t, .1, 1.0));
+    $('#bgGlow').style.opacity = 1 - .7 * eInOut(seg(t, 10.7, 11.5));
+    $('#bg').style.opacity = 1 - .35 * eInOut(seg(t, 10.7, 11.5));
+
+    // light sweeps (reveal + hero)
+    const b1 = seg(t, .25, 1.6), b2 = seg(t, 9.6, 10.6);
+    const bp = b2 > 0 ? b2 : b1;
+    $('#beam').style.transform = `translateX(${lerp(-500, 1400, eInOut(bp))}px) rotate(18deg)`;
+    $('#beam').style.opacity = Math.sin(Math.PI * bp);
+
+    // hero phone
+    const [x, y, z, ry, rx, rz, s] = phoneAt(t);
+    place(A, x, y, z, ry, rx, rz, s, Math.sin(t * 1.4) * 5);
+
+    // finish: silver -> chosen deep blue during selection
+    const fp = eInOut(seg(t, 3.55, 3.95));
+    setFinish(A, 0, 1, fp); setFinish(B, 1, 1, 1);
+
+    // glass arc around the phone (scene 1)
+    const arc = $('#arc');
+    arc.setAttribute('transform', `rotate(${lerp(-24, -8, seg(t, 0, 2))} 540 860)`);
+    arc.style.opacity = Math.sin(Math.PI * seg(t, .4, 2.1)) * .9;
+    arc.setAttribute('ry', lerp(120, 170, seg(t, 0, 2)));
+
+    // cards (scene 2)
+    cards.forEach((c, i) => {
+      const inp = eOutBack(seg(t, 2.35 + i * .08, 2.85 + i * .08));
+      const out = eInOut(seg(t, 3.95, 4.3));
+      const sel = i === 0 ? eInOut(seg(t, 3.0, 3.4)) : 0;
+      const dim = i === 0 ? 0 : eInOut(seg(t, 3.0, 3.4));
+      let X = lerp(540, CP[i][0], inp), Y = lerp(860, CP[i][1], inp);
+      X = lerp(X, 540, out); Y = lerp(Y, 860, out);
+      const fl = Math.sin(t * 1.6 + i * 1.7) * 7;
+      c.style.left = X + 'px'; c.style.top = (Y + fl) + 'px';
+      c.style.transform = `scale(${lerp(.6, 1, inp) * (1 + .18 * sel) * (1 - .12 * dim) * lerp(1, .4, out)})`;
+      c.style.opacity = clamp(inp) * (1 - .4 * dim) * (1 - out);
+      c.style.filter = dim > 0 ? `blur(${3 * dim}px)` : 'none';
+      c.style.zIndex = i === 0 ? 3 : 1;
+      c.querySelector('.sel').style.opacity = sel;
+    });
+
+    // swatches + light pulse + active ring
+    sws.forEach((w, i) => {
+      const p = seg(t, 2.6 + i * .06, 2.95 + i * .06), out = eInOut(seg(t, 3.95, 4.25));
+      w.style.opacity = eOut(p) * (1 - out);
+      const big = i === 1 ? eOutBack(seg(t, 3.5, 3.85)) : 0;
+      w.style.transform = `translateY(${lerp(30, 0, eOutBack(p))}px) scale(${1 + .16 * big})`;
+      const pc = 3.05 + i * .1;
+      w.querySelector('.lt').style.opacity = Math.sin(Math.PI * seg(t, pc, pc + .2));
+    });
+    const swr = $('#swr');
+    swr.style.left = '495px'; swr.style.top = '1395px';
+    swr.style.opacity = eOut(seg(t, 3.5, 3.75)) * (1 - eInOut(seg(t, 3.95, 4.25)));
+    swr.style.transform = `scale(${lerp(.7, 1, eOutBack(seg(t, 3.5, 3.85)))})`;
+
+    // scene 3: optical ring around camera module (centred while phone is in macro)
+    const op = seg(t, 4.65, 5.25);
+    $('#optic').setAttribute('transform', `translate(540 860) rotate(${360 * eInOut(op)})`);
+    $('#optic').style.opacity = Math.sin(Math.PI * op);
+    $('#op1').setAttribute('r', lerp(110, 200, eOut(op)));
+    $('#op2').setAttribute('r', lerp(150, 250, eOut(op)));
+    // display flow
+    const fl = seg(t, 5.55, 6.0);
+    A.flow.style.top = lerp(-60, 120, eInOut(fl)) + '%';
+    A.flow.style.opacity = Math.sin(Math.PI * fl);
+    B.flow.style.opacity = 0;
+    // halo + converging ring expanding toward camera
+    const hp = seg(t, 5.7, 6.1);
+    const rc = seg(t, 6.0, 6.55);
+    $('#halo').style.opacity = eOut(seg(t, .4, 1.8)) * (.55 + .45 * Math.sin(Math.PI * hp)) * (1 - .3 * eInOut(seg(t, 6.2, 6.6))) + .35 * eInOut(seg(t, 8.4, 9.4));
+    $('#halo').style.transform = `translateY(${y * .6}px) scale(${1 + .25 * Math.sin(Math.PI * hp)})`;
+    const ringC = $('#ringC');
+    ringC.setAttribute('r', lerp(260, 900, eInOut(rc)));
+    ringC.style.opacity = Math.sin(Math.PI * rc) * .9;
+
+    // scene 4: panel, travelling dot, press, confirmation disc
+    const pin = seg(t, 6.25, 6.7), pout = eInOut(seg(t, 7.35, 7.7));
+    const press = Math.sin(Math.PI * seg(t, 7.0, 7.2));
+    const panel = $('#panel');
+    panel.style.opacity = eOut(pin) * (1 - pout);
+    panel.style.transform = `translateY(${lerp(70, 0, eOutBack(pin))}px) scale(${(1 - .02 * press) * lerp(1, .85, pout)})`;
+    $('#pill').style.transform = `scale(${1 - .06 * press})`;
+    $('#pill').style.filter = `brightness(${1 + .35 * press})`;
+    const dp = seg(t, 6.6, 7.0);
+    const dot = $('#dot');
+    const path = [[260, 1103], [760, 1103], [300, 1189], [PILL.x, PILL.y]];
+    const segI = Math.min(2, Math.floor(eInOut(dp) * 3)), sp = eInOut(dp) * 3 - segI;
+    const P0 = path[segI], P1 = path[segI + 1];
+    dot.style.left = lerp(P0[0], P1[0], sp) + 'px'; dot.style.top = lerp(P0[1], P1[1], sp) + 'px';
+    dot.style.opacity = (dp > 0 ? 1 : 0) * (1 - seg(t, 7.05, 7.25));
+    const R = $('#ripple');
+    const rp = seg(t, 7.05, 7.6);
+    if (rp > 0 && rp < 1) { R.style.left = PILL.x + 'px'; R.style.top = PILL.y + 'px'; R.style.transform = `scale(${lerp(.4, 2.2, eOut(rp))})`; R.style.opacity = .9 * (1 - rp); }
+    else R.style.opacity = 0;
+    // confirmation: disc pops, a phone outline draws inside (no checkmark / no "approved")
+    const cp = seg(t, 7.45, 7.85), cout = eInOut(seg(t, 8.15, 8.45));
+    $('#conf').style.transform = `scale(${eOutBack(cp) * (1 - .3 * cout)})`;
+    $('#conf').style.opacity = clamp(cp * 3) * (1 - cout);
+    const ci = $('#ci'), L = 2 * (68 + 116);
+    ci.style.strokeDasharray = L; ci.style.strokeDashoffset = L * (1 - eInOut(seg(t, 7.65, 8.0)));
+    $('#cd').style.opacity = eOut(seg(t, 7.95, 8.05));
+
+    // particles: panel + disc dissolve
+    PTS.forEach(o => {
+      const p = seg(t, 7.4 + o.d, 8.5 + o.d);
+      o.el.style.left = (o.x0 + o.dx * eOut(p)) + 'px'; o.el.style.top = (o.y0 + o.dy * eOut(p)) + 'px';
+      o.el.style.opacity = Math.sin(Math.PI * p) * .9;
+    });
+
+    // scene 5: ghost phone (front) behind the hero, glides away
+    const gin = seg(t, 8.45, 8.9), gout = eInOut(seg(t, 9.6, 10.4));
+    $('#space2').style.opacity = eOut(gin) * (1 - gout) * .85;
+    place(B, lerp(-300, -640, gout), lerp(-140, -200, gout), -520, lerp(345, 325, gout), 2, 6, 1.0, Math.sin(t * 1.2) * 4);
+  }
+
+  // ---- layout / controls ----
+  let S = 1;
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#04071a', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#05081a'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tick = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tick);
+  };
+  layout(); ui();
+  requestAnimationFrame(tick);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>
