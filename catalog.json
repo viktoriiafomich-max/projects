@@ -65,6 +65,17 @@
       "topic": "tech",
       "date": "2026-10-27",
       "task": "tasks/tech/2026-10-27_schedule-app"
+    },
+    {
+      "section": "motion",
+      "path": "motion/finance/2026-10-28_get-iphone-17-pro-max/",
+      "title": "Get Iphone 17 Pro Max: phone upgrade motion v1",
+      "q": "Get Iphone 17 Pro Max",
+      "partner": "adw",
+      "platforms": "tiktok",
+      "topic": "finance",
+      "date": "2026-10-28",
+      "task": "tasks/finance/2026-10-28_get-iphone-17-pro-max"
     }
   ]
 }

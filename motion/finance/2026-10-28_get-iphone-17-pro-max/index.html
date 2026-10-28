@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone upgrade — motion</title>
+<style>
+  :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #05081a; font-family: var(--font); overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  #bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 44%, #13234d 0%, #0a1330 45%, #04071a 100%); }
+  #bgGlow { position: absolute; left: 140px; top: 360px; width: 800px; height: 1000px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(64,124,255,.32), rgba(64,124,255,0) 65%); }
+  #floor { position: absolute; left: 0; right: 0; top: 1290px; height: 630px;
+    background: linear-gradient(180deg, rgba(40,70,140,.0) 0%, rgba(30,52,110,.35) 6%, rgba(8,14,36,.9) 60%, #04071a 100%); }
+  #floorLine { position: absolute; left: 90px; right: 90px; top: 1290px; height: 2px;
+    background: linear-gradient(90deg, rgba(120,170,255,0), rgba(140,190,255,.7), rgba(120,170,255,0)); }
+  #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key .sh { filter: none !important; box-shadow: none !important; }
+
+  #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
+  #beam { position: absolute; left: 0; top: -400px; width: 300px; height: 2800px; transform-origin: 150px 1400px;
+    background: linear-gradient(90deg, rgba(150,190,255,0), rgba(170,205,255,.30), rgba(150,190,255,0)); mix-blend-mode: screen; }
+
+  /* 3D space */
+  #space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 860px; }
+  #p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d;
+    --f1: #dfe3e8; --f2: #8c939c; --fr: #b9bfc7; --fd: #6c727b; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 66px; }
+  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 40%, #f4f6f8 52%, var(--fr) 64%, var(--fd)); }
+  .face { backface-visibility: hidden; overflow: hidden; }
+  .back { background: linear-gradient(160deg, var(--f1) 0%, var(--f2) 100%); }
+  .back .brush { position: absolute; inset: 0; opacity: .18;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 1px, rgba(0,0,0,0) 1px 4px); }
+  .back .sheen, .front .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.55) 48%, rgba(255,255,255,0) 58%); }
+  .module { position: absolute; left: 26px; top: 26px; width: 206px; height: 214px; border-radius: 52px;
+    background: linear-gradient(150deg, rgba(255,255,255,.28), rgba(0,0,0,.18)); box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), 0 6px 14px rgba(0,0,0,.25); }
+  .lens { position: absolute; width: 84px; height: 84px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #0b1020 0 26%, #1c2b55 30%, #050811 44%, #2a2f38 46%, #11141a 60%, #6a717c 64%, #2b3038 72%, #c9ced6 76%, #6b717a 100%);
+    box-shadow: 0 4px 8px rgba(0,0,0,.45); }
+  .lens::after { content: ""; position: absolute; left: 28px; top: 22px; width: 14px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.55); transform: rotate(-30deg); }
+  .flash { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, #fff6dc, #d9c79a 70%, #8a7f66); }
+  .mic { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #2a2f38; }
+  .front { background: #050608; }
+  .front .scr { position: absolute; inset: 14px; border-radius: 54px; overflow: hidden;
+    background: radial-gradient(ellipse 70% 50% at 30% 30%, #3a6cff 0%, rgba(58,108,255,0) 60%),
+                radial-gradient(ellipse 60% 45% at 75% 75%, #1636a8 0%, rgba(22,54,168,0) 65%),
+                linear-gradient(170deg, #0b1844 0%, #050816 55%, #0a1a52 100%); }
+  .front .wave { position: absolute; left: -20%; top: 40%; width: 140%; height: 34%; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(110,160,255,.55), rgba(110,160,255,0) 60%); transform: rotate(-18deg); }
+  .front .isl { position: absolute; left: 50%; top: 30px; width: 120px; height: 34px; margin-left: -60px; border-radius: 18px; background: #000; }
+
+  #shade { position: absolute; inset: 0; background: #04071a; }
+  #reflect { position: absolute; left: 370px; top: 1300px; width: 340px; height: 300px; border-radius: 60px;
+    background: linear-gradient(180deg, rgba(160,190,240,.28), rgba(160,190,240,0)); filter: blur(10px); }
+  #glowRim { position: absolute; left: 240px; top: 330px; width: 600px; height: 1060px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(60,130,255,.45), rgba(60,130,255,0) 62%); }
+
+  /* scene 2 cards */
+  .gcard { position: absolute; width: 250px; height: 330px; margin: -165px 0 0 -125px; border-radius: 38px;
+    background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+    border: 2px solid rgba(255,255,255,.22); box-shadow: 0 30px 60px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; }
+
+  /* swatches */
+  .sw { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; box-shadow: 0 10px 20px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.35); }
+  .sw .ring { position: absolute; inset: -12px; border-radius: 50%; border: 4px solid #B6F23C; box-shadow: 0 0 18px rgba(182,242,60,.7); opacity: 0; }
+
+  /* panel */
+  #panel { position: absolute; left: 160px; top: 1050px; width: 760px; height: 400px; border-radius: 56px;
+    background: linear-gradient(160deg, rgba(240,244,255,.95), rgba(214,224,245,.92)); box-shadow: 0 40px 80px rgba(0,0,0,.45); }
+  #panel .ph { position: absolute; border-radius: 14px; background: #c9d3e8; }
+  #panel .seg { position: absolute; top: 300px; width: 112px; height: 22px; border-radius: 11px; background: #c9d3e8; }
+  #panel .seg i { position: absolute; inset: 0; border-radius: 11px; background: linear-gradient(90deg, #9BE22A, #C8F55A); box-shadow: 0 0 14px rgba(182,242,60,.8); opacity: 0; }
+  #btnC { position: absolute; left: 560px; top: 90px; width: 150px; height: 150px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #6fa0ff, #2457e6 60%, #1a3fb0); box-shadow: 0 16px 30px rgba(36,87,230,.45), inset 0 2px 0 rgba(255,255,255,.45); }
+  #btnC::after { content: ""; position: absolute; left: 50px; top: 50px; width: 50px; height: 50px; border-radius: 50%; border: 6px solid rgba(255,255,255,.9); }
+  #trails { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+
+  #ringSvg { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+  .pt { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #d8ff8a; box-shadow: 0 0 12px rgba(200,255,120,.9); }
+
+  #ripple { position: absolute; width: 180px; height: 180px; margin: -90px 0 0 -90px; border-radius: 50%; border: 6px solid rgba(255,255,255,.85); opacity: 0; }
+  #hand { position: absolute; left: 0; top: 0; width: 320px; height: 900px; transform-origin: 112px 12px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); }
+
+  #disc { position: absolute; left: 50%; top: 1480px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.14); color: rgba(255,255,255,.85); font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bgall"><div id="bg"></div><div id="bgGlow"></div><div id="floor"></div><div id="floorLine"></div></div>
+
+  <div id="world">
+    <div id="beam"></div>
+    <div id="glowRim"></div>
+    <svg id="ringSvg" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs><linearGradient id="lime" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9BE22A"/><stop offset="1" stop-color="#D6FF6E"/></linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <g id="ringG" transform="translate(540 860)">
+        <circle id="ring" r="440" fill="none" stroke="url(#lime)" stroke-width="10" stroke-linecap="round" filter="url(#glow)" transform="rotate(-90)"/>
+        <circle id="pulse" r="440" fill="none" stroke="#F2FFD0" stroke-width="16" stroke-linecap="round" filter="url(#glow)"/>
+      </g>
+    </svg>
+    <div id="pts"></div>
+    <div id="reflect"></div>
+
+    <div class="gcard sh" id="c0"><svg width="150" height="250" viewBox="0 0 150 250"><rect x="10" y="5" width="130" height="240" rx="26" fill="#c9ced6"/><rect x="20" y="16" width="62" height="64" rx="18" fill="#9aa1ab"/><circle cx="38" cy="34" r="12" fill="#14182a"/><circle cx="38" cy="62" r="12" fill="#14182a"/><circle cx="64" cy="48" r="12" fill="#14182a"/></svg></div>
+    <div class="gcard sh" id="c1"><svg width="150" height="250" viewBox="0 0 150 250"><rect x="62" y="5" width="26" height="240" rx="12" fill="#b7bdc5"/><rect x="58" y="60" width="6" height="34" rx="3" fill="#8b929b"/><rect x="58" y="104" width="6" height="22" rx="3" fill="#8b929b"/></svg></div>
+    <div class="gcard sh" id="c2"><svg width="150" height="250" viewBox="0 0 150 250"><defs><linearGradient id="wp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a6cff"/><stop offset=".6" stop-color="#081640"/><stop offset="1" stop-color="#1636a8"/></linearGradient></defs><rect x="10" y="5" width="130" height="240" rx="26" fill="#050608"/><rect x="16" y="11" width="118" height="228" rx="21" fill="url(#wp)"/><rect x="58" y="18" width="34" height="9" rx="4.5" fill="#000"/></svg></div>
+
+    <div id="space">
+      <div id="p3">
+        <div class="face back" id="backF"><div class="brush"></div>
+          <div class="module"><div class="lens" style="left:18px;top:16px"></div><div class="lens" style="left:18px;top:114px"></div><div class="lens" style="left:108px;top:65px"></div>
+            <div class="flash" style="left:150px;top:22px"></div><div class="mic" style="left:160px;top:170px"></div></div>
+          <div class="sheen" id="sheenB"></div></div>
+        <div class="face front" id="frontF"><div class="scr"><div class="wave"></div></div><div class="isl"></div><div class="sheen" id="sheenF"></div></div>
+      </div>
+    </div>
+    <div id="shade"></div>
+
+    <div class="sw sh" id="s0" style="left:400px;top:1400px"><div class="ring"></div></div>
+    <div class="sw sh" id="s1" style="left:540px;top:1400px"><div class="ring"></div></div>
+    <div class="sw sh" id="s2" style="left:680px;top:1400px"><div class="ring"></div></div>
+
+    <div id="panel" class="sh">
+      <div class="ph" style="left:56px;top:70px;width:120px;height:120px;border-radius:34px;background:linear-gradient(140deg,#aab7d6,#8796bf)"></div>
+      <div class="ph" style="left:200px;top:92px;width:290px;height:26px"></div>
+      <div class="ph" style="left:200px;top:142px;width:200px;height:20px;background:#dbe2f1"></div>
+      <div class="ph" style="left:56px;top:230px;width:440px;height:4px;background:#d5ddee"></div>
+      <div id="btnC"></div>
+      <div class="seg" style="left:56px"><i></i></div><div class="seg" style="left:186px"><i></i></div><div class="seg" style="left:316px"><i></i></div><div class="seg" style="left:446px"><i></i></div>
+    </div>
+    <svg id="trails" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs><linearGradient id="tr" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5b8dff"/><stop offset="1" stop-color="#c9dcff"/></linearGradient></defs>
+      <g fill="none" stroke="url(#tr)" stroke-width="6" stroke-linecap="round" filter="url(#glow)">
+        <path class="trl" d="M300 1250 C120 1050 140 760 330 620"/>
+        <path class="trl" d="M780 1250 C960 1050 940 760 750 620"/>
+        <path class="trl" d="M540 1250 C420 1080 660 900 540 700"/>
+        <path class="trl" d="M420 1250 C200 1150 230 900 380 820"/>
+        <path class="trl" d="M660 1250 C880 1150 850 900 700 820"/>
+      </g>
+    </svg>
+
+    <div id="ripple"></div>
+    <svg id="hand" class="sh" viewBox="0 0 320 900" aria-hidden="true">
+      <defs>
+        <linearGradient id="skinX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C98E70"/><stop offset=".35" stop-color="#EBC1A5"/><stop offset=".58" stop-color="#F3D3BD"/><stop offset="1" stop-color="#CF9878"/></linearGradient>
+        <linearGradient id="fingX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#CC9273"/><stop offset=".4" stop-color="#EECAB1"/><stop offset=".62" stop-color="#F4D7C3"/><stop offset="1" stop-color="#D19A7A"/></linearGradient>
+        <linearGradient id="nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DCD3"/><stop offset="1" stop-color="#E7B5A8"/></linearGradient>
+        <linearGradient id="knit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b2440"/><stop offset=".45" stop-color="#2c3862"/><stop offset="1" stop-color="#18203a"/></linearGradient>
+        <radialGradient id="knuck" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#F0CFB8"/><stop offset="1" stop-color="#D49E80"/></radialGradient>
+      </defs>
+      <path d="M150 420 C140 600 124 760 114 900 L298 900 C290 760 280 600 272 420 Z" fill="url(#skinX)"/>
+      <path d="M100 640 C106 760 96 840 90 900 L312 900 C302 840 294 760 292 640 Q196 612 100 640 Z" fill="url(#knit)"/>
+      <path d="M128 250 C120 330 132 420 165 455 C200 480 255 470 280 430 C300 395 298 330 290 270 C285 235 255 222 220 226 L150 232 C138 234 130 240 128 250 Z" fill="url(#skinX)"/>
+      <ellipse cx="180" cy="238" rx="27" ry="21" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="228" cy="240" rx="26" ry="20" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="270" cy="254" rx="22" ry="18" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <path d="M134 336 C106 320 88 294 92 270 C96 252 114 252 124 262 C137 276 147 294 152 304 Z" fill="url(#fingX)"/>
+      <path d="M86 40 C86 18 100 8 112 8 C126 8 138 20 138 40 L142 252 C142 264 130 272 114 272 C98 272 86 264 86 252 Z" fill="url(#fingX)"/>
+      <path d="M96 122 Q112 128 128 122" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M94 196 Q113 204 134 196" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M98 30 C98 18 106 13 112 13 C120 13 127 18 127 30 L127 62 C127 70 120 74 112 74 C104 74 98 70 98 62 Z" fill="url(#nail)"/>
+      <ellipse cx="107" cy="32" rx="4" ry="11" fill="#fff" opacity=".55"/>
+    </svg>
+  </div>
+
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="15" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 15;
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOut = p => 1 - Math.pow(1 - p, 3);
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eOutBack = p => { const c = 1.4, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const eInBack = p => { const c = 1.4; return (c + 1) * p * p * p - c * p * p; };
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => { const A = hex(a), B = hex(b); return 'rgb(' + A.map((v, i) => Math.round(lerp(v, B[i], p))).join(',') + ')'; };
+
+  // phone build: metal slices for a solid rounded edge
+  const p3 = $('#p3'), D = 34, N = 14;
+  for (let i = 0; i < N; i++) {
+    const s = document.createElement('div'); s.className = 'slice';
+    s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`;
+    p3.insertBefore(s, p3.firstChild);
+  }
+  $('#backF').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
+  $('#frontF').style.transform = `translateZ(${D / 2 + .5}px)`;
+
+  // finishes: silver, deep blue, natural titanium
+  const FIN = [
+    { f1: '#e3e7ec', f2: '#8d949d', fr: '#c3c8cf', fd: '#6d737c' },
+    { f1: '#5d79a8', f2: '#1b2b4a', fr: '#7d8fae', fd: '#2c3a55' },
+    { f1: '#d8c8b3', f2: '#8e7d68', fr: '#c4b6a3', fd: '#74685a' }
+  ];
+  ['#s0', '#s1', '#s2'].forEach((id, i) => $(id).style.background = `radial-gradient(circle at 35% 30%, ${FIN[i].f1}, ${FIN[i].f2})`);
+
+  // phone keyframes: [t, x, y, z, ry, rx, rz, s]  (x,y = offset from centre 540,860)
+  const K = [
+    [0.0, 0, 40, -500, -95, 6, 0, .9],
+    [2.0, 0, 0, 0, 155, -4, -6, 1.0],
+    [2.6, 150, -20, -80, 165, -3, -4, .78],
+    [4.4, 150, -20, -80, 200, -3, -2, .78],
+    [5.0, 0, -10, 0, 180, 0, 0, .9],
+    [5.9, 0, -10, 0, 180, 0, 0, .9],
+    [6.9, 0, -10, 0, 360, 0, 0, .9],
+    [7.0, 0, -10, 0, 360, 0, 0, .9],
+    [7.6, 0, -300, -60, 360, 4, 0, .62],
+    [9.5, 0, -300, -60, 362, 4, 0, .62],
+    [10.4, 0, -20, 0, 525, -4, -5, 1.0],
+    [12.5, 0, -30, 120, 535, -4, -5, 1.1],
+    [15.0, 0, -40, 160, 548, -5, -6, 1.16]
+  ];
+  const phoneAt = t => {
+    let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++;
+    const a = K[i], b = K[i + 1], p = i === 0 ? eOut(seg(t, a[0], b[0])) : eInOut(seg(t, a[0], b[0]));
+    return a.slice(1).map((v, j) => lerp(v, b[j + 1], p));
+  };
+
+  // particles
+  const PTS = [];
+  for (let i = 0; i < 16; i++) {
+    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
+    const a = (i / 16) * Math.PI * 2 + (i % 3) * .2;
+    PTS.push({ el, a, r0: 440 + (i % 4) * 14, dr: 60 + (i * 37) % 90, d: (i * 0.071) % .5 });
+  }
+
+  const trails = [...document.querySelectorAll('.trl')];
+  trails.forEach(p => { const L = p.getTotalLength(); p.dataset.l = L; p.style.strokeDasharray = L; });
+  const ringL = 2 * Math.PI * 440;
+  $('#ring').style.strokeDasharray = ringL;
+  $('#pulse').style.strokeDasharray = `180 ${ringL}`;
+
+  const el = id => document.getElementById(id);
+  const cards = ['c0', 'c1', 'c2'].map(el), sws = ['s0', 's1', 's2'].map(el);
+  const segs = [...document.querySelectorAll('#panel .seg i')];
+  const BTN = { x: 160 + 560 + 75, y: 1050 + 90 + 75 };
+
+  function render(t) {
+    // camera: gentle push at start, slow push at the end
+    const cam = lerp(.94, 1, eOut(seg(t, 0, 2))) * lerp(1, 1.05, eInOut(seg(t, 12.5, 15)));
+    world.style.transform = `scale(${cam})`;
+    $('#shade').style.opacity = 1 - eOut(seg(t, .15, 1.2));
+
+    // beam sweep
+    $('#beam').style.transform = `translateX(${lerp(-500, 1400, eInOut(seg(t, .3, 1.9)))}px) rotate(18deg)`;
+    $('#beam').style.opacity = Math.sin(Math.PI * seg(t, .3, 1.9));
+
+    // phone
+    const [x, y, z, ry, rx, rz, s] = phoneAt(t);
+    const bob = Math.sin(t * 1.4) * 6;
+    p3.style.transform = `translate(${x}px, ${y + bob}px) translateZ(${z}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${s})`;
+    const sp = ((ry % 360) + 360) % 360;
+    $('#sheenB').style.transform = `translateX(${lerp(-60, 60, (sp - 90) / 180) * 3}%)`;
+    $('#sheenF').style.transform = `translateX(${lerp(60, -60, (sp + 90) % 360 / 180) * 3}%)`;
+    $('#sheenF').style.opacity = .5;
+
+    // finish change: silver -> deep blue at tap 5.35
+    const fp = eInOut(seg(t, 5.4, 5.9));
+    for (const k of ['f1', 'f2', 'fr', 'fd']) p3.style.setProperty('--' + k, mix(FIN[0][k], FIN[1][k], fp));
+
+    // glow behind phone
+    $('#glowRim').style.opacity = lerp(.5, 1, eInOut(seg(t, 12.3, 13.5))) * eOut(seg(t, .6, 2));
+    $('#glowRim').style.transform = `translateY(${y}px)`;
+
+    // scene 2 cards
+    const cp = [[150, 560], [880, 700], [190, 1180]];
+    cards.forEach((c, i) => {
+      const inp = eOutBack(seg(t, 2.1 + i * .12, 2.7 + i * .12));
+      const out = eInOut(seg(t, 4.15, 4.6));
+      let X = cp[i][0], Y = cp[i][1], S = lerp(.7, i === 1 ? .82 : .92, inp), O = eOut(seg(t, 2.1 + i * .12, 2.5 + i * .12)), B = i === 1 ? 2 : 0;
+      const sel = eInOut(seg(t, 3.25, 3.85));
+      if (i === 0) { X = lerp(X, 300, sel); Y = lerp(Y, 760, sel); S *= lerp(1, 1.45, sel); }
+      else { S *= lerp(1, .82, sel); O *= lerp(1, .45, sel); B += 4 * sel; }
+      const fl = Math.sin(t * 1.5 + i * 2) * 8;
+      c.style.left = X + 'px'; c.style.top = (Y + fl) + 'px';
+      c.style.transform = `scale(${S * (1 - .2 * out)})`;
+      c.style.opacity = O * (1 - out);
+      c.style.filter = B ? `blur(${B}px)` : 'none';
+      c.style.zIndex = i === 0 ? 3 : 1;
+    });
+
+    // swatches
+    sws.forEach((w, i) => {
+      const p = seg(t, 4.75 + i * .08, 5.15 + i * .08), out = eInOut(seg(t, 6.9, 7.3));
+      const tap = i === 1 ? Math.sin(Math.PI * seg(t, 5.3, 5.5)) : 0;
+      const big = i === 1 ? eOutBack(seg(t, 5.35, 5.75)) : 0;
+      w.style.opacity = eOut(p) * (1 - out);
+      w.style.transform = `translateY(${lerp(40, 0, eOutBack(p)) + 30 * out}px) scale(${(1 + .14 * big) * (1 - .1 * tap)})`;
+      w.querySelector('.ring').style.opacity = i === 1 ? eOut(seg(t, 5.4, 5.7)) : 0;
+    });
+
+    // panel
+    const pin = seg(t, 7.2, 7.7), pout = eInOut(seg(t, 9.4, 9.9));
+    const press = Math.sin(Math.PI * seg(t, 7.98, 8.2));
+    const panel = $('#panel');
+    panel.style.opacity = eOut(pin) * (1 - pout);
+    panel.style.transform = `translateY(${lerp(80, 0, eOutBack(pin))}px) scale(${(1 - .03 * press) * lerp(1, .9, pout)})`;
+    $('#btnC').style.transform = `scale(${1 - .1 * press})`;
+    segs.forEach((g, i) => { g.style.opacity = eOut(seg(t, 8.35 + i * .28, 8.55 + i * .28)); });
+
+    // trails converge to the phone
+    trails.forEach((p, i) => {
+      const L = +p.dataset.l, a = 9.45 + i * .06;
+      const draw = eInOut(seg(t, a, a + .6)), fade = eInOut(seg(t, a + .55, a + 1.0));
+      p.style.strokeDashoffset = L * (1 - draw) - L * fade * .999;
+      p.style.opacity = draw > 0 ? 1 - fade * .9 : 0;
+    });
+
+    // ring + pulse (no checkmark)
+    const rd = eInOut(seg(t, 10.2, 11.0)), rout = eInOut(seg(t, 12.2, 12.9));
+    $('#ring').style.strokeDashoffset = ringL * (1 - rd);
+    $('#ringG').setAttribute('transform', `translate(540 ${860 + y}) scale(${lerp(.8, 1, eOut(rd)) * lerp(1, 1.08, rout)})`);
+    $('#ring').style.opacity = 1 - rout;
+    const pp = seg(t, 11.0, 12.3);
+    $('#pulse').style.opacity = pp > 0 && pp < 1 ? Math.sin(Math.PI * pp) * (1 - rout) : 0;
+    $('#pulse').setAttribute('transform', `rotate(${-90 + 360 * eInOut(pp)})`);
+    PTS.forEach(o => {
+      const p = seg(t, 10.9 + o.d, 12.4 + o.d), r = o.r0 + o.dr * eOut(p);
+      o.el.style.left = (540 + Math.cos(o.a) * r) + 'px'; o.el.style.top = (860 + y + Math.sin(o.a) * r) + 'px';
+      o.el.style.opacity = Math.sin(Math.PI * p) * .9;
+    });
+
+    // reflection + floor for the hero
+    const hero = eInOut(seg(t, 12.4, 13.4));
+    $('#reflect').style.opacity = hero * .9;
+    $('#floor').style.opacity = lerp(.35, 1, hero);
+    $('#floorLine').style.opacity = lerp(.2, 1, hero);
+
+    // fingertip
+    const hin = seg(t, 7.45, 7.95), hout = seg(t, 8.35, 8.9);
+    let hx = lerp(1150, BTN.x, eOut(hin)), hy = lerp(1950, BTN.y, eOut(hin));
+    if (hout > 0) { hx = lerp(BTN.x, 1180, eInBack(hout)); hy = lerp(BTN.y, 2100, eInBack(hout)); }
+    const lift = Math.sin(Math.PI * seg(t, 7.8, 7.98));
+    const hs = 1.3 * (1 - .07 * press);
+    const hand = $('#hand');
+    hand.style.transform = `translate(${hx - 112}px, ${hy - 12 - 20 * lift + Math.sin(t * 2.4) * 3}px) rotate(-12deg) scale(${hs})`;
+    hand.style.opacity = t > 7.4 && t < 9 ? 1 : 0;
+
+    // ripples: swatch tap + button tap
+    const R = $('#ripple');
+    let rr = null;
+    if (t >= 5.35 && t < 5.85) rr = { x: 540, y: 1400, p: seg(t, 5.35, 5.85) };
+    if (t >= 8.05 && t < 8.6) rr = { x: BTN.x, y: BTN.y, p: seg(t, 8.05, 8.6) };
+    if (rr) { R.style.left = rr.x + 'px'; R.style.top = rr.y + 'px'; R.style.transform = `scale(${lerp(.3, 1.4, eOut(rr.p))})`; R.style.opacity = .9 * (1 - rr.p); }
+    else R.style.opacity = 0;
+  }
+
+  // ---- layout / controls ----
+  let S = 1;
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#04071a', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#05081a'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tick = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tick);
+  };
+  layout(); ui();
+  requestAnimationFrame(tick);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>
