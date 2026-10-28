@@ -25,54 +25,70 @@
     background: linear-gradient(90deg, rgba(150,190,255,0), rgba(170,205,255,.28), rgba(150,190,255,0)); mix-blend-mode: screen; }
   #halo { position: absolute; left: 190px; top: 410px; width: 700px; height: 900px; border-radius: 50%;
     background: radial-gradient(ellipse, rgba(70,140,255,.45), rgba(70,140,255,0) 62%); }
-  #selGlow { position: absolute; left: 0; top: 0; width: 520px; height: 760px; margin: -380px 0 0 -260px; border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(255,150,80,.55), rgba(255,150,80,0) 62%); opacity: 0; }
+  #cshadow { position: absolute; left: 0; top: 0; width: 360px; height: 60px; margin: -30px 0 0 -180px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,.55), rgba(0,0,0,0) 70%); }
 
-  /* phone (iPhone-17-Pro-style form, no logo) */
+  /* phone: iPhone-17-Pro-style form, no logo */
   .space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 860px; }
   .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d; }
   .face, .slice { position: absolute; inset: 0; border-radius: 72px; }
-  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 38%, var(--hi) 52%, var(--fr) 66%, var(--fd)); }
+  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 36%, var(--hi) 50%, var(--fr) 64%, var(--fd)); }
   .face { backface-visibility: hidden; overflow: hidden; }
+  .btn3 { position: absolute; width: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--fd), var(--fr), var(--hi)); }
   .back { background: linear-gradient(165deg, var(--c1) 0%, var(--c2) 100%); }
-  .plateau { position: absolute; left: 0; top: 0; width: 100%; height: 300px; border-radius: 72px 72px 52px 52px;
-    background: linear-gradient(170deg, var(--pl) 0%, var(--c2) 140%); box-shadow: 0 14px 22px rgba(0,0,0,.32), 0 3px 0 rgba(0,0,0,.18), inset 0 -4px 0 rgba(0,0,0,.12), inset 0 3px 0 rgba(255,255,255,.45); filter: brightness(1.06); }
-  .glass { position: absolute; left: 34px; right: 34px; top: 334px; bottom: 34px; border-radius: 42px;
-    background: linear-gradient(165deg, var(--gl), var(--c2) 160%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
-  .lens { position: absolute; width: 112px; height: 112px; border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, #0a0e1c 0 24%, #1a2a58 28%, #04060d 40%, #20242c 46%, #0c0e13 58%, #3b3f47 64%, #0e1015 72%, var(--rim) 77%, var(--rim) 100%);
-    box-shadow: 0 6px 12px rgba(0,0,0,.4), inset 0 0 0 3px rgba(255,255,255,.35); }
-  .lens::after { content: ""; position: absolute; left: 36px; top: 30px; width: 18px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.5); transform: rotate(-30deg); }
-  .flash { position: absolute; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, #fff, #f2ecdc 55%, #c8c2b2); box-shadow: inset 0 0 0 3px rgba(255,255,255,.6); }
-  .lidar { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #333, #050505 70%); }
-  .mic { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: rgba(0,0,0,.6); }
-  .front { background: #050608; }
-  .front .scr { position: absolute; inset: 13px; border-radius: 60px; overflow: hidden; background: #03050b; }
+  .grain { position: absolute; inset: 0; opacity: .5; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+  .glass { position: absolute; left: 30px; right: 30px; top: 336px; bottom: 30px; border-radius: 46px;
+    background: linear-gradient(160deg, var(--gl) 0%, var(--c2) 170%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.2), inset 0 30px 60px rgba(255,255,255,.08); }
+  .plateau { position: absolute; left: 0; top: 0; width: 100%; height: 304px; border-radius: 72px 72px 50px 50px;
+    background: linear-gradient(172deg, var(--pl) 0%, var(--c1) 45%, var(--c2) 150%);
+    box-shadow: 0 16px 24px rgba(0,0,0,.34), 0 3px 0 rgba(0,0,0,.2), inset 0 -5px 0 rgba(0,0,0,.14), inset 0 3px 0 rgba(255,255,255,.55); }
+  .lens { position: absolute; width: 118px; height: 118px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, var(--rim) 0 60%, var(--fd) 68%, var(--rim) 72%, var(--hi) 80%, var(--rim) 90%, var(--fd) 100%);
+    box-shadow: 0 8px 14px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.4); }
+  .lens .g { position: absolute; inset: 14px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #05070c 0 18%, #1b2244 22%, #06080f 30%, #2a2f3a 36%, #07090e 46%, #1d2130 56%, #04050a 70%, #111522 100%);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.6), inset 0 4px 10px rgba(0,0,0,.8); }
+  .lens .g::before { content: ""; position: absolute; inset: 10px; border-radius: 50%;
+    background: conic-gradient(from 200deg, rgba(110,80,255,0) 0deg, rgba(110,80,255,.55) 40deg, rgba(60,170,255,.45) 80deg, rgba(110,80,255,0) 130deg); }
+  .lens .g::after { content: ""; position: absolute; left: 22px; top: 18px; width: 20px; height: 13px; border-radius: 50%; background: rgba(255,255,255,.75); transform: rotate(-35deg); box-shadow: 32px 30px 0 -5px rgba(255,255,255,.35); }
+  .flash { position: absolute; width: 50px; height: 50px; border-radius: 50%;
+    background: radial-gradient(circle, #fffef8 0 30%, #ece6d4 50%, #d8d2c0 70%, var(--rim) 74%, var(--fd) 100%); }
+  .lidar { position: absolute; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #3a3a3a, #050505 68%, var(--fd) 72%, var(--rim) 100%); }
+  .mic { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: rgba(0,0,0,.55); }
+  .front { background: linear-gradient(135deg, var(--hi), var(--fr) 30%, var(--fd)); }
+  .front .bez { position: absolute; inset: 4px; border-radius: 68px; background: #030405; }
+  .front .scr { position: absolute; inset: 15px; border-radius: 58px; overflow: hidden; background: #02040a; }
   .front svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .front .isl { position: absolute; left: 50%; top: 30px; width: 124px; height: 36px; margin-left: -62px; border-radius: 18px; background: #000; }
-  .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.45) 48%, rgba(255,255,255,0) 58%); }
+  .front .isl { position: absolute; left: 50%; top: 32px; width: 124px; height: 36px; margin-left: -62px; border-radius: 18px; background: #000; }
+  .front .glare { position: absolute; inset: 15px; border-radius: 58px; background: linear-gradient(125deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 28%); }
+  .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.35) 48%, rgba(255,255,255,0) 56%); mix-blend-mode: soft-light; }
 
   #shade { position: absolute; inset: 0; background: #04071a; }
 
-  /* configurator panel (no personal data) */
-  #panel { position: absolute; left: 140px; top: 960px; width: 800px; height: 520px; border-radius: 60px;
+  /* wizard panel: product configurator, no personal data */
+  #panel { position: absolute; left: 120px; top: 960px; width: 840px; height: 560px; border-radius: 60px;
     background: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.06)); border: 2px solid rgba(255,255,255,.26);
-    box-shadow: 0 40px 80px rgba(0,0,0,.45); }
-  .sd { position: absolute; top: 40px; width: 18px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.25); }
-  .sd i { position: absolute; inset: 0; border-radius: 9px; background: #fff; opacity: 0; }
-  .row { position: absolute; left: 60px; right: 60px; height: 96px; border-radius: 30px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.14); }
-  .chip { position: absolute; top: 18px; width: 60px; height: 60px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255,255,255,.4); }
-  #chipRing { position: absolute; width: 82px; height: 82px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 16px rgba(255,255,255,.7); }
-  #oldPh { position: absolute; left: 40px; top: 12px; }
-  #slot { position: absolute; right: 40px; top: 14px; width: 68px; height: 68px; border-radius: 50%; border: 3px dashed rgba(255,255,255,.4); }
-  #slotFill { position: absolute; inset: -3px; }
-  #track { position: absolute; left: 140px; right: 140px; top: 46px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.15); }
-  .seg { position: absolute; top: 37px; width: 120px; height: 22px; border-radius: 11px; background: rgba(255,255,255,.18); }
-  .seg i { position: absolute; inset: 0; border-radius: 11px; background: linear-gradient(90deg, #9BE22A, #C8F55A); box-shadow: 0 0 14px rgba(182,242,60,.8); opacity: 0; }
-  #pill { position: absolute; left: 190px; top: 420px; width: 420px; height: 74px; border-radius: 37px;
-    background: linear-gradient(180deg, #ff9a52, #e8641e); box-shadow: 0 14px 28px rgba(232,100,30,.45), inset 0 2px 0 rgba(255,255,255,.45); }
-  #dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #fff; box-shadow: 0 0 22px 6px rgba(255,220,190,.9); opacity: 0; }
+    box-shadow: 0 40px 80px rgba(0,0,0,.45); overflow: hidden; }
+  .pg { position: absolute; top: 44px; width: 200px; height: 12px; border-radius: 6px; background: rgba(255,255,255,.18); overflow: hidden; }
+  .pg i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 6px; background: linear-gradient(90deg, #ffb27a, #ff7a2a); transform-origin: 0 50%; transform: scaleX(0); }
+  #strip { position: absolute; left: 0; top: 0; width: 2520px; height: 420px; }
+  .step { position: absolute; top: 0; width: 840px; height: 420px; }
+  .tile { position: absolute; top: 110px; border-radius: 40px; background: rgba(255,255,255,.08); border: 3px solid rgba(255,255,255,.16);
+    display: flex; align-items: center; justify-content: center; }
+  .tile .ck { position: absolute; right: -12px; top: -12px; width: 52px; height: 52px; border-radius: 50%; background: #ff7a2a; box-shadow: 0 6px 14px rgba(255,122,42,.5); transform: scale(0); }
+  .tile .ck::after { content: ""; position: absolute; left: 15px; top: 12px; width: 20px; height: 12px; border-left: 6px solid #fff; border-bottom: 6px solid #fff; transform: rotate(-45deg); }
+  .sw { width: 128px; height: 128px; border-radius: 50%; box-shadow: inset 0 0 0 3px rgba(255,255,255,.35), 0 10px 20px rgba(0,0,0,.35); }
+  .bar1 { width: 210px; height: 46px; border-radius: 23px; background: rgba(255,255,255,.35); }
+  .bars4 { display: flex; gap: 12px; }
+  .bars4 b { display: block; width: 44px; height: 46px; border-radius: 14px; background: rgba(255,255,255,.3); position: relative; overflow: hidden; }
+  .bars4 b i { position: absolute; inset: 0; background: linear-gradient(180deg, #d8ff8a, #9BE22A); box-shadow: 0 0 16px rgba(182,242,60,.8); opacity: 0; }
+  #pill { position: absolute; left: 210px; top: 448px; width: 420px; height: 84px; border-radius: 42px;
+    background: linear-gradient(180deg, #ff9a52, #e8641e); box-shadow: 0 14px 28px rgba(232,100,30,.45), inset 0 2px 0 rgba(255,255,255,.45);
+    color: #fff; font-size: 36px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  #flyOld { position: absolute; left: 0; top: 0; width: 70px; height: 116px; margin: -58px 0 0 -35px; opacity: 0; }
   #ripple { position: absolute; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; border: 6px solid rgba(255,255,255,.85); opacity: 0; }
+  #hand { position: absolute; left: 0; top: 0; width: 320px; height: 900px; transform-origin: 112px 12px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); }
   .pt { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #fff3e6; box-shadow: 0 0 10px rgba(255,210,170,.9); }
 
   /* box (plain, no logo) */
@@ -83,7 +99,6 @@
     background: linear-gradient(180deg, #f4f5f7, #d9dce1); box-shadow: inset 0 -10px 20px rgba(0,0,0,.08); }
   #front3 { position: absolute; left: 270px; top: 1170px; width: 540px; height: 330px; border-radius: 10px 10px 26px 26px;
     background: linear-gradient(180deg, #ffffff 0%, #eceef1 55%, #d5d8de 100%); box-shadow: 0 40px 70px rgba(0,0,0,.45), inset 0 3px 0 rgba(255,255,255,.9); }
-  #front3::after { content: ""; position: absolute; left: 30px; right: 30px; top: 22px; height: 2px; background: rgba(0,0,0,.06); }
   #lidPersp { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; perspective: 1400px; perspective-origin: 540px 900px; }
   #lidFront { position: absolute; left: 280px; top: 950px; width: 520px; height: 230px; border-radius: 22px 22px 8px 8px; transform-origin: 50% 100%;
     background: linear-gradient(0deg, #ffffff, #e2e5ea); box-shadow: 0 -6px 18px rgba(0,0,0,.12); }
@@ -91,7 +106,7 @@
     background: radial-gradient(circle, rgba(255,240,220,.7), rgba(255,170,110,.25) 35%, rgba(255,170,110,0) 65%); opacity: 0; }
   .cf { position: absolute; width: 18px; height: 30px; margin: -15px 0 0 -9px; border-radius: 3px; }
 
-  #disc { position: absolute; left: 50%; top: 1560px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+  #disc { position: absolute; left: 50%; top: 1580px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
     background: rgba(255,255,255,.14); color: rgba(255,255,255,.85); font-size: 28px; font-weight: 800; white-space: nowrap; }
 
   #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
@@ -108,14 +123,14 @@
   <div id="world">
     <div id="beam"></div>
     <div id="halo"></div>
-    <div id="selGlow"></div>
     <div id="burst"></div>
+    <div id="cshadow"></div>
 
     <div id="boxBack"><div id="lidBack"></div><div id="inner"></div></div>
 
     <div class="space" id="spB"><div class="p3" id="pB"></div></div>
-    <div class="space" id="spS"><div class="p3" id="pS"></div></div>
     <div class="space" id="spO"><div class="p3" id="pO"></div></div>
+    <div class="space" id="spH"><div class="p3" id="pH"></div></div>
 
     <div id="boxFront"><div id="front3"></div></div>
     <div id="lidPersp"><div id="lidFront"></div></div>
@@ -123,25 +138,49 @@
     <div id="shade"></div>
 
     <div id="panel" class="sh">
-      <div class="sd" style="left:355px"><i></i></div><div class="sd" style="left:391px"><i></i></div><div class="sd" style="left:427px"><i></i></div>
-      <div class="row" style="top:92px">
-        <div class="chip" style="left:190px;background:radial-gradient(circle at 35% 30%,#f2f3f4,#bfc3c7)"></div>
-        <div class="chip" style="left:310px;background:radial-gradient(circle at 35% 30%,#ffa463,#d4601f)"></div>
-        <div class="chip" style="left:430px;background:radial-gradient(circle at 35% 30%,#56648f,#222b48)"></div>
-        <div id="chipRing" style="left:299px;top:7px"></div>
+      <div class="pg" style="left:100px"><i></i></div><div class="pg" style="left:320px"><i></i></div><div class="pg" style="left:540px"><i></i></div>
+      <div id="strip">
+        <div class="step" style="left:0">
+          <div class="tile" id="t0" style="left:60px;width:220px;height:240px"><div class="sw" style="background:radial-gradient(circle at 35% 30%,#f6f7f8,#bfc3c7)"></div><div class="ck"></div></div>
+          <div class="tile" id="t1" style="left:310px;width:220px;height:240px"><div class="sw" style="background:radial-gradient(circle at 35% 30%,#6573a0,#1f2744)"></div><div class="ck"></div></div>
+          <div class="tile" id="t2" style="left:560px;width:220px;height:240px"><div class="sw" style="background:radial-gradient(circle at 35% 30%,#ffab6e,#cf5a18)"></div><div class="ck"></div></div>
+        </div>
+        <div class="step" style="left:840px">
+          <div class="tile" id="t3" style="left:60px;width:340px;height:240px">
+            <svg width="80" height="132" viewBox="0 0 44 72"><rect x="2" y="2" width="40" height="68" rx="9" fill="#2a2f3a" stroke="#c9d1de" stroke-width="3"/><path d="M10 14 L24 30 L16 38 L30 56 M24 30 L34 22 M16 38 L8 44" stroke="#f1f5fb" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg><div class="ck"></div></div>
+          <div class="tile" id="t4" style="left:440px;width:340px;height:240px">
+            <svg width="80" height="132" viewBox="0 0 44 72"><rect x="2" y="2" width="40" height="68" rx="9" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3" stroke-dasharray="6 5"/></svg><div class="ck"></div></div>
+        </div>
+        <div class="step" style="left:1680px">
+          <div class="tile" id="t5" style="left:60px;width:340px;height:240px"><div class="bar1"></div><div class="ck"></div></div>
+          <div class="tile" id="t6" style="left:440px;width:340px;height:240px"><div class="bars4"><b><i></i></b><b><i></i></b><b><i></i></b><b><i></i></b></div><div class="ck"></div></div>
+        </div>
       </div>
-      <div class="row" style="top:204px">
-        <svg id="oldPh" width="44" height="72" viewBox="0 0 44 72"><rect x="2" y="2" width="40" height="68" rx="9" fill="#2a2f3a" stroke="#9aa3b2" stroke-width="3"/><path d="M10 14 L24 30 L16 38 L30 56 M24 30 L34 22 M16 38 L8 44" stroke="#dfe6f2" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-        <div id="track"></div>
-        <div id="slot"><svg id="slotFill" width="68" height="68" viewBox="0 0 68 68"><circle id="slotC" cx="34" cy="34" r="31" fill="none" stroke="#C8F55A" stroke-width="5" stroke-linecap="round" transform="rotate(-90 34 34)"/></svg></div>
-      </div>
-      <div class="row" style="top:316px">
-        <div class="seg" style="left:60px"><i></i></div><div class="seg" style="left:200px"><i></i></div><div class="seg" style="left:340px"><i></i></div><div class="seg" style="left:480px"><i></i></div>
-      </div>
-      <div id="pill"></div>
+      <div id="pill">Continue</div>
     </div>
-    <div id="dot"></div>
+    <svg id="flyOld" viewBox="0 0 44 72"><rect x="2" y="2" width="40" height="68" rx="9" fill="#2a2f3a" stroke="#c9d1de" stroke-width="3"/><path d="M10 14 L24 30 L16 38 L30 56 M24 30 L34 22 M16 38 L8 44" stroke="#f1f5fb" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
     <div id="ripple"></div>
+    <svg id="hand" class="sh" viewBox="0 0 320 900" aria-hidden="true">
+      <defs>
+        <linearGradient id="skinX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C98E70"/><stop offset=".35" stop-color="#EBC1A5"/><stop offset=".58" stop-color="#F3D3BD"/><stop offset="1" stop-color="#CF9878"/></linearGradient>
+        <linearGradient id="fingX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#CC9273"/><stop offset=".4" stop-color="#EECAB1"/><stop offset=".62" stop-color="#F4D7C3"/><stop offset="1" stop-color="#D19A7A"/></linearGradient>
+        <linearGradient id="nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DCD3"/><stop offset="1" stop-color="#E7B5A8"/></linearGradient>
+        <linearGradient id="knit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b2440"/><stop offset=".45" stop-color="#2c3862"/><stop offset="1" stop-color="#18203a"/></linearGradient>
+        <radialGradient id="knuck" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#F0CFB8"/><stop offset="1" stop-color="#D49E80"/></radialGradient>
+      </defs>
+      <path d="M150 420 C140 600 124 760 114 900 L298 900 C290 760 280 600 272 420 Z" fill="url(#skinX)"/>
+      <path d="M100 640 C106 760 96 840 90 900 L312 900 C302 840 294 760 292 640 Q196 612 100 640 Z" fill="url(#knit)"/>
+      <path d="M128 250 C120 330 132 420 165 455 C200 480 255 470 280 430 C300 395 298 330 290 270 C285 235 255 222 220 226 L150 232 C138 234 130 240 128 250 Z" fill="url(#skinX)"/>
+      <ellipse cx="180" cy="238" rx="27" ry="21" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="228" cy="240" rx="26" ry="20" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <ellipse cx="270" cy="254" rx="22" ry="18" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
+      <path d="M134 336 C106 320 88 294 92 270 C96 252 114 252 124 262 C137 276 147 294 152 304 Z" fill="url(#fingX)"/>
+      <path d="M86 40 C86 18 100 8 112 8 C126 8 138 20 138 40 L142 252 C142 264 130 272 114 272 C98 272 86 264 86 252 Z" fill="url(#fingX)"/>
+      <path d="M96 122 Q112 128 128 122" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M94 196 Q113 204 134 196" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
+      <path d="M98 30 C98 18 106 13 112 13 C120 13 127 18 127 30 L127 62 C127 70 120 74 112 74 C104 74 98 70 98 62 Z" fill="url(#nail)"/>
+      <ellipse cx="107" cy="32" rx="4" ry="11" fill="#fff" opacity=".55"/>
+    </svg>
     <div id="pts"></div>
     <div id="cfs"></div>
   </div>
@@ -152,14 +191,14 @@
 
 <div id="ui">
   <button id="bPlay">Pause</button><button id="bRe">Restart</button>
-  <input id="scrub" type="range" min="0" max="13" step="0.001" value="0"><span id="time">0.00</span>
+  <input id="scrub" type="range" min="0" max="15" step="0.001" value="0"><span id="time">0.00</span>
   <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
   <button id="bClean">Clean (H)</button>
 </div>
 
 <script>
 (() => {
-  const DUR = 13;
+  const DUR = 15;
   const $ = s => document.querySelector(s);
   const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
   const q = new URLSearchParams(location.search);
@@ -172,53 +211,56 @@
   const eIn = p => p * p * p;
   const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const eOutBack = p => { const c = 1.6, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, p) => { const A = hex(a), B = hex(b); return 'rgb(' + A.map((v, i) => Math.round(lerp(v, B[i], p))).join(',') + ')'; };
 
   const FIN = {
-    silver: { c1: '#f1f2f3', c2: '#cdd0d4', pl: '#e6e8ea', gl: '#f5f6f7', rim: '#cfd3d8', fr: '#d7dadd', fd: '#979ca2', hi: '#ffffff' },
-    orange: { c1: '#f7954a', c2: '#cf5a18', pl: '#f08540', gl: '#fa9d5d', rim: '#e07733', fr: '#e8813f', fd: '#9a4512', hi: '#ffd2b0' },
-    blue:   { c1: '#47567f', c2: '#1f2744', pl: '#3b4870', gl: '#4c5b86', rim: '#56648f', fr: '#46537a', fd: '#1b2139', hi: '#9aa8d4' }
+    silver: { c1: '#f2f3f4', c2: '#c9ccd0', pl: '#fafbfb', gl: '#eef0f1', rim: '#d3d6da', fr: '#d9dce0', fd: '#8e939a', hi: '#ffffff' },
+    blue:   { c1: '#4a5a86', c2: '#1d2541', pl: '#5a6a96', gl: '#3e4c76', rim: '#5d6b96', fr: '#4a5780', fd: '#191f36', hi: '#a3b1dc' },
+    orange: { c1: '#f99a52', c2: '#c85514', pl: '#ffad6c', gl: '#f08a44', rim: '#e47a36', fr: '#ec8442', fd: '#94400f', hi: '#ffd7b8' }
   };
-  const WALL = `<svg viewBox="0 0 394 854" preserveAspectRatio="none"><defs><filter id="wg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <linearGradient id="wl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6ff"/><stop offset=".7" stop-color="#7fb4ff"/><stop offset="1" stop-color="#f3d1a8"/></linearGradient></defs>
-    <g fill="none" stroke="url(#wl)" stroke-width="5" filter="url(#wg)" stroke-linecap="round">
-    <path d="M40 120 L300 120 Q350 120 350 170 L350 250 Q350 300 300 300 L90 300 Q40 300 40 350 L40 420"/>
+  const WALL = `<svg viewBox="0 0 394 854" preserveAspectRatio="none"><defs><filter id="wg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="wl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6f2ff"/><stop offset=".65" stop-color="#8fbfff"/><stop offset="1" stop-color="#f6d6ae"/></linearGradient></defs>
+    <g fill="none" stroke="url(#wl)" stroke-width="7" filter="url(#wg)" stroke-linecap="round">
+    <path d="M40 130 L300 130 Q350 130 350 180 L350 250 Q350 300 300 300 L90 300 Q40 300 40 350 L40 420"/>
     <path d="M60 470 L300 470 Q350 470 350 520 L350 560 Q350 600 310 600 Q270 600 270 650 L270 700 Q270 750 320 750 L360 750"/>
     <path d="M40 640 L190 640 Q230 640 230 690 L230 780"/></g>
-    <rect x="0" y="660" width="394" height="120" fill="url(#wl)" opacity=".12"/></svg>`;
+    <rect x="0" y="660" width="394" height="140" fill="url(#wl)" opacity=".14"/></svg>`;
   const PHONE = `<div class="face back"><div class="glass"></div><div class="plateau">
-      <div class="lens" style="left:30px;top:24px"></div><div class="lens" style="left:30px;top:156px"></div><div class="lens" style="left:152px;top:90px"></div>
-      <div class="flash" style="left:330px;top:34px"></div><div class="lidar" style="left:331px;top:178px"></div><div class="mic" style="left:349px;top:128px"></div></div>
-      <div class="sheen sb"></div></div>
-    <div class="face front"><div class="scr">${WALL}</div><div class="isl"></div><div class="sheen sf"></div></div>`;
+      <div class="lens" style="left:26px;top:22px"><div class="g"></div></div><div class="lens" style="left:26px;top:160px"><div class="g"></div></div><div class="lens" style="left:152px;top:91px"><div class="g"></div></div>
+      <div class="flash" style="left:330px;top:32px"></div><div class="lidar" style="left:332px;top:180px"></div><div class="mic" style="left:351px;top:130px"></div></div>
+      <div class="grain"></div><div class="sheen sb"></div></div>
+    <div class="face front"><div class="bez"></div><div class="scr">${WALL}</div><div class="isl"></div><div class="glare"></div><div class="sheen sf"></div></div>`;
   const D = 34, N = 14;
   const build = (p, fin) => {
     p.innerHTML = PHONE;
     for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; p.insertBefore(s, p.firstChild); }
+    // side buttons on the frame
+    [[-6, 230, 70], [-6, 330, 110], [-6, 460, 110], [416, 300, 150], [416, 560, 90]].forEach(([x, y, h]) => {
+      const b = document.createElement('div'); b.className = 'btn3'; b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.height = h + 'px'; p.insertBefore(b, p.firstChild);
+    });
     p.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
     p.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
-    for (const k in FIN[fin]) p.style.setProperty('--' + k, FIN[fin][k]);
+    setF(p, fin, fin, 1);
     return { p, sb: p.querySelector('.sb'), sf: p.querySelector('.sf'), sp: p.parentNode };
   };
-  const PS = build($('#pS'), 'silver'), PO = build($('#pO'), 'orange'), PB = build($('#pB'), 'blue');
+  const setF = (p, a, b, k) => { for (const key in FIN[a]) p.style.setProperty('--' + key, mix(FIN[a][key], FIN[b][key], k)); };
+  const H = build($('#pH'), 'silver'), PO = build($('#pO'), 'orange'), PB = build($('#pB'), 'blue');
 
   // keyframes: [t, x, y, z, ry, rx, rz, s, opacity]
-  const KS = [
+  const KH = [
     [0.0, 0, 50, -380, 150, -4, -6, .92, 1], [1.8, 0, 0, 0, 160, -4, -5, 1.0, 1], [2.4, 0, -30, -100, 180, 0, 0, .6, 1],
-    [3.3, 0, -30, -100, 180, 0, 0, .6, 1], [3.9, 120, -30, -650, 180, 0, 0, .55, 0], [13, 120, -30, -650, 180, 0, 0, .55, 0]];
-  const KO = [
-    [0.0, 520, -30, -200, 180, 0, 0, .55, 0], [2.1, 520, -30, -200, 180, 0, 0, .55, 0], [2.6, 310, -30, -160, 180, 0, 0, .58, 1],
-    [3.35, 310, -30, -160, 180, 0, 0, .58, 1], [4.0, 0, -40, 0, 180, 0, 0, .82, 1], [4.6, 0, -60, 0, 198, -3, -3, .9, 1],
-    [5.0, 0, -440, -200, 180, 4, 0, .48, 1], [7.7, 0, -440, -200, 186, 4, 0, .48, 1], [8.4, 0, -10, 0, 360, 0, 0, .95, 1],
-    [9.0, 0, -10, 0, 362, 0, 0, .95, 1], [9.6, 0, -40, 0, 525, -4, -5, .92, 1], [10.0, 0, -200, 0, 540, 0, -3, .55, 1],
-    [10.55, 0, 468, 0, 540, 0, 0, .34, 1], [13, 0, 468, 0, 540, 0, 0, .34, 1]];
-  const KB = [
-    [0.0, -520, -30, -200, 180, 0, 0, .55, 0], [2.2, -520, -30, -200, 180, 0, 0, .55, 0], [2.7, -310, -30, -160, 180, 0, 0, .58, 1],
-    [3.35, -310, -30, -160, 180, 0, 0, .58, 1], [3.95, -440, -30, -650, 180, 0, 0, .5, 0], [13, -440, -30, -650, 180, 0, 0, .5, 0]];
+    [3.6, 0, -30, -100, 180, 0, 0, .6, 1], [4.1, 0, -40, 0, 196, -3, -3, .85, 1], [4.8, 0, -470, -200, 180, 4, 0, .46, 1],
+    [10.0, 0, -470, -200, 186, 4, 0, .46, 1], [10.7, 0, -10, 0, 360, 0, 0, .95, 1], [11.2, 0, -10, 0, 362, 0, 0, .95, 1],
+    [11.8, 0, -40, 0, 525, -4, -5, .92, 1], [12.2, 0, -200, 0, 540, 0, -3, .55, 1], [12.75, 0, 468, 0, 540, 0, 0, .34, 1], [15, 0, 468, 0, 540, 0, 0, .34, 1]];
+  const KO = [[0.0, 520, -30, -200, 180, 0, 0, .55, 0], [2.1, 520, -30, -200, 180, 0, 0, .55, 0], [2.6, 310, -30, -160, 180, 0, 0, .58, 1],
+    [3.6, 310, -30, -160, 180, 0, 0, .58, 1], [4.1, 60, -30, -500, 180, 0, 0, .5, 0], [15, 60, -30, -500, 180, 0, 0, .5, 0]];
+  const KB = [[0.0, -520, -30, -200, 180, 0, 0, .55, 0], [2.2, -520, -30, -200, 180, 0, 0, .55, 0], [2.7, -310, -30, -160, 180, 0, 0, .58, 1],
+    [3.6, -310, -30, -160, 180, 0, 0, .58, 1], [4.1, -60, -30, -500, 180, 0, 0, .5, 0], [15, -60, -30, -500, 180, 0, 0, .5, 0]];
   const at = (K, t) => {
     let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++;
-    const a = K[i], b = K[i + 1];
-    const raw = seg(t, a[0], b[0]);
-    const p = (K === KO && a[0] === 10.0) ? eIn(raw) : (i === 0 ? eOut(raw) : eInOut(raw));
+    const a = K[i], b = K[i + 1], raw = seg(t, a[0], b[0]);
+    const p = (K === KH && a[0] === 12.2) ? eIn(raw) : (i === 0 ? eOut(raw) : eInOut(raw));
     return a.slice(1).map((v, j) => lerp(v, b[j + 1], p));
   };
   const place = (ph, v, bob) => {
@@ -228,21 +270,13 @@
     const sp = ((ry % 360) + 360) % 360;
     ph.sb.style.transform = `translateX(${(sp - 180) * 1.2}%)`;
     ph.sf.style.transform = `translateX(${((sp + 180) % 360 - 180) * -1.2}%)`;
-    ph.sf.style.opacity = .4;
   };
 
-  // particles + sparkles + optional confetti
-  const PTS = [];
-  for (let i = 0; i < 30; i++) {
-    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
-    PTS.push({ el, x0: 170 + (i * 97) % 740, y0: 990 + (i * 53) % 470, dx: ((i * 41) % 120) - 60, dy: -120 - (i * 29) % 160, d: (i % 7) * .05 });
-  }
-  const SPK = [];
-  for (let i = 0; i < 22; i++) {
-    const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el);
-    const a = -Math.PI / 2 + ((i / 21) - .5) * 2.4;
-    SPK.push({ el, a, r: 220 + (i * 47) % 260, d: (i % 5) * .06 });
-  }
+  // particles, sparkles, optional confetti
+  const mk = (n, f) => Array.from({ length: n }, (_, i) => { const el = document.createElement('div'); el.className = 'pt'; $('#pts').appendChild(el); return { el, ...f(i) }; });
+  const PTS = mk(30, i => ({ x0: 150 + (i * 97) % 780, y0: 990 + (i * 53) % 500, dx: ((i * 41) % 120) - 60, dy: -120 - (i * 29) % 160, d: (i % 7) * .05 }));
+  const SPK = mk(22, i => ({ a: -Math.PI / 2 + ((i / 21) - .5) * 2.4, r: 220 + (i * 47) % 260, d: (i % 5) * .06 }));
+  const TRD = mk(10, i => ({ a: (i / 10) * Math.PI * 2, r: 120 + (i * 23) % 60 }));
   const CF = [];
   if (CONFETTI) {
     const cols = ['#ff8a3d', '#ffd166', '#7fb4ff', '#ffffff', '#c8f55a', '#f472b6'];
@@ -252,102 +286,117 @@
     }
   }
 
-  const PILL = { x: 140 + 190 + 210, y: 960 + 420 + 37 };
-  const OLD0 = { x: 140 + 60 + 40 + 22, y: 960 + 204 + 12 + 36 }, SLOT = { x: 140 + 800 - 60 - 40 - 34, y: 960 + 204 + 14 + 34 };
-  const slotL = 2 * Math.PI * 31; $('#slotC').style.strokeDasharray = slotL;
+  // wizard geometry (stage coords)
+  const PX = 120, PY = 960;
+  const TILE = { t1: [PX + 420, PY + 230], t2: [PX + 670, PY + 230], t3: [PX + 230, PY + 230], t6: [PX + 610, PY + 230] };
+  const PILL = [PX + 420, PY + 490];
+  const TAPS = [
+    { t: 5.75, p: TILE.t1, el: 't1' }, { t: 6.45, p: TILE.t2, el: 't2' },
+    { t: 7.75, p: TILE.t3, el: 't3' }, { t: 9.05, p: TILE.t6, el: 't6' }, { t: 9.75, p: PILL, el: 'pill' }];
+  const OFF = [1180, 2100], REST1 = [900, 1720], REST2 = [760, 1760];
+  const HW = [ // hand waypoints [t, x, y]
+    [5.0, ...OFF], [5.6, ...TILE.t1], [5.9, ...TILE.t1], [6.3, ...TILE.t2], [6.65, ...TILE.t2], [7.0, ...REST1],
+    [7.6, ...TILE.t3], [7.95, ...TILE.t3], [8.4, ...REST2], [8.9, ...TILE.t6], [9.25, ...TILE.t6], [9.6, ...PILL], [9.9, ...PILL], [10.4, ...OFF]];
+  const handAt = t => {
+    if (t <= HW[0][0] || t >= HW[HW.length - 1][0]) return null;
+    let i = 0; while (i < HW.length - 2 && t >= HW[i + 1][0]) i++;
+    const a = HW[i], b = HW[i + 1], p = eInOut(seg(t, a[0], b[0]));
+    return [lerp(a[1], b[1], p), lerp(a[2], b[2], p)];
+  };
+  const tapPress = t => { let pr = 0, lift = 0; for (const k of TAPS) { const d = t - k.t; if (d > -.2 && d < -.05) lift = Math.max(lift, Math.sin(Math.PI * seg(d, -.2, -.05))); if (d >= -.05 && d < .15) pr = Math.max(pr, Math.sin(Math.PI * seg(d, -.05, .15))); } return { pr, lift }; };
+  const tilePress = (k, t) => { const d = t - k.t; return d >= -.05 && d < .15 ? Math.sin(Math.PI * seg(d, -.05, .15)) : 0; };
+
+  const el = id => document.getElementById(id);
 
   function render(t) {
-    const cam = lerp(.93, 1, eOut(seg(t, 0, 1.8))) * lerp(1, 1.04, eInOut(seg(t, 11.2, 13)));
+    const cam = lerp(.93, 1, eOut(seg(t, 0, 1.8))) * lerp(1, 1.04, eInOut(seg(t, 13.2, 15)));
     world.style.transform = `scale(${cam})`;
     $('#shade').style.opacity = 1 - eOut(seg(t, .1, 1.0));
-
-    const b1 = seg(t, .25, 1.6), b2 = seg(t, 8.4, 9.3);
+    const b1 = seg(t, .25, 1.6), b2 = seg(t, 10.6, 11.5);
     const bp = b2 > 0 ? b2 : b1;
     $('#beam').style.transform = `translateX(${lerp(-500, 1400, eInOut(bp))}px) rotate(18deg)`;
     $('#beam').style.opacity = Math.sin(Math.PI * bp);
-    $('#halo').style.opacity = eOut(seg(t, .4, 1.8)) * (1 - .5 * eInOut(seg(t, 9.8, 10.4)));
+    $('#halo').style.opacity = eOut(seg(t, .4, 1.8)) * (1 - .5 * eInOut(seg(t, 12.0, 12.6)));
 
-    const bob = Math.sin(t * 1.4) * 5;
-    place(PS, at(KS, t), bob); place(PB, at(KB, t), Math.sin(t * 1.4 + 1) * 5);
-    const vo = at(KO, t); place(PO, vo, t < 10 ? bob : 0);
+    // hero finish follows the chosen colour: silver -> blue (5.75) -> orange (6.45)
+    const kb = eInOut(seg(t, 5.8, 6.05)), ko = eInOut(seg(t, 6.5, 6.75));
+    if (ko > 0) setF(H.p, 'blue', 'orange', ko); else setF(H.p, 'silver', 'blue', kb);
+    const pulse = Math.max(Math.sin(Math.PI * seg(t, 5.8, 6.2)), Math.sin(Math.PI * seg(t, 6.5, 6.9)), Math.sin(Math.PI * seg(t, 8.0, 8.4)));
+    const vh = at(KH, t);
+    vh[6] *= 1 + .06 * pulse;
+    place(H, vh, t < 12 ? Math.sin(t * 1.4) * 5 : 0);
+    place(PO, at(KO, t), Math.sin(t * 1.4 + 1) * 5); place(PB, at(KB, t), Math.sin(t * 1.4 + 2) * 5);
+    const cs = $('#cshadow');
+    cs.style.left = (540 + vh[0]) + 'px'; cs.style.top = (860 + vh[1] + 440 * vh[6] + 40) + 'px';
+    cs.style.transform = `scale(${vh[6]})`; cs.style.opacity = t < 12 ? .8 : 0;
 
-    // selection: light dot taps the orange phone, warm glow under it
-    const sg = $('#selGlow');
-    sg.style.left = (540 + vo[0]) + 'px'; sg.style.top = (860 + vo[1]) + 'px';
-    sg.style.opacity = Math.sin(Math.PI * seg(t, 3.1, 4.4)) * .9;
-
-    // configurator panel
-    const pin = seg(t, 4.9, 5.35), pout = eInOut(seg(t, 7.65, 8.05));
-    const press = Math.sin(Math.PI * seg(t, 7.3, 7.5));
+    // wizard panel
+    const pin = seg(t, 4.8, 5.25), pout = eInOut(seg(t, 10.0, 10.4));
     const panel = $('#panel');
     panel.style.opacity = eOut(pin) * (1 - pout);
-    panel.style.transform = `translateY(${lerp(80, 0, eOutBack(pin))}px) scale(${(1 - .02 * press) * lerp(1, .88, pout)})`;
-    document.querySelectorAll('.sd i').forEach((d, i) => d.style.opacity = eOut(seg(t, [5.3, 6.15, 6.9][i], [5.5, 6.35, 7.1][i])));
-    $('#chipRing').style.transform = `scale(${1 + .12 * Math.sin(Math.PI * seg(t, 5.35, 5.75))})`;
-    // trade-in: old cracked phone slides into the slot, slot fills
-    const tr = eInOut(seg(t, 5.7, 6.25));
-    const op = $('#oldPh');
-    op.style.transform = `translateX(${(SLOT.x - OLD0.x) * tr}px) scale(${1 - .45 * tr}) rotate(${-8 * tr}deg)`;
-    op.style.opacity = 1 - eInOut(seg(t, 6.1, 6.3));
-    $('#slotC').style.strokeDashoffset = slotL * (1 - eOut(seg(t, 6.15, 6.55)));
-    // split payment segments
-    document.querySelectorAll('.seg i').forEach((g, i) => g.style.opacity = eOut(seg(t, 6.45 + i * .14, 6.6 + i * .14)));
-    $('#pill').style.transform = `scale(${1 - .06 * press})`;
-    $('#pill').style.filter = `brightness(${1 + .3 * press})`;
+    panel.style.transform = `translateY(${lerp(80, 0, eOutBack(pin))}px) scale(${lerp(1, .88, pout)})`;
+    $('#strip').style.transform = `translateX(${-840 * eInOut(seg(t, 6.95, 7.3)) - 840 * eInOut(seg(t, 8.25, 8.6))}px)`;
+    document.querySelectorAll('.pg i').forEach((g, i) => g.style.transform = `scaleX(${eOut(seg(t, [6.5, 7.8, 9.1][i], [6.85, 8.15, 9.45][i]))})`);
+    // tile states
+    const sel = (id, on, off) => {
+      const tl = el(id); const p = eOutBack(seg(t, on, on + .3)) * (off ? 1 - eInOut(seg(t, off, off + .2)) : 1);
+      tl.style.borderColor = p > .01 ? `rgba(255,140,70,${.95 * clamp(p)})` : 'rgba(255,255,255,.16)';
+      tl.style.background = `rgba(255,255,255,${.08 + .1 * clamp(p)})`;
+      tl.querySelector('.ck').style.transform = `scale(${clamp(p, 0, 1.2)})`;
+      const k = TAPS.find(x => x.el === id);
+      tl.style.transform = `scale(${(1 - .05 * (k ? tilePress(k, t) : 0)) * (1 + .03 * clamp(p))})`;
+    };
+    sel('t1', 5.75, 6.45); sel('t2', 6.45); sel('t3', 7.75); sel('t6', 9.05);
+    el('t4').style.opacity = 1 - .5 * eInOut(seg(t, 7.8, 8.1));
+    el('t5').style.opacity = 1 - .5 * eInOut(seg(t, 9.1, 9.4));
+    el('t0').style.transform = el('t4').style.transform = el('t5').style.transform = '';
+    document.querySelectorAll('.bars4 i').forEach((g, i) => g.style.opacity = eOut(seg(t, 9.1 + i * .13, 9.25 + i * .13)));
+    const pp = tilePress(TAPS[4], t);
+    el('pill').style.transform = `scale(${1 - .06 * pp})`;
+    el('pill').style.filter = `brightness(${1 + .3 * pp})`;
 
-    // light dot: taps orange phone (3.15), then travels to the pill (7.3)
-    const dot = $('#dot');
-    let dx = null, dy = null, dO = 0;
-    const d1 = seg(t, 2.85, 3.15);
-    if (t >= 2.85 && t < 3.4) { dx = lerp(1100, 540 + 310, eOut(d1)); dy = lerp(1500, 860, eOut(d1)); dO = 1 - seg(t, 3.2, 3.4); }
-    const d2 = seg(t, 7.0, 7.3);
-    if (t >= 7.0 && t < 7.55) { dx = lerp(980, PILL.x, eOut(d2)); dy = lerp(1650, PILL.y, eOut(d2)); dO = 1 - seg(t, 7.35, 7.55); }
-    if (dx != null) { dot.style.left = dx + 'px'; dot.style.top = dy + 'px'; }
-    dot.style.opacity = dO;
-    const R = $('#ripple');
-    let rr = null;
-    if (t >= 3.15 && t < 3.65) rr = { x: 540 + 310, y: 860 - 30, p: seg(t, 3.15, 3.65) };
-    if (t >= 7.35 && t < 7.9) rr = { x: PILL.x, y: PILL.y, p: seg(t, 7.35, 7.9) };
-    if (rr) { R.style.left = rr.x + 'px'; R.style.top = rr.y + 'px'; R.style.transform = `scale(${lerp(.4, 2.0, eOut(rr.p))})`; R.style.opacity = .9 * (1 - rr.p); }
+    // trade-in: cracked phone flies up into the new phone
+    const fo = el('flyOld'), fp = seg(t, 7.85, 8.25);
+    const hx = 540 + vh[0], hy = 860 + vh[1];
+    fo.style.left = lerp(TILE.t3[0], hx, eInOut(fp)) + 'px'; fo.style.top = lerp(TILE.t3[1], hy, eInOut(fp)) + 'px';
+    fo.style.transform = `scale(${lerp(1, .4, fp)}) rotate(${-20 * fp}deg)`;
+    fo.style.opacity = fp > 0 && fp < 1 ? 1 - seg(t, 8.1, 8.25) : 0;
+    TRD.forEach(o => { const p = seg(t, 8.2, 8.7); o.el.style.left = (hx + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (hy + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p); });
+
+    // hand + ripple
+    const hp = handAt(t), hand = el('hand');
+    const { pr, lift } = tapPress(t);
+    if (hp) { hand.style.opacity = 1; hand.style.transform = `translate(${hp[0] - 112}px, ${hp[1] - 12 - 22 * lift + Math.sin(t * 2.4) * 3}px) rotate(-12deg) scale(${1.15 * (1 - .07 * pr)})`; }
+    else hand.style.opacity = 0;
+    const R = el('ripple');
+    let rk = null; for (const k of TAPS) if (t >= k.t && t < k.t + .5) rk = k;
+    if (rk) { const p = seg(t, rk.t, rk.t + .5); R.style.left = rk.p[0] + 'px'; R.style.top = rk.p[1] + 'px'; R.style.transform = `scale(${lerp(.35, 1.6, eOut(p))})`; R.style.opacity = .9 * (1 - p); }
     else R.style.opacity = 0;
 
-    PTS.forEach(o => {
-      const p = seg(t, 7.6 + o.d, 8.6 + o.d);
-      o.el.style.left = (o.x0 + o.dx * eOut(p)) + 'px'; o.el.style.top = (o.y0 + o.dy * eOut(p)) + 'px';
-      o.el.style.opacity = Math.sin(Math.PI * p) * .9;
-    });
+    PTS.forEach(o => { const p = seg(t, 10.0 + o.d, 11.0 + o.d); o.el.style.left = (o.x0 + o.dx * eOut(p)) + 'px'; o.el.style.top = (o.y0 + o.dy * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p) * .9; });
 
     // box: rises, phone falls in, lid closes
-    const bx = eOutBack(seg(t, 9.3, 9.9));
-    const by = lerp(700, 0, bx);
+    const by = lerp(700, 0, eOutBack(seg(t, 11.5, 12.1)));
     $('#boxBack').style.transform = `translateY(${by}px)`;
-    $('#boxFront').style.transform = `translateY(${by}px)`;
-    $('#boxBack').style.opacity = $('#boxFront').style.opacity = clamp(seg(t, 9.3, 9.6) * 2);
-    const lid = seg(t, 10.7, 11.15);
-    $('#lidBack').style.opacity = t < 10.7 ? 1 : 0;
-    $('#inner').style.opacity = 1 - eInOut(seg(t, 10.95, 11.15));
-    const lf = $('#lidFront');
-    lf.style.opacity = t >= 10.7 ? 1 : 0;
-    lf.style.transform = `translateY(${by}px) rotateX(${lerp(0, -86, eInOut(lid))}deg)`;
-    const land = Math.sin(Math.PI * seg(t, 10.55, 10.75));
+    $('#boxBack').style.opacity = $('#boxFront').style.opacity = clamp(seg(t, 11.5, 11.8) * 2);
+    const land = Math.sin(Math.PI * seg(t, 12.75, 12.95));
     $('#boxFront').style.transform = `translateY(${by + 8 * land}px) scaleY(${1 - .03 * land})`;
+    const lid = seg(t, 12.9, 13.35);
+    $('#lidBack').style.opacity = t < 12.9 ? 1 : 0;
+    $('#inner').style.opacity = 1 - eInOut(seg(t, 13.15, 13.35));
+    const lf = $('#lidFront');
+    lf.style.opacity = t >= 12.9 ? 1 : 0;
+    lf.style.transform = `translateY(${by}px) rotateX(${lerp(0, -86, eInOut(lid))}deg)`;
 
-    // celebration: warm light burst + rising sparkles (+ optional confetti)
-    const bu = seg(t, 11.1, 12.2);
-    $('#burst').style.opacity = Math.sin(Math.PI * Math.min(1, bu * 1.3)) * .9 + .25 * seg(t, 12.0, 13);
+    // light burst + sparkles (+ optional confetti)
+    const bu = seg(t, 13.3, 14.4);
+    $('#burst').style.opacity = Math.sin(Math.PI * Math.min(1, bu * 1.3)) * .9 + .25 * seg(t, 14.2, 15);
     $('#burst').style.transform = `scale(${lerp(.5, 1.15, eOut(bu))})`;
-    SPK.forEach(o => {
-      const p = seg(t, 11.15 + o.d, 12.4 + o.d);
-      o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px';
-      o.el.style.top = (1160 + Math.sin(o.a) * o.r * eOut(p)) + 'px';
-      o.el.style.opacity = Math.sin(Math.PI * p);
-    });
+    SPK.forEach(o => { const p = seg(t, 13.35 + o.d, 14.6 + o.d); o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (1160 + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p); });
     CF.forEach(o => {
-      const tt = t - (11.1 + o.d);
+      const tt = t - (13.3 + o.d);
       if (tt < 0) { o.el.style.opacity = 0; return; }
-      o.el.style.opacity = 1;
-      o.el.style.left = (o.x + Math.sin(tt * 3 + o.r0) * o.sw) + 'px';
-      o.el.style.top = (-60 + o.sp * tt) + 'px';
+      o.el.style.opacity = 1; o.el.style.left = (o.x + Math.sin(tt * 3 + o.r0) * o.sw) + 'px'; o.el.style.top = (-60 + o.sp * tt) + 'px';
       o.el.style.transform = `rotate(${o.r0 + o.rv * tt}deg) scaleX(${Math.cos(tt * 6 + o.r0)})`;
     });
   }
@@ -358,11 +407,11 @@
   const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#04071a', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#05081a'; $('#bgSel').value = v; };
   const layout = () => {
     document.body.classList.toggle('clean', clean);
-    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
-    S = Math.min(W / 1080, H / 1920);
+    const W = innerWidth, Hh = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, Hh / 1920);
     stage.style.transform = `scale(${S})`;
     wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
-    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (Hh - 1920 * S) / 2 + 'px';
     setBg($('#bgSel').value || 'scene');
     render(T);
   };
