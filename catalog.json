@@ -109,6 +109,17 @@
       "topic": "tech",
       "date": "2026-11-02",
       "task": "tasks/tech/2026-11-02_privacy-screen"
+    },
+    {
+      "section": "motion",
+      "path": "motion/finance/2026-11-02_debit-cards-online/",
+      "title": "Debit Cards Online: banking card app motion v1",
+      "q": "Debit Cards Online",
+      "partner": "ad",
+      "platforms": "tiktok",
+      "topic": "finance",
+      "date": "2026-11-02",
+      "task": "tasks/finance/2026-11-02_debit-cards-online"
     }
   ]
 }
