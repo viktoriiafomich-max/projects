@@ -98,6 +98,17 @@
       "topic": "finance",
       "date": "2026-10-28",
       "task": "tasks/finance/2026-10-28_get-iphone-17-pro-max"
+    },
+    {
+      "section": "motion",
+      "path": "motion/tech/2026-11-02_privacy-screen/",
+      "title": "Privacy screen: purple privacy-pattern motion v1",
+      "q": "",
+      "partner": "",
+      "platforms": "tiktok",
+      "topic": "tech",
+      "date": "2026-11-02",
+      "task": "tasks/tech/2026-11-02_privacy-screen"
     }
   ]
 }

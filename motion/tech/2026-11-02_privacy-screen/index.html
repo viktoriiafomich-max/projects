@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy screen — motion</title>
+<style>
+  :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #12061f; font-family: var(--font); overflow: hidden; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  /* backgrounds */
+  #purple { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, #c48bff 0%, #8d3cf2 32%, #5a14c4 62%, #2a0663 100%); }
+  #rays { position: absolute; left: -460px; top: -140px; width: 2000px; height: 2000px; border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.13) 0deg 7deg, rgba(255,255,255,0) 7deg 18deg);
+    -webkit-mask: radial-gradient(circle, rgba(0,0,0,1) 8%, rgba(0,0,0,.6) 35%, rgba(0,0,0,0) 62%); mask: radial-gradient(circle, rgba(0,0,0,1) 8%, rgba(0,0,0,.6) 35%, rgba(0,0,0,0) 62%); }
+  #vign { position: absolute; inset: 0; background: radial-gradient(ellipse 75% 60% at 50% 46%, rgba(0,0,0,0) 55%, rgba(20,0,50,.55) 100%); }
+  #dark { position: absolute; inset: 0; background: radial-gradient(circle at 50% 44%, #2a1846 0%, #140a26 50%, #08040f 100%); }
+  #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key .sh { filter: none !important; box-shadow: none !important; }
+
+  #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
+  #ring { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+  #glow { position: absolute; left: 140px; top: 360px; width: 800px; height: 1000px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(240,210,255,.55), rgba(240,210,255,0) 62%); }
+
+  /* phone */
+  .space { position: absolute; inset: 0; perspective: 2400px; perspective-origin: 540px 860px; }
+  .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d;
+    --c1: #4a4d55; --c2: #24262b; --fr: #6a6e77; --fd: #2a2c31; --hi: #c9ccd3; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 70px; }
+  .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 36%, var(--hi) 50%, var(--fr) 64%, var(--fd)); }
+  .btn3 { position: absolute; width: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--fd), var(--fr), var(--hi)); }
+  .face { backface-visibility: hidden; overflow: hidden; }
+  .back { background: linear-gradient(165deg, var(--c1), var(--c2)); }
+  .back .cam { position: absolute; left: 30px; top: 30px; width: 190px; height: 190px; border-radius: 52px; background: linear-gradient(160deg, #5a5d66, #2a2c31); box-shadow: 0 10px 18px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.25); }
+  .back .cam i { position: absolute; width: 74px; height: 74px; border-radius: 50%; background: radial-gradient(circle, #05070c 0 30%, #1d2244 36%, #05070c 50%, #3a3d45 70%, #8c9099 76%, #3a3d45 100%); box-shadow: 0 4px 8px rgba(0,0,0,.5); }
+  .front { background: linear-gradient(135deg, var(--hi), var(--fr) 30%, var(--fd)); }
+  .bez { position: absolute; inset: 4px; border-radius: 66px; background: #030405; }
+  .scr { position: absolute; inset: 15px; border-radius: 56px; overflow: hidden; }
+  .wpA { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 25%, #b57bff 0%, rgba(181,123,255,0) 55%), radial-gradient(ellipse at 75% 80%, #6a3cff 0%, rgba(106,60,255,0) 60%), linear-gradient(170deg, #2b1452, #120826); }
+  .grid { position: absolute; left: 34px; right: 34px; top: 110px; display: grid; grid-template-columns: repeat(4, 64px); justify-content: space-between; row-gap: 34px; }
+  .ic { width: 64px; height: 64px; border-radius: 18px; position: relative; box-shadow: 0 6px 12px rgba(0,0,0,.25), inset 0 2px 0 rgba(255,255,255,.35); }
+  .ic::after { content: ""; position: absolute; left: 20px; top: 20px; width: 24px; height: 24px; border-radius: 50%; border: 5px solid rgba(255,255,255,.9); }
+  .ic.sq::after { border-radius: 6px; }
+  .dock { position: absolute; left: 24px; right: 24px; bottom: 26px; height: 104px; border-radius: 40px; background: rgba(255,255,255,.16); display: flex; justify-content: space-around; align-items: center; }
+  .isl { position: absolute; left: 50%; top: 30px; width: 124px; height: 36px; margin-left: -62px; border-radius: 18px; background: #000; z-index: 3; }
+  .wpB { position: absolute; inset: 0; opacity: 0; }
+  .wpB svg { width: 100%; height: 100%; display: block; }
+  .priv { position: absolute; inset: 0; background: linear-gradient(115deg, rgba(5,3,10,.97), rgba(20,10,35,.94)); opacity: 0; z-index: 2; }
+  .glare { position: absolute; inset: 15px; border-radius: 56px; background: linear-gradient(125deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 30%); z-index: 4; }
+  .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.25) 48%, rgba(255,255,255,0) 56%); z-index: 5; }
+
+  /* glass layer scene 1 */
+  #filmL { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; border-radius: 70px; pointer-events: none; }
+
+  /* scene 2 glass panel + eye */
+  .glassP { position: absolute; border-radius: 80px; background: linear-gradient(150deg, rgba(255,255,255,.32), rgba(255,255,255,.08) 55%, rgba(255,255,255,.18));
+    border: 2px solid rgba(255,255,255,.55); box-shadow: 0 30px 60px rgba(40,0,90,.35), inset 0 2px 0 rgba(255,255,255,.7); }
+  #panel2 { left: 230px; top: 330px; width: 620px; height: 1060px; }
+  #panel2 .ref { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 80px; overflow: hidden; }
+  #panel2 .ref i { position: absolute; left: -40%; top: -10%; width: 40%; height: 130%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); transform: rotate(14deg); }
+  #eyeC { position: absolute; left: 430px; top: 750px; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), rgba(255,255,255,.15)); border: 3px solid rgba(255,255,255,.8);
+    box-shadow: 0 20px 40px rgba(60,0,120,.4); display: flex; align-items: center; justify-content: center; }
+  #eyePulse { position: absolute; left: 430px; top: 750px; width: 220px; height: 220px; border-radius: 50%; border: 6px solid rgba(255,255,255,.9); opacity: 0; }
+
+  /* scene 3 settings panel */
+  #cfg { left: 140px; top: 400px; width: 800px; height: 1080px; overflow: hidden;
+    background: linear-gradient(150deg, rgba(246,238,255,.94), rgba(222,200,255,.88)); }
+  #cfg .bar { background: rgba(141,60,242,.25); } #cfg .bar.s { background: rgba(141,60,242,.14); }
+  #cfgIcon { position: absolute; left: 330px; top: 50px; width: 140px; height: 140px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #d9b6ff, #8d3cf2); box-shadow: 0 0 0 6px rgba(255,255,255,.35), 0 0 40px rgba(220,180,255,.9); display: flex; align-items: center; justify-content: center; }
+  .bar { position: absolute; left: 90px; right: 90px; height: 34px; border-radius: 17px; background: rgba(255,255,255,.4); }
+  .bar.s { right: 260px; background: rgba(255,255,255,.25); }
+  .card { position: absolute; width: 290px; height: 330px; border-radius: 40px; overflow: hidden; border: 3px solid rgba(255,255,255,.6);
+    box-shadow: 0 18px 30px rgba(40,0,90,.35); }
+  .card svg { width: 100%; height: 100%; display: block; }
+  #selRing { position: absolute; width: 330px; height: 370px; border-radius: 56px; border: 6px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,.9); opacity: 0; }
+  #selDot { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: #fff; box-shadow: 0 6px 16px rgba(60,0,120,.4); opacity: 0; display: flex; align-items: center; justify-content: center; }
+  #selDot svg { width: 64px; height: 64px; }
+  #flyCard { position: absolute; width: 290px; height: 330px; margin: -165px 0 0 -145px; border-radius: 40px; overflow: hidden; border: 3px solid #fff; opacity: 0; box-shadow: 0 20px 40px rgba(40,0,90,.4); }
+  #flyCard svg, #mini svg { width: 100%; height: 100%; display: block; }
+  #mini { position: absolute; width: 200px; height: 240px; margin: -120px 0 0 -100px; border-radius: 34px; overflow: hidden; opacity: 0;
+    border: 3px solid rgba(255,255,255,.85); box-shadow: 0 20px 40px rgba(40,0,90,.4); }
+
+  /* scene 4 privacy badge */
+  #privC { position: absolute; left: 460px; top: 300px; width: 160px; height: 160px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.6), rgba(255,255,255,.18)); border: 3px solid rgba(255,255,255,.85);
+    display: flex; align-items: center; justify-content: center; opacity: 0; }
+  .pt { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px rgba(240,220,255,.95); }
+
+  #disc { position: absolute; left: 50%; top: 1560px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.18); color: rgba(255,255,255,.9); font-size: 28px; font-weight: 800; white-space: nowrap; }
+
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bgall"><div id="purple"></div><div id="rays"></div><div id="vign"></div><div id="dark"></div></div>
+
+  <div id="world">
+    <div id="glow"></div>
+    <svg id="ring" viewBox="0 0 1080 1920" aria-hidden="true">
+      <defs><filter id="rg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <circle id="ringC" cx="540" cy="860" r="300" fill="none" stroke="#f1dcff" stroke-width="10" filter="url(#rg)"/>
+    </svg>
+
+    <div class="space" id="sp2"><div class="p3" id="pG"></div></div>
+    <div class="space" id="sp1"><div class="p3" id="pM"></div></div>
+
+    <div class="glassP sh" id="panel2"><div class="ref"><i></i></div></div>
+    <div id="eyePulse"></div>
+    <div id="eyeC" class="sh">
+      <svg width="140" height="140" viewBox="0 0 140 140" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 70 Q70 18 126 70 Q70 122 14 70 Z"/><circle cx="70" cy="70" r="18" fill="#fff"/>
+        <path id="slash" d="M30 112 L110 28" stroke="#fff" stroke-width="12"/>
+      </svg>
+    </div>
+
+    <div class="glassP sh" id="cfg">
+      <div id="cfgIcon"><svg width="90" height="90" viewBox="0 0 140 140" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"><path d="M14 70 Q70 18 126 70 Q70 122 14 70 Z"/><circle cx="70" cy="70" r="18" fill="#fff"/><path d="M30 112 L110 28" stroke-width="13"/></svg></div>
+      <div class="bar" style="top:230px"></div><div class="bar s" style="top:286px"></div>
+      <div class="card" id="k0" style="left:70px;top:370px"></div>
+      <div class="card" id="k1" style="left:440px;top:370px"></div>
+      <div class="card" id="k2" style="left:70px;top:720px"></div>
+      <div class="card" id="k3" style="left:440px;top:720px"></div>
+      <div id="selRing" style="left:50px;top:350px"></div>
+      <div id="selDot" style="left:310px;top:340px"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" fill="none" stroke="#e5d4ff" stroke-width="6"/><circle id="selArc" cx="32" cy="32" r="20" fill="none" stroke="#8d3cf2" stroke-width="6" stroke-linecap="round" transform="rotate(-90 32 32)"/><circle id="selCore" cx="32" cy="32" r="9" fill="#8d3cf2"/></svg></div>
+    </div>
+    <div id="flyCard"></div>
+    <div id="mini"></div>
+
+    <div id="privC"><svg width="96" height="96" viewBox="0 0 140 140" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"><path d="M14 70 Q70 18 126 70 Q70 122 14 70 Z"/><circle cx="70" cy="70" r="18" fill="#fff"/><path d="M30 112 L110 28" stroke-width="13"/></svg></div>
+    <div id="pts"></div>
+  </div>
+
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="13.5" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 13.5;
+  const $ = s => document.querySelector(s);
+  const el = id => document.getElementById(id);
+  const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOut = p => 1 - Math.pow(1 - p, 3);
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eOutBack = p => { const c = 1.6, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const smooth = (a, b, x) => { const p = clamp((x - a) / (b - a)); return p * p * (3 - 2 * p); };
+
+  // original generic patterns (no third-party characters)
+  let pid = 0;
+  const PAT = {
+    blue: () => { const id = 'pb' + (pid++); return `<svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice"><defs><pattern id="${id}" width="120" height="120" patternUnits="userSpaceOnUse">
+      <circle cx="40" cy="42" r="30" fill="#5aa8ff"/><circle cx="31" cy="37" r="7" fill="#fff"/><circle cx="49" cy="37" r="7" fill="#fff"/><circle cx="32" cy="38" r="3" fill="#1b2a4a"/><circle cx="50" cy="38" r="3" fill="#1b2a4a"/><path d="M32 52 Q40 58 48 52" stroke="#1b2a4a" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="96" cy="96" r="18" fill="#8fd0ff"/><circle cx="91" cy="93" r="4" fill="#fff"/><circle cx="101" cy="93" r="4" fill="#fff"/><circle cx="92" cy="94" r="2" fill="#1b2a4a"/><circle cx="102" cy="94" r="2" fill="#1b2a4a"/>
+      <circle cx="100" cy="28" r="5" fill="#ffffff" opacity=".8"/><circle cx="18" cy="100" r="4" fill="#ffffff" opacity=".8"/></pattern></defs>
+      <rect width="300" height="340" fill="#cfe7ff"/><rect width="300" height="340" fill="url(#${id})"/></svg>`; },
+    yellow: () => { const id = 'py' + (pid++); return `<svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice"><defs><pattern id="${id}" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M10 70 L30 30 L50 70 Z" fill="#ffb400"/><circle cx="76" cy="30" r="14" fill="#ff8a1f"/><rect x="62" y="64" width="20" height="20" rx="5" fill="#fff3b0" transform="rotate(20 72 74)"/><circle cx="20" cy="90" r="5" fill="#ff8a1f"/></pattern></defs>
+      <rect width="300" height="340" fill="#ffe680"/><rect width="300" height="340" fill="url(#${id})"/></svg>`; },
+    pink: () => { const id = 'pp' + (pid++); return `<svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice"><defs><pattern id="${id}" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M50 38 C50 26 33 26 33 39 C33 50 50 60 50 60 C50 60 67 50 67 39 C67 26 50 26 50 38 Z" fill="#ff7fb2"/><circle cx="15" cy="82" r="7" fill="#fff"/><circle cx="85" cy="84" r="9" fill="#ffb3d1"/><circle cx="85" cy="16" r="5" fill="#fff"/></pattern></defs>
+      <rect width="300" height="340" fill="#ffd6e8"/><rect width="300" height="340" fill="url(#${id})"/></svg>`; },
+    multi: () => { const id = 'pm' + (pid++); return `<svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice"><defs><pattern id="${id}" width="100" height="100" patternUnits="userSpaceOnUse">
+      <polygon points="30,10 36,24 51,25 39,34 43,49 30,40 17,49 21,34 9,25 24,24" fill="#ff6b6b"/><circle cx="76" cy="26" r="11" fill="#4dabf7"/><circle cx="24" cy="78" r="10" fill="#51cf66"/><rect x="64" y="64" width="22" height="22" rx="6" fill="#fcc419"/><circle cx="52" cy="54" r="4" fill="#845ef7"/></pattern></defs>
+      <rect width="300" height="340" fill="#ffffff"/><rect width="300" height="340" fill="url(#${id})"/></svg>`; }
+  };
+  ['blue', 'yellow', 'pink', 'multi'].forEach((k, i) => el('k' + i).innerHTML = PAT[k]());
+  el('flyCard').innerHTML = PAT.blue(); el('mini').innerHTML = PAT.blue();
+
+  // phone build
+  const ICOL = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#38d9a9', '#4dabf7', '#748ffc', '#da77f2', '#f783ac', '#ff8787', '#63e6be', '#91a7ff', '#ffc078', '#a9e34b', '#e599f7', '#74c0fc', '#ff922b', '#20c997', '#845ef7', '#fa5252'];
+  const ic = (c, i) => `<div class="ic${i % 3 === 0 ? ' sq' : ''}" style="background:linear-gradient(150deg,${c},${c}cc)"></div>`;
+  const D = 30, N = 12;
+  const build = p => {
+    p.innerHTML = `<div class="face back"><div class="cam"><i style="left:16px;top:16px"></i><i style="left:16px;top:102px"></i><i style="left:100px;top:58px"></i></div><div class="sheen sb"></div></div>
+      <div class="face front"><div class="bez"></div><div class="scr"><div class="wpA"></div><div class="wpB">${PAT.blue().replace('viewBox="0 0 300 340"', 'viewBox="0 0 390 850"').replace(/width="300" height="340"/g, 'width="390" height="850"')}</div>
+        <div class="grid">${ICOL.map(ic).join('')}</div><div class="dock">${['#4dabf7', '#69db7c', '#ffa94d', '#da77f2'].map(ic).join('')}</div><div class="priv"></div></div>
+        <div class="isl"></div><div class="glare"></div><div class="sheen sf"></div></div>`;
+    for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; p.insertBefore(s, p.firstChild); }
+    [[-6, 230, 70], [-6, 330, 110], [-6, 460, 110], [416, 300, 150]].forEach(([x, y, h]) => { const b = document.createElement('div'); b.className = 'btn3'; b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.height = h + 'px'; p.insertBefore(b, p.firstChild); });
+    p.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
+    p.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
+    return { p, sp: p.parentNode, priv: p.querySelector('.priv'), wpB: p.querySelector('.wpB'), grid: p.querySelector('.grid'), dock: p.querySelector('.dock'), sb: p.querySelector('.sb'), sf: p.querySelector('.sf') };
+  };
+  const M = build(el('pM')), G = build(el('pG'));
+
+  // keyframes: [t, x, y, z, ry, rx, rz, s]
+  const KM = [
+    [0.0, 0, 40, -200, -28, 12, -4, .9], [1.4, 0, 0, 0, -58, 10, -4, 1.0], [2.0, 0, 0, 0, 0, 0, 0, 1.02], [2.6, 0, 0, 0, 0, 0, 0, 1.05],
+    [3.0, 0, 0, 0, 38, 4, 0, 1.05], [3.5, 0, 0, 0, 0, 0, 0, 1.05], [4.0, 0, 0, 0, 0, 0, 0, 1.05], [4.4, 0, 0, -260, 0, 0, 0, 1.12],
+    [6.0, 0, 0, -260, 0, 0, 0, 1.12], [6.6, 0, 0, 0, 0, 0, 0, 1.0], [7.3, 0, 0, 0, 80, 0, 0, 1.0], [7.9, 0, 0, 0, 0, 0, 0, 1.0],
+    [8.5, 0, 0, 0, -46, 4, 0, 1.0], [9.0, 0, 0, 0, 0, 0, 0, 1.0], [9.3, -60, 0, 40, 0, 0, 0, 1.0], [10.0, -150, 0, 60, -6, 0, -2, 1.0],
+    [11.0, -150, 0, 60, -6, 0, -2, 1.0], [11.6, 0, 0, 40, -12, 6, -4, 1.02], [13.5, 0, -10, 140, -13, 7, -5, 1.08]];
+  const KG = [[0, 60, 0, -300, 50, 0, 0, .95], [9.3, 60, 0, -300, 50, 0, 0, .95], [10.0, 250, -20, -350, 56, 0, 3, .95], [11.0, 250, -20, -350, 56, 0, 3, .95], [11.5, 200, 0, -500, 56, 0, 0, .3], [13.5, 200, 0, -500, 56, 0, 0, .3]];
+  const at = (K, t) => { let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++; const a = K[i], b = K[i + 1], p = eInOut(seg(t, a[0], b[0])); return a.slice(1).map((v, j) => lerp(v, b[j + 1], p)); };
+  const place = (ph, v, bob, forceDark) => {
+    const [x, y, z, ry, rx, rz, s] = v;
+    ph.p.style.transform = `translate(${x}px, ${y + bob}px) translateZ(${z}px) rotateY(${ry}deg) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${s})`;
+    // privacy effect: screen darkens as the viewing angle grows
+    let a = ((ry % 360) + 360) % 360; if (a > 180) a = 360 - a;
+    const ang = Math.sqrt(a * a + (rx * .6) ** 2);
+    ph.priv.style.opacity = Math.max(smooth(14, 40, ang), forceDark || 0);
+    const sp = ((ry % 360) + 360) % 360;
+    ph.sf.style.transform = `translateX(${((sp + 180) % 360 - 180) * -1.4}%)`;
+    ph.sb.style.transform = `translateX(${(sp - 180) * 1.2}%)`;
+  };
+
+  // particles
+  const mk = (n, f) => Array.from({ length: n }, (_, i) => { const d = document.createElement('div'); d.className = 'pt'; el('pts').appendChild(d); return { el: d, ...f(i) }; });
+  const PRT = mk(16, i => ({ a: (i / 16) * Math.PI * 2, r: 90 + (i * 37) % 110 }));
+  const SPK = mk(14, i => ({ a: (i / 14) * Math.PI * 2 + .2, r: 380 + (i * 29) % 90 }));
+
+  const ringC = el('ringC');
+
+  function render(t) {
+    const cam = lerp(.94, 1, eOut(seg(t, 0, 2))) * lerp(1, 1.05, eInOut(seg(t, 11.6, 13.5)));
+    world.style.transform = `scale(${cam})`;
+    // dark start -> purple burst
+    el('dark').style.opacity = 1 - eInOut(seg(t, 1.6, 2.2));
+    const burst = eOutBack(seg(t, 1.75, 2.4));
+    el('rays').style.transform = `rotate(${t * 6}deg) scale(${lerp(.6, 1, clamp(burst, 0, 1.1))})`;
+    el('glow').style.opacity = eOut(seg(t, 1.8, 2.6)) * (.7 + .3 * Math.sin(t * 1.3));
+    el('purple').style.filter = `brightness(${1 - .25 * eInOut(seg(t, 13.0, 13.5))})`;
+
+    // main phone
+    const vm = at(KM, t);
+    const film = eInOut(seg(t, .3, 1.1)) * (1 - eInOut(seg(t, 1.7, 2.0)));
+    place(M, vm, Math.sin(t * 1.4) * 5, film * .55);
+    // wallpaper applied at 6.1–6.6
+    const wp = eInOut(seg(t, 6.1, 6.6));
+    M.wpB.style.opacity = wp; M.grid.style.opacity = M.dock.style.opacity = 1 - wp;
+
+    // ghost phone (comparison)
+    const vg = at(KG, t);
+    el('sp2').style.opacity = eOut(seg(t, 9.25, 9.7)) * (1 - eInOut(seg(t, 11.0, 11.5))) * .85;
+    place(G, vg, Math.sin(t * 1.4 + 1) * 5, 0);
+    G.wpB.style.opacity = 1; G.grid.style.opacity = G.dock.style.opacity = 0;
+
+    // scene 2: glass panel slides in, eye -> crossed eye
+    const pin = eOutBack(seg(t, 2.45, 3.0)), pout = eInOut(seg(t, 3.9, 4.3));
+    const p2 = el('panel2');
+    p2.style.opacity = clamp(seg(t, 2.45, 2.7)) * (1 - pout);
+    p2.style.transform = `translateX(${lerp(700, 0, pin)}px) perspective(1600px) rotateY(${lerp(-18, -6, pin)}deg) scale(${lerp(1, .9, pout)})`;
+    p2.querySelector('i').style.left = lerp(-40, 140, eInOut(seg(t, 2.8, 3.6))) + '%';
+    const ein = eOutBack(seg(t, 3.0, 3.35));
+    el('eyeC').style.opacity = clamp(seg(t, 3.0, 3.15)) * (1 - pout);
+    el('eyeC').style.transform = `scale(${clamp(ein, 0, 1.2) * (1 + .08 * Math.sin(Math.PI * seg(t, 3.55, 3.85)))})`;
+    const sl = el('slash'), L = 120;
+    sl.style.strokeDasharray = L; sl.style.strokeDashoffset = L * (1 - eInOut(seg(t, 3.4, 3.65)));
+    const pu = seg(t, 3.6, 4.1);
+    el('eyePulse').style.opacity = pu > 0 && pu < 1 ? .9 * (1 - pu) : 0;
+    el('eyePulse').style.transform = `scale(${lerp(1, 1.8, eOut(pu))})`;
+
+    // scene 3: settings panel with 2x2 pattern cards, auto-select blue
+    const cin = eOutBack(seg(t, 4.2, 4.65)), cout = eInOut(seg(t, 6.0, 6.3));
+    const cfg = el('cfg');
+    cfg.style.opacity = clamp(seg(t, 4.2, 4.4)) * (1 - cout);
+    cfg.style.transform = `scale(${lerp(.35, 1, clamp(cin, 0, 1.1)) * lerp(1, .92, cout)})`;
+    ['k0', 'k1', 'k2', 'k3'].forEach((id, i) => {
+      const c = el(id), p = eOutBack(seg(t, 4.5 + i * .08, 4.85 + i * .08));
+      const sel = i === 0 ? eOutBack(seg(t, 5.15, 5.5)) : 0;
+      const dim = i === 0 ? 0 : eInOut(seg(t, 5.15, 5.45));
+      c.style.opacity = clamp(p) * (1 - .45 * dim) * (i === 0 ? 1 - (t > 6.0 ? 1 : 0) : 1);
+      c.style.transform = `translateY(${lerp(40, 0, clamp(p))}px) scale(${(.85 + .15 * clamp(p, 0, 1.1)) * (1 + .1 * sel) * (1 - .05 * dim)})`;
+      c.style.zIndex = i === 0 ? 3 : 1;
+    });
+    const sr = el('selRing'); sr.style.opacity = eOut(seg(t, 5.25, 5.5)) * (t < 6.0 ? 1 : 0); sr.style.transform = `scale(${lerp(.95, 1.1, eOutBack(seg(t, 5.15, 5.5)))})`;
+    const sd = el('selDot'); sd.style.opacity = eOut(seg(t, 5.4, 5.6)) * (t < 6.0 ? 1 : 0); sd.style.transform = `scale(${eOutBack(seg(t, 5.4, 5.7))})`;
+    const arcL = 2 * Math.PI * 20, arc = el('selArc');
+    arc.style.strokeDasharray = arcL; arc.style.strokeDashoffset = arcL * (1 - eOut(seg(t, 5.5, 5.9)));
+    el('selCore').style.transform = `scale(${eOutBack(seg(t, 5.8, 6.0))})`; el('selCore').style.transformOrigin = '32px 32px';
+
+    // scene 4: selected card flies into the phone screen
+    const fc = el('flyCard'), fp = seg(t, 6.0, 6.55);
+    const sx = 140 + 70 + 145, sy = 400 + 370 + 165;
+    fc.style.left = lerp(sx, 540, eInOut(fp)) + 'px'; fc.style.top = lerp(sy, 860, eInOut(fp)) + 'px';
+    fc.style.transform = `scale(${lerp(1.1, 1.35, eInOut(fp))}, ${lerp(1.1, 2.5, eInOut(fp))})`;
+    fc.style.opacity = t >= 6.0 && t < 6.65 ? 1 - seg(t, 6.4, 6.65) : 0;
+    // privacy icon appears then dissolves into particles
+    const pc = el('privC'), pci = eOutBack(seg(t, 8.15, 8.45)), pco = seg(t, 8.65, 8.85);
+    pc.style.opacity = clamp(seg(t, 8.15, 8.3)) * (1 - pco);
+    pc.style.transform = `scale(${clamp(pci, 0, 1.2) * (1 + .2 * pco)})`;
+    PRT.forEach(o => { const p = seg(t, 8.7, 9.4); o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (380 + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p); });
+
+    // scene 6: light ring + mini card merging into the screen
+    const rr = seg(t, 11.4, 12.6);
+    ringC.setAttribute('r', lerp(250, 620, eOut(rr)));
+    ringC.style.opacity = Math.sin(Math.PI * Math.min(1, rr * 1.2)) * .9 + .15 * seg(t, 12.6, 13.5);
+    SPK.forEach(o => { const p = seg(t, 11.6, 12.8); o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (860 + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p) * .8; });
+    const mn = el('mini'), mi = eOutBack(seg(t, 11.8, 12.15)), mm = eInOut(seg(t, 12.6, 13.05));
+    mn.style.left = lerp(860, 540, mm) + 'px'; mn.style.top = lerp(620, 860, mm) + 'px';
+    mn.style.opacity = clamp(seg(t, 11.8, 11.95)) * (1 - seg(t, 12.85, 13.05));
+    mn.style.transform = `scale(${clamp(mi, 0, 1.15) * lerp(1, .4, mm)}) rotate(${lerp(8, 0, mm)}deg)`;
+  }
+
+  // ---- layout / controls ----
+  let S = 1;
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#2a0663', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#12061f'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tick = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tick);
+  };
+  layout(); ui();
+  requestAnimationFrame(tick);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>
