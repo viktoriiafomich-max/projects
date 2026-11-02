@@ -29,6 +29,8 @@
   #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
   #glow { position: absolute; left: 90px; top: 320px; width: 900px; height: 1100px; border-radius: 50%;
     background: radial-gradient(ellipse, rgba(70,150,255,.45), rgba(70,150,255,0) 62%); }
+  /* captions=0: phone + touch layer zoomed to nearly full frame */
+  #zoom { position: absolute; inset: 0; transform-origin: 540px 860px; }
   .pt { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9fd0ff; box-shadow: 0 0 10px rgba(120,190,255,.9); }
 
   /* overlay captions (ad text chunks) */
@@ -100,7 +102,7 @@
   #ripple { position: absolute; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; border: 6px solid rgba(255,255,255,.95); opacity: 0; }
   #touch { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.95) 0 30%, rgba(255,255,255,.5) 55%, rgba(255,255,255,.12) 100%); box-shadow: 0 0 26px rgba(130,190,255,.95); opacity: 0; }
 
-  #disc { position: absolute; left: 50%; top: 1570px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+  #disc { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
     background: rgba(255,255,255,.14); color: rgba(255,255,255,.88); font-size: 28px; font-weight: 800; white-space: nowrap; }
   #stage.bg-checker #disc { background: rgba(0,0,0,.55); }
 
@@ -119,6 +121,7 @@
     <div id="glow"></div>
     <div id="pts"></div>
 
+    <div id="zoom">
     <div class="space"><div class="p3" id="ph">
       <div class="face back"></div>
       <div class="face front"><div class="bez"></div>
@@ -152,6 +155,7 @@
 
     <div id="ripple"></div>
     <div id="touch"></div>
+    </div>
   </div>
 
   <div id="cap">
@@ -182,6 +186,7 @@
   const stage = $('#stage'), world = $('#world'), wrap = $('#wrap');
   const q = new URLSearchParams(location.search);
   const NOCAP = q.get('captions') === '0';
+  if (NOCAP) el('zoom').style.transform = 'translateY(140px) scale(1.5)';
 
   const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
   const seg = (t, a, b) => clamp((t - a) / (b - a));
