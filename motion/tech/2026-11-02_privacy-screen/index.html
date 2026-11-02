@@ -24,14 +24,14 @@
   #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
   #stage.key .sh { filter: none !important; box-shadow: none !important; }
 
-  #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
+  #world { position: absolute; inset: 0; transform-origin: 540px 930px; }
   #ring { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
-  #glow { position: absolute; left: 90px; top: 230px; width: 900px; height: 1260px; border-radius: 50%;
+  #glow { position: absolute; left: 90px; top: 300px; width: 900px; height: 1260px; border-radius: 50%;
     background: radial-gradient(ellipse, rgba(240,210,255,.55), rgba(240,210,255,0) 62%); }
 
   /* phone */
-  .space { position: absolute; inset: 0; perspective: 2400px; perspective-origin: 540px 860px; }
-  .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d;
+  .space { position: absolute; inset: 0; perspective: 2400px; perspective-origin: 540px 930px; }
+  .p3 { position: absolute; left: 330px; top: 490px; width: 420px; height: 880px; transform-style: preserve-3d;
     --c1: #4a4d55; --c2: #24262b; --fr: #6a6e77; --fd: #2a2c31; --hi: #c9ccd3; }
   .face, .slice { position: absolute; inset: 0; border-radius: 70px; }
   .slice { background: linear-gradient(90deg, var(--fd), var(--fr) 36%, var(--hi) 50%, var(--fr) 64%, var(--fd)); }
@@ -57,7 +57,7 @@
   .sheen { position: absolute; inset: -40%; background: linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.25) 48%, rgba(255,255,255,0) 56%); z-index: 5; }
 
   /* glass layer scene 1 */
-  #filmL { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; border-radius: 70px; pointer-events: none; }
+  #filmL { position: absolute; left: 330px; top: 490px; width: 420px; height: 880px; border-radius: 70px; pointer-events: none; }
 
   /* scene 2 glass panel + eye */
   .glassP { position: absolute; border-radius: 80px; background: linear-gradient(150deg, rgba(255,255,255,.32), rgba(255,255,255,.08) 55%, rgba(255,255,255,.18));
@@ -105,7 +105,7 @@
     display: flex; align-items: center; justify-content: center; opacity: 0; }
   .pt { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px rgba(240,220,255,.95); }
 
-  #disc { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); padding: 10px 28px; border-radius: 26px; z-index: 10;
+  #disc { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 10px 28px; border-radius: 26px; z-index: 10;
     background: rgba(0,0,0,.3); color: #fff; font-size: 30px; font-weight: 800; white-space: nowrap; }
 
   #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
@@ -123,7 +123,7 @@
     <div id="glow"></div>
     <svg id="ring" viewBox="0 0 1080 1920" aria-hidden="true">
       <defs><filter id="rg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-      <circle id="ringC" cx="540" cy="860" r="300" fill="none" stroke="#f1dcff" stroke-width="10" filter="url(#rg)"/>
+      <circle id="ringC" cx="540" cy="930" r="300" fill="none" stroke="#f1dcff" stroke-width="10" filter="url(#rg)"/>
     </svg>
 
     <div class="space" id="sp2"><div class="p3" id="pG"></div></div>
@@ -225,13 +225,13 @@
   const M = build(el('pM')), G = build(el('pG'));
 
   // keyframes: [t, x, y, z, ry, rx, rz, s]; PS = overall phone scale
-  const PS = 1.3, CS = .62;
+  const PS = 1.75, CS = .835;
   const KM = [
     [0.0, 0, 40, -200, -28, 12, -4, .9], [1.4, 0, 0, 0, -58, 10, -4, 1.0], [2.0, 0, 0, 0, 0, 0, 0, 1.02], [2.6, 0, 0, 0, 0, 0, 0, 1.05],
     [3.0, 0, 0, 0, 38, 4, 0, 1.05], [3.5, 0, 0, 0, 0, 0, 0, 1.05], [4.0, 0, 0, 0, 0, 0, 0, 1.05], [4.4, 0, 0, -260, 0, 0, 0, 1.12],
     [6.0, 0, 0, -260, 0, 0, 0, 1.12], [6.6, 0, 0, 0, 0, 0, 0, 1.0], [7.3, 0, 0, 0, 80, 0, 0, 1.0], [7.9, 0, 0, 0, 0, 0, 0, 1.0],
     [8.5, 0, 0, 0, -46, 4, 0, 1.0], [9.0, 0, 0, 0, 0, 0, 0, 1.0], [9.3, -70, 0, 40, 0, 0, 0, 1.0], [10.0, -170, 0, 60, -6, 0, -2, 1.0],
-    [11.0, -170, 0, 60, -6, 0, -2, 1.0], [11.6, 0, 0, 40, -12, 6, -4, 1.02], [13.5, 0, -10, 140, -13, 7, -5, 1.08]].map(k => (k[7] *= PS, k));
+    [11.0, -170, 0, 60, -6, 0, -2, 1.0], [11.6, 0, 0, 40, -12, 6, -4, 1.02], [13.5, 0, -10, 50, -13, 7, -5, 1.0]].map(k => (k[7] *= PS, k));
   const KG = [[0, 60, 0, -300, 50, 0, 0, .95], [9.3, 60, 0, -300, 50, 0, 0, .95], [10.0, 300, -20, -350, 56, 0, 3, .95], [11.0, 300, -20, -350, 56, 0, 3, .95], [11.5, 220, 0, -500, 56, 0, 0, .3], [13.5, 220, 0, -500, 56, 0, 0, .3]].map(k => (k[7] *= PS, k));
   const at = (K, t) => { let i = 0; while (i < K.length - 2 && t >= K[i + 1][0]) i++; const a = K[i], b = K[i + 1], p = eInOut(seg(t, a[0], b[0])); return a.slice(1).map((v, j) => lerp(v, b[j + 1], p)); };
   const place = (ph, v, bob, forceDark) => {
@@ -255,7 +255,7 @@
 
   function render(t) {
     t *= SPEED;
-    const cam = lerp(.94, 1, eOut(seg(t, 0, 2))) * lerp(1, 1.05, eInOut(seg(t, 11.6, 13.5)));
+    const cam = lerp(.94, 1, eOut(seg(t, 0, 2))) * lerp(1, 1.02, eInOut(seg(t, 11.6, 13.5)));
     world.style.transform = `scale(${cam})`;
     // dark start -> purple burst
     el('dark').style.opacity = 1 - eInOut(seg(t, 1.6, 2.2));
@@ -297,8 +297,8 @@
     const cin = eOutBack(seg(t, 4.2, 4.65)), cout = eInOut(seg(t, 6.0, 6.3));
     const cfg = el('cfg');
     cfg.style.opacity = clamp(seg(t, 4.2, 4.4)) * (1 - cout);
-    // CS = settings screen scale (phone-sized), centred on the phone (y 860)
-    cfg.style.transform = `translateY(-85px) scale(${CS * lerp(.35, 1, clamp(cin, 0, 1.1)) * lerp(1, .92, cout)})`;
+    // CS = settings screen scale (phone-sized), centred on the phone (y 930)
+    cfg.style.transform = `translateY(-15px) scale(${CS * lerp(.35, 1, clamp(cin, 0, 1.1)) * lerp(1, .92, cout)})`;
     ['k0', 'k1', 'k2', 'k3'].forEach((id, i) => {
       const c = el(id), p = eOutBack(seg(t, 4.5 + i * .08, 4.85 + i * .08));
       const sel = i === 0 ? eOutBack(seg(t, 5.15, 5.5)) : 0;
@@ -319,9 +319,9 @@
 
     // scene 4: selected card flies into the phone screen
     const fc = el('flyCard'), fp = seg(t, 6.0, 6.55);
-    const sx = 540 + (270 - 500) * CS, sy = 860 + (710 - 865) * CS;
-    fc.style.left = lerp(sx, 540, eInOut(fp)) + 'px'; fc.style.top = lerp(sy, 860, eInOut(fp)) + 'px';
-    fc.style.transform = `scale(${lerp(CS, 1.21, eInOut(fp))}, ${lerp(CS, 2.63, eInOut(fp))})`;
+    const sx = 540 + (270 - 500) * CS, sy = 930 + (710 - 865) * CS;
+    fc.style.left = lerp(sx, 540, eInOut(fp)) + 'px'; fc.style.top = lerp(sy, 930, eInOut(fp)) + 'px';
+    fc.style.transform = `scale(${lerp(CS, 1.63, eInOut(fp))}, ${lerp(CS, 3.54, eInOut(fp))})`;
     fc.style.opacity = t >= 6.0 && t < 6.65 ? 1 - seg(t, 6.4, 6.65) : 0;
     // privacy icon appears then dissolves into particles
     const pc = el('privC'), pci = eOutBack(seg(t, 8.15, 8.45)), pco = seg(t, 8.65, 8.85);
@@ -333,9 +333,9 @@
     const rr = seg(t, 11.4, 12.6);
     ringC.setAttribute('r', lerp(250, 620, eOut(rr)));
     ringC.style.opacity = Math.sin(Math.PI * Math.min(1, rr * 1.2)) * .9 + .15 * seg(t, 12.6, 13.5);
-    SPK.forEach(o => { const p = seg(t, 11.6, 12.8); o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (860 + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p) * .8; });
+    SPK.forEach(o => { const p = seg(t, 11.6, 12.8); o.el.style.left = (540 + Math.cos(o.a) * o.r * eOut(p)) + 'px'; o.el.style.top = (930 + Math.sin(o.a) * o.r * eOut(p)) + 'px'; o.el.style.opacity = Math.sin(Math.PI * p) * .8; });
     const mn = el('mini'), mi = eOutBack(seg(t, 11.8, 12.15)), mm = eInOut(seg(t, 12.6, 13.05));
-    mn.style.left = lerp(860, 540, mm) + 'px'; mn.style.top = lerp(620, 860, mm) + 'px';
+    mn.style.left = lerp(860, 540, mm) + 'px'; mn.style.top = lerp(620, 930, mm) + 'px';
     mn.style.opacity = clamp(seg(t, 11.8, 11.95)) * (1 - seg(t, 12.85, 13.05));
     mn.style.transform = `scale(${clamp(mi, 0, 1.15) * lerp(1, .4, mm)}) rotate(${lerp(8, 0, mm)}deg)`;
   }
