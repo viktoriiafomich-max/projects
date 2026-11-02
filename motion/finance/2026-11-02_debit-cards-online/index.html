@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banking card app — motion v2</title>
+<title>Banking card app — motion v3</title>
 <style>
   :root { --font: "SF Pro Rounded", "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,97 +13,96 @@
   #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
 
   #bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 55% at 50% 42%, #10285e 0%, #081740 45%, #040a1c 100%); }
-  #gridWrap { position: absolute; left: -540px; right: -540px; top: 980px; height: 1400px; perspective: 700px; perspective-origin: 50% 0; }
+  #gridWrap { position: absolute; left: -540px; right: -540px; top: 1000px; height: 1400px; perspective: 700px; perspective-origin: 50% 0; }
   #grid { position: absolute; inset: 0; transform: rotateX(72deg); transform-origin: 50% 0;
     background-image: linear-gradient(rgba(90,160,255,.55) 2px, transparent 2px), linear-gradient(90deg, rgba(90,160,255,.55) 2px, transparent 2px);
     background-size: 120px 120px;
     -webkit-mask: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 85%); mask: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 85%); }
-  #horizon { position: absolute; left: 0; right: 0; top: 960px; height: 80px; background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(90,170,255,.45), rgba(90,170,255,0) 70%); }
+  #horizon { position: absolute; left: 0; right: 0; top: 980px; height: 80px; background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(90,170,255,.45), rgba(90,170,255,0) 70%); }
   #fade { position: absolute; inset: 0; background: #040a1c; }
   #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
   #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
   #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
-  #stage.key .sh { filter: none !important; box-shadow: none !important; }
+  #stage.key #fade { background: transparent; }
+  #stage.key #glow, #stage.key #pts { display: none; }
 
   #world { position: absolute; inset: 0; transform-origin: 540px 860px; }
-  #glow { position: absolute; left: 160px; top: 330px; width: 760px; height: 1060px; border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(70,150,255,.5), rgba(70,150,255,0) 62%); }
-  .geo { position: absolute; border: 4px solid rgba(120,190,255,.55); box-shadow: 0 0 18px rgba(90,160,255,.4); }
+  #glow { position: absolute; left: 90px; top: 320px; width: 900px; height: 1100px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(70,150,255,.45), rgba(70,150,255,0) 62%); }
   .pt { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9fd0ff; box-shadow: 0 0 10px rgba(120,190,255,.9); }
 
   /* overlay captions (ad text chunks) */
-  #cap { position: absolute; left: 60px; right: 60px; top: 150px; height: 230px; display: flex; align-items: center; justify-content: center; text-align: center; }
-  #cap span { position: absolute; left: 0; right: 0; font-size: 72px; line-height: 1.08; font-weight: 900; color: #fff; letter-spacing: .5px;
+  #cap { position: absolute; left: 50px; right: 50px; top: 140px; height: 230px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  #cap span { position: absolute; left: 0; right: 0; font-size: 70px; line-height: 1.08; font-weight: 900; color: #fff; letter-spacing: .5px;
     -webkit-text-stroke: 3px #071a4a; paint-order: stroke fill; text-shadow: 0 6px 0 #071a4a, 0 0 30px rgba(90,170,255,.85); }
   #cap span b { color: #7fd0ff; }
 
-  /* phone */
-  .space { position: absolute; inset: 0; perspective: 2400px; perspective-origin: 540px 860px; }
-  .p3 { position: absolute; left: 330px; top: 420px; width: 420px; height: 880px; transform-style: preserve-3d; }
-  .face, .slice { position: absolute; inset: 0; border-radius: 70px; }
-  .slice { background: linear-gradient(90deg, #1b1e25, #4a4f5a 36%, #b8c0cc 50%, #4a4f5a 64%, #1b1e25); }
+  /* phone: wide body, thick dark frame, punch-hole camera (like the reference) */
+  .space { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 860px; }
+  .p3 { position: absolute; left: 200px; top: 410px; width: 680px; height: 900px; transform-style: preserve-3d; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 92px; }
+  .slice { background: linear-gradient(90deg, #15171c, #3a3f49 36%, #9aa3b2 50%, #3a3f49 64%, #15171c); }
   .face { backface-visibility: hidden; overflow: hidden; }
-  .back { background: linear-gradient(165deg, #3a3e47, #16181d); }
-  .front { background: linear-gradient(135deg, #c3cad6, #4a4f5a 30%, #1b1e25); }
-  .bez { position: absolute; inset: 4px; border-radius: 66px; background: #020306; }
-  .scr { position: absolute; inset: 15px; border-radius: 56px; overflow: hidden; color: #eaf2ff;
-    background: radial-gradient(ellipse at 50% 0%, #2a64e0 0%, rgba(42,100,224,0) 55%), linear-gradient(180deg, #0d2257 0%, #0a1838 60%, #071029 100%); }
-  .isl { position: absolute; left: 50%; top: 30px; width: 124px; height: 36px; margin-left: -62px; border-radius: 18px; background: #000; z-index: 9; }
-  .glare { position: absolute; inset: 15px; border-radius: 56px; background: linear-gradient(125deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 28%); z-index: 8; pointer-events: none; }
+  .back { background: linear-gradient(165deg, #2c3038, #121418); }
+  .front { background: linear-gradient(140deg, #5d6573 0%, #23272f 22%, #14161b 60%, #2a2f38 100%); }
+  .bez { position: absolute; inset: 6px; border-radius: 86px; background: #0b0d11; box-shadow: inset 0 2px 0 rgba(255,255,255,.12); }
+  .scr { position: absolute; inset: 26px; border-radius: 70px; overflow: hidden; color: #0d1d3d;
+    background: linear-gradient(180deg, #e3eefc 0%, #c3d6f2 45%, #9fb9e2 100%); }
+  .cam { position: absolute; right: 52px; top: 50px; width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #333a46, #000 70%); z-index: 9; box-shadow: 0 0 0 4px rgba(0,0,0,.25); }
+  .glare { position: absolute; inset: 26px; border-radius: 70px; background: linear-gradient(125deg, rgba(255,255,255,.25) 0%, rgba(255,255,255,0) 26%); z-index: 8; pointer-events: none; }
   #scrDark { position: absolute; inset: 0; background: #02040c; z-index: 7; }
 
-  /* app UI (screen coords 390 x 850) */
-  .ttl { position: absolute; left: 28px; top: 74px; font-size: 30px; font-weight: 900; color: #fff; white-space: nowrap; }
-  .sub { position: absolute; left: 28px; top: 112px; font-size: 18px; font-weight: 700; color: rgba(200,220,255,.7); white-space: nowrap; }
-  .bcard { position: absolute; left: 30px; top: 150px; width: 330px; height: 208px; border-radius: 24px; overflow: hidden; box-shadow: 0 18px 30px rgba(0,0,0,.45); color: #fff; }
-  #cardA { background: radial-gradient(circle at 80% 20%, rgba(255,210,120,.85) 0, rgba(255,210,120,0) 32%), radial-gradient(circle at 15% 90%, rgba(80,150,255,.8) 0, rgba(80,150,255,0) 40%), linear-gradient(135deg, #14151b, #23252f 60%, #14151b); }
-  #cardA .wave { position: absolute; left: -20%; top: 50%; width: 140%; height: 70%; border-radius: 50%; border-top: 3px solid rgba(255,214,140,.7); transform: rotate(-12deg); }
-  #cardB { background: radial-gradient(circle at 25% 25%, rgba(120,200,255,.8) 0, rgba(120,200,255,0) 40%), linear-gradient(135deg, #1a4fc4, #0f2a73); }
-  .brand { position: absolute; left: 24px; top: 18px; font-size: 26px; font-weight: 900; letter-spacing: 3px; }
-  .kind { position: absolute; right: 22px; top: 22px; font-size: 16px; font-weight: 800; letter-spacing: 2px; opacity: .85; }
-  .chip { position: absolute; left: 24px; top: 64px; width: 48px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #f3d48a, #b8913f); }
-  .nfc { position: absolute; left: 86px; top: 70px; width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(255,255,255,.6); border-left-color: transparent; border-bottom-color: transparent; transform: rotate(45deg); }
-  .num { position: absolute; left: 24px; top: 118px; font-size: 22px; font-weight: 800; letter-spacing: 3px; opacity: .9; }
-  .holder { position: absolute; left: 24px; bottom: 18px; font-size: 16px; font-weight: 800; letter-spacing: 2px; opacity: .85; }
-  .mark { position: absolute; right: 22px; bottom: 16px; width: 60px; height: 38px; }
-  .mark::before, .mark::after { content: ""; position: absolute; top: 0; width: 38px; height: 38px; border-radius: 50%; }
-  .mark::before { left: 0; background: rgba(255,214,140,.85); } .mark::after { right: 0; background: rgba(120,180,255,.75); mix-blend-mode: screen; }
-  .shine { position: absolute; top: -30%; left: -50%; width: 35%; height: 160%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); transform: rotate(18deg); }
-  #edge { position: absolute; inset: -4px; border-radius: 28px; border: 4px solid #58b2ff; box-shadow: 0 0 24px rgba(88,178,255,.95); opacity: 0; }
-  #cdots { position: absolute; left: 0; right: 0; top: 378px; display: flex; justify-content: center; gap: 10px; }
-  #cdots i { width: 10px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.3); } #cdots i.on { width: 28px; background: #58b2ff; }
+  /* app UI (screen coords 628 x 848) */
+  .ttl { position: absolute; left: 44px; top: 54px; font-size: 40px; font-weight: 900; color: #0d1d3d; white-space: nowrap; }
+  .sub { position: absolute; left: 44px; top: 104px; font-size: 22px; font-weight: 800; color: #4d6591; white-space: nowrap; }
+  .bcard { position: absolute; left: 64px; top: 266px; width: 500px; height: 315px; border-radius: 30px; overflow: hidden; color: #fff;
+    box-shadow: 0 26px 40px rgba(20,40,90,.35); }
+  .bcard svg.art { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .brand { position: absolute; left: 30px; top: 24px; font-size: 34px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 2px 6px rgba(0,0,0,.35); }
+  .kind { position: absolute; right: 30px; top: 30px; font-size: 20px; font-weight: 900; letter-spacing: 3px; opacity: .9; text-shadow: 0 2px 6px rgba(0,0,0,.35); }
+  .chip { position: absolute; left: 30px; top: 96px; width: 66px; height: 50px; border-radius: 10px; background: linear-gradient(135deg, #f6dc98, #b58c3b); box-shadow: inset 0 0 0 2px rgba(120,80,20,.35); }
+  .nfc { position: absolute; left: 112px; top: 104px; width: 34px; height: 34px; border-radius: 50%; border: 4px solid rgba(255,255,255,.8); border-left-color: transparent; border-bottom-color: transparent; transform: rotate(45deg); }
+  .num { position: absolute; left: 30px; top: 178px; font-size: 30px; font-weight: 900; letter-spacing: 4px; text-shadow: 0 2px 6px rgba(0,0,0,.4); }
+  .holder { position: absolute; left: 30px; bottom: 24px; font-size: 20px; font-weight: 900; letter-spacing: 3px; text-shadow: 0 2px 6px rgba(0,0,0,.4); }
+  .mark { position: absolute; right: 28px; bottom: 22px; width: 84px; height: 52px; }
+  .mark::before, .mark::after { content: ""; position: absolute; top: 0; width: 52px; height: 52px; border-radius: 50%; }
+  .mark::before { left: 0; background: rgba(255,200,90,.92); } .mark::after { right: 0; background: rgba(255,120,80,.8); mix-blend-mode: screen; }
+  .shine { position: absolute; top: -30%; left: -50%; width: 30%; height: 160%; background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.5), rgba(255,255,255,0)); transform: rotate(18deg); }
+  #edge { position: absolute; inset: 0; border-radius: 30px; border: 6px solid #d8ff6a; box-shadow: inset 0 0 22px rgba(200,255,90,.9); opacity: 0; }
+  #cdots { position: absolute; left: 0; right: 0; top: 618px; display: flex; justify-content: center; gap: 12px; }
+  #cdots i { width: 14px; height: 14px; border-radius: 7px; background: rgba(13,29,61,.25); } #cdots i.on { width: 38px; background: #2f6fe8; }
 
-  .lbl { position: absolute; left: 30px; font-size: 20px; font-weight: 800; color: #dbe8ff; white-space: nowrap; }
-  .lvl { position: absolute; right: 30px; font-size: 16px; font-weight: 800; color: #7fd0ff; }
-  .track { position: absolute; left: 30px; width: 330px; height: 18px; border-radius: 9px; background: #0a1430; box-shadow: inset 0 2px 4px rgba(0,0,0,.6); }
-  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 9px; background: linear-gradient(90deg, #2f7dff, #6cc5ff); box-shadow: 0 0 14px rgba(90,170,255,.8); }
-  .track .h { position: absolute; top: -13px; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.45), 0 0 0 6px rgba(255,255,255,.12); }
-  #tgRow { position: absolute; left: 22px; right: 22px; top: 520px; height: 60px; border-radius: 20px; background: rgba(255,255,255,.07); }
-  #tgRow .lbl { left: 18px; top: 17px; }
-  #tg { position: absolute; right: 16px; top: 12px; width: 68px; height: 36px; border-radius: 18px; background: #26324f; }
-  #tg i { position: absolute; left: 4px; top: 4px; width: 28px; height: 28px; border-radius: 50%; background: #fff; box-shadow: 0 3px 6px rgba(0,0,0,.4); }
-  #conf { position: absolute; left: 55px; top: 606px; width: 280px; height: 76px; border-radius: 38px; background: linear-gradient(180deg, #3d7bff, #2152c9);
-    box-shadow: 0 10px 22px rgba(33,82,201,.5); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #fff; }
-  #confG { position: absolute; inset: 0; border-radius: 38px; background: linear-gradient(180deg, #39d98a, #17a862); box-shadow: 0 0 30px rgba(57,217,138,.9); opacity: 0; display: flex; align-items: center; justify-content: center; }
-  .nav { position: absolute; left: 24px; right: 24px; bottom: 24px; height: 96px; border-radius: 36px; background: rgba(255,255,255,.08); display: flex; justify-content: space-around; align-items: center; }
-  .nav b { width: 40px; height: 40px; border-radius: 12px; border: 4px solid rgba(160,200,255,.75); }
-  .nav b.c { border-radius: 50%; } .nav b.on { border-color: #fff; background: rgba(88,178,255,.35); }
+  .lbl { position: absolute; left: 54px; font-size: 26px; font-weight: 900; color: #0d1d3d; white-space: nowrap; }
+  .lvl { position: absolute; right: 54px; font-size: 22px; font-weight: 900; color: #2f6fe8; }
+  .track { position: absolute; left: 54px; width: 520px; height: 46px; border-radius: 23px; background: #1d2433; box-shadow: inset 0 3px 6px rgba(0,0,0,.5); }
+  .track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 23px; background: linear-gradient(90deg, #2f6fe8, #5fb0ff); }
+  .track .h { position: absolute; top: -4px; width: 54px; height: 54px; margin-left: -27px; border-radius: 50%; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.4); }
+  #tgRow { position: absolute; left: 40px; right: 40px; top: 548px; height: 76px; border-radius: 26px; background: rgba(255,255,255,.55); }
+  #tgRow .lbl { left: 22px; top: 22px; }
+  #tg { position: absolute; right: 18px; top: 16px; width: 84px; height: 44px; border-radius: 22px; background: #9aa9c4; }
+  #tg i { position: absolute; left: 5px; top: 5px; width: 34px; height: 34px; border-radius: 50%; background: #fff; box-shadow: 0 3px 6px rgba(0,0,0,.3); }
+  #conf { position: absolute; left: 134px; top: 648px; width: 360px; height: 84px; border-radius: 42px; background: linear-gradient(180deg, #3d7bff, #2152c9);
+    box-shadow: 0 12px 24px rgba(33,82,201,.4); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: #fff; }
+  #confG { position: absolute; inset: 0; border-radius: 42px; background: linear-gradient(180deg, #39d98a, #17a862); box-shadow: 0 0 30px rgba(57,217,138,.9); opacity: 0; display: flex; align-items: center; justify-content: center; }
 
-  #notif { position: absolute; left: 18px; right: 18px; top: 64px; height: 104px; border-radius: 30px; background: rgba(235,242,255,.95);
-    box-shadow: 0 14px 30px rgba(0,0,0,.45); z-index: 6; color: #0b1a3d; }
-  #notif .ci { position: absolute; left: 18px; top: 22px; width: 60px; height: 60px; border-radius: 18px; background: linear-gradient(135deg, #2f7dff, #6cc5ff); }
-  #notif .ci::after { content: ""; position: absolute; left: 13px; top: 19px; width: 34px; height: 22px; border-radius: 5px; border: 4px solid #fff; }
-  #notif .t1 { position: absolute; left: 94px; top: 24px; font-size: 22px; font-weight: 900; }
-  #notif .t2 { position: absolute; left: 94px; top: 56px; font-size: 19px; font-weight: 700; color: #3b4d75; white-space: nowrap; }
-  #notif .ind { position: absolute; right: 20px; top: 38px; width: 26px; height: 26px; border-radius: 50%; background: #39d98a; box-shadow: 0 0 16px rgba(57,217,138,.9); }
-  #pulse { position: absolute; left: -10%; width: 120%; height: 160px; background: linear-gradient(180deg, rgba(57,217,138,0), rgba(57,217,138,.4), rgba(57,217,138,0)); z-index: 5; }
+  .nav { position: absolute; left: 0; right: 0; bottom: 0; height: 96px; background: rgba(255,255,255,.6); display: flex; justify-content: space-around; align-items: center; padding: 0 30px 6px; }
+  .nav svg { width: 40px; height: 40px; }
 
-  #ripple { position: absolute; width: 140px; height: 140px; margin: -70px 0 0 -70px; border-radius: 50%; border: 5px solid rgba(255,255,255,.9); opacity: 0; }
-  #hand { display: none; }
-  #touch { position: absolute; width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.95) 0 30%, rgba(255,255,255,.45) 55%, rgba(255,255,255,.12) 100%); box-shadow: 0 0 24px rgba(160,210,255,.9); opacity: 0; }
+  #notif { position: absolute; left: 22px; right: 22px; top: 22px; height: 112px; border-radius: 30px; background: rgba(255,255,255,.97);
+    box-shadow: 0 16px 32px rgba(10,30,80,.35); z-index: 6; color: #0b1a3d; }
+  #notif .ci { position: absolute; left: 22px; top: 24px; width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #2f6fe8, #5fb0ff); }
+  #notif .ci::after { content: ""; position: absolute; left: 14px; top: 20px; width: 36px; height: 24px; border-radius: 5px; border: 4px solid #fff; }
+  #notif .t1 { position: absolute; left: 104px; top: 24px; font-size: 26px; font-weight: 900; }
+  #notif .t2 { position: absolute; left: 104px; top: 60px; font-size: 23px; font-weight: 800; color: #3b4d75; white-space: nowrap; }
+  #notif .ind { position: absolute; right: 70px; top: 42px; width: 28px; height: 28px; border-radius: 50%; background: #39d98a; box-shadow: 0 0 16px rgba(57,217,138,.9); }
+  #pulse { position: absolute; left: -10%; width: 120%; height: 180px; background: linear-gradient(180deg, rgba(57,217,138,0), rgba(57,217,138,.35), rgba(57,217,138,0)); z-index: 5; }
 
-  #disc { position: absolute; left: 50%; top: 1560px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
+  #ripple { position: absolute; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; border: 6px solid rgba(255,255,255,.95); opacity: 0; }
+  #touch { position: absolute; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.95) 0 30%, rgba(255,255,255,.5) 55%, rgba(255,255,255,.12) 100%); box-shadow: 0 0 26px rgba(130,190,255,.95); opacity: 0; }
+
+  #disc { position: absolute; left: 50%; top: 1570px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px;
     background: rgba(255,255,255,.14); color: rgba(255,255,255,.88); font-size: 28px; font-weight: 800; white-space: nowrap; }
+  #stage.bg-checker #disc { background: rgba(0,0,0,.55); }
 
   #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
   #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
@@ -118,10 +117,6 @@
 
   <div id="world">
     <div id="glow"></div>
-    <div class="geo" id="g1" style="left:110px;top:520px;width:90px;height:90px;border-radius:50%"></div>
-    <div class="geo" id="g2" style="left:890px;top:600px;width:70px;height:70px;border-radius:16px"></div>
-    <div class="geo" id="g3" style="left:870px;top:1200px;width:110px;height:110px;border-radius:50%"></div>
-    <div class="geo" id="g4" style="left:110px;top:1180px;width:60px;height:60px;border-radius:14px"></div>
     <div id="pts"></div>
 
     <div class="space"><div class="p3" id="ph">
@@ -131,47 +126,32 @@
           <div class="ttl" id="ttl1">Choose your card</div><div class="sub" id="sub1">Debit card · open online</div>
           <div class="ttl" id="ttl2">Set up your card</div>
           <div id="notif"><div class="ci"></div><div class="t1">Nova</div><div class="t2">Card design saved</div><div class="ind"></div></div>
-          <div class="bcard" id="cardB"><div class="brand">NOVA</div><div class="kind">DEBIT</div><div class="chip"></div><div class="num">•••• •••• ••••</div></div>
-          <div class="bcard" id="cardA"><div class="wave"></div><div class="brand">NOVA</div><div class="kind">DEBIT</div><div class="chip"></div><div class="nfc"></div>
-            <div class="num">•••• •••• •••• ••••</div><div class="holder">J. SMITH</div><div class="mark"></div><div class="shine" id="shine"></div><div id="edge"></div></div>
-          <div id="cdots"><i class="on"></i><i></i><i></i></div>
-          <div class="lbl" id="l1" style="top:376px">Spending limit</div><div class="lvl" id="v1" style="top:380px">●●○</div>
-          <div class="track" id="tr1" style="top:416px"><div class="fill"></div><div class="h"></div></div>
-          <div class="lbl" id="l2" style="top:446px">Round-up savings</div><div class="lvl" id="v2" style="top:450px">●○○</div>
-          <div class="track" id="tr2" style="top:486px"><div class="fill"></div><div class="h"></div></div>
+          <div class="bcard" id="cardC"></div>
+          <div class="bcard" id="cardB"></div>
+          <div class="bcard" id="cardA"></div>
+          <div id="cdots"><i></i><i class="on"></i><i></i></div>
+          <div class="lbl" id="l1" style="top:318px">Spending limit</div><div class="lvl" id="v1" style="top:322px">●●○</div>
+          <div class="track" id="tr1" style="top:362px"><div class="fill"></div><div class="h"></div></div>
+          <div class="lbl" id="l2" style="top:428px">Round-up savings</div><div class="lvl" id="v2" style="top:432px">●○○</div>
+          <div class="track" id="tr2" style="top:472px"><div class="fill"></div><div class="h"></div></div>
           <div id="tgRow"><div class="lbl">Virtual card</div><div id="tg"><i></i></div></div>
           <div id="conf">Continue<div id="confG">Continue</div></div>
-          <div class="nav" id="nav"><b class="on"></b><b class="c"></b><b></b><b class="c"></b></div>
+          <div class="nav" id="nav">
+            <svg viewBox="0 0 40 40" fill="none" stroke="#0d1d3d" stroke-width="3.5" stroke-linejoin="round"><path d="M6 19 L20 7 L34 19 V34 H24 V25 H16 V34 H6 Z"/></svg>
+            <svg viewBox="0 0 40 40" fill="none" stroke="#0d1d3d" stroke-width="3.5" stroke-linejoin="round"><path d="M8 6 H28 Q33 6 33 11 V34 H13 Q8 34 8 29 Z"/><path d="M13 34 Q8 34 8 29 Q8 25 13 25 H33"/></svg>
+            <svg viewBox="0 0 40 40" fill="none" stroke="#2f6fe8" stroke-width="3.5"><rect x="6" y="6" width="11" height="11" rx="3"/><rect x="23" y="6" width="11" height="11" rx="3"/><rect x="6" y="23" width="11" height="11" rx="3"/><rect x="23" y="23" width="11" height="11" rx="3"/></svg>
+            <svg viewBox="0 0 40 40" fill="none" stroke="#0d1d3d" stroke-width="3.5" stroke-linejoin="round"><path d="M10 28 V18 Q10 8 20 8 Q30 8 30 18 V28 L33 31 H7 Z"/><path d="M16 34 Q20 38 24 34"/></svg>
+            <svg viewBox="0 0 40 40" fill="none" stroke="#0d1d3d" stroke-width="3.5"><circle cx="20" cy="20" r="15"/><circle cx="20" cy="16" r="5"/><path d="M10 30 Q20 21 30 30"/></svg>
+          </div>
           <div id="pulse"></div>
           <div id="scrDark"></div>
         </div>
-        <div class="isl"></div><div class="glare"></div>
+        <div class="cam"></div><div class="glare"></div>
       </div>
     </div></div>
 
     <div id="ripple"></div>
     <div id="touch"></div>
-    <svg id="hand" class="sh" viewBox="0 0 320 900" aria-hidden="true">
-      <defs>
-        <linearGradient id="skinX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C98E70"/><stop offset=".35" stop-color="#EBC1A5"/><stop offset=".58" stop-color="#F3D3BD"/><stop offset="1" stop-color="#CF9878"/></linearGradient>
-        <linearGradient id="fingX" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#CC9273"/><stop offset=".4" stop-color="#EECAB1"/><stop offset=".62" stop-color="#F4D7C3"/><stop offset="1" stop-color="#D19A7A"/></linearGradient>
-        <linearGradient id="nail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DCD3"/><stop offset="1" stop-color="#E7B5A8"/></linearGradient>
-        <linearGradient id="knit" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1b2440"/><stop offset=".45" stop-color="#2c3862"/><stop offset="1" stop-color="#18203a"/></linearGradient>
-        <radialGradient id="knuck" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#F0CFB8"/><stop offset="1" stop-color="#D49E80"/></radialGradient>
-      </defs>
-      <path d="M150 420 C140 600 124 760 114 900 L298 900 C290 760 280 600 272 420 Z" fill="url(#skinX)"/>
-      <path d="M100 640 C106 760 96 840 90 900 L312 900 C302 840 294 760 292 640 Q196 612 100 640 Z" fill="url(#knit)"/>
-      <path d="M128 250 C120 330 132 420 165 455 C200 480 255 470 280 430 C300 395 298 330 290 270 C285 235 255 222 220 226 L150 232 C138 234 130 240 128 250 Z" fill="url(#skinX)"/>
-      <ellipse cx="180" cy="238" rx="27" ry="21" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
-      <ellipse cx="228" cy="240" rx="26" ry="20" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
-      <ellipse cx="270" cy="254" rx="22" ry="18" fill="url(#knuck)" stroke="rgba(160,100,70,.25)" stroke-width="2"/>
-      <path d="M134 336 C106 320 88 294 92 270 C96 252 114 252 124 262 C137 276 147 294 152 304 Z" fill="url(#fingX)"/>
-      <path d="M86 40 C86 18 100 8 112 8 C126 8 138 20 138 40 L142 252 C142 264 130 272 114 272 C98 272 86 264 86 252 Z" fill="url(#fingX)"/>
-      <path d="M96 122 Q112 128 128 122" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
-      <path d="M94 196 Q113 204 134 196" stroke="rgba(160,100,70,.35)" stroke-width="2.5" fill="none"/>
-      <path d="M98 30 C98 18 106 13 112 13 C120 13 127 18 127 30 L127 62 C127 70 120 74 112 74 C104 74 98 70 98 62 Z" fill="url(#nail)"/>
-      <ellipse cx="107" cy="32" rx="4" ry="11" fill="#fff" opacity=".55"/>
-    </svg>
   </div>
 
   <div id="cap">
@@ -210,35 +190,64 @@
   const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const eOutBack = p => { const c = 1.5, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
 
-  const ph = el('ph'), D = 30, N = 12;
+  // illustrated card artworks (original, no brands)
+  const ART = {
+    sunset: `<svg class="art" viewBox="0 0 500 315" preserveAspectRatio="xMidYMid slice"><defs>
+      <linearGradient id="sk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2a6e"/><stop offset=".45" stop-color="#d9607a"/><stop offset=".7" stop-color="#ffb065"/><stop offset="1" stop-color="#ffd38a"/></linearGradient>
+      <linearGradient id="lk1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f29a6a"/><stop offset="1" stop-color="#2b2350"/></linearGradient></defs>
+      <rect width="500" height="315" fill="url(#sk1)"/><circle cx="330" cy="175" r="46" fill="#ffe7a6"/>
+      <path d="M0 190 L70 150 L130 175 L200 130 L270 170 L340 140 L420 175 L500 150 L500 200 L0 200 Z" fill="#4a2f6a"/>
+      <rect y="198" width="500" height="117" fill="url(#lk1)"/>
+      <g fill="#ffe7a6" opacity=".7"><rect x="300" y="210" width="60" height="4" rx="2"/><rect x="290" y="226" width="80" height="4" rx="2"/><rect x="306" y="242" width="48" height="4" rx="2"/></g>
+      <path d="M150 250 L230 250 L218 262 L162 262 Z" fill="#1d1533"/><path d="M190 250 L190 214 L212 246 Z" fill="#1d1533"/></svg>`,
+    night: `<svg class="art" viewBox="0 0 500 315" preserveAspectRatio="xMidYMid slice"><defs>
+      <linearGradient id="sk2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1236"/><stop offset=".6" stop-color="#2a2a7a"/><stop offset="1" stop-color="#5a3fa0"/></linearGradient>
+      <linearGradient id="au" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4dffc3" stop-opacity="0"/><stop offset=".5" stop-color="#4dffc3" stop-opacity=".55"/><stop offset="1" stop-color="#7b8bff" stop-opacity="0"/></linearGradient></defs>
+      <rect width="500" height="315" fill="url(#sk2)"/>
+      <path d="M-20 140 Q120 60 260 120 T540 90" stroke="url(#au)" stroke-width="40" fill="none"/>
+      <circle cx="400" cy="70" r="30" fill="#fff6d6"/><circle cx="414" cy="62" r="28" fill="#1a1d55"/>
+      <g fill="#fff"><circle cx="60" cy="40" r="2"/><circle cx="140" cy="80" r="1.6"/><circle cx="220" cy="30" r="2.2"/><circle cx="300" cy="60" r="1.5"/><circle cx="460" cy="140" r="1.8"/><circle cx="350" cy="120" r="1.4"/><circle cx="30" cy="110" r="1.6"/></g>
+      <path d="M0 250 L90 170 L160 230 L250 150 L330 230 L420 180 L500 240 L500 315 L0 315 Z" fill="#2a1f5c"/>
+      <path d="M0 285 L110 230 L200 280 L300 225 L400 275 L500 250 L500 315 L0 315 Z" fill="#140f33"/></svg>`,
+    ocean: `<svg class="art" viewBox="0 0 500 315" preserveAspectRatio="xMidYMid slice"><defs>
+      <linearGradient id="sk3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0ff"/><stop offset="1" stop-color="#1a7fd0"/></linearGradient></defs>
+      <rect width="500" height="315" fill="url(#sk3)"/><circle cx="110" cy="80" r="40" fill="#fff4c4" opacity=".9"/>
+      <path d="M0 170 Q60 140 120 170 T240 170 T360 170 T500 165 V315 H0 Z" fill="#1666b8"/>
+      <path d="M0 215 Q60 185 120 215 T240 215 T360 215 T500 210 V315 H0 Z" fill="#0f4f9a"/>
+      <path d="M0 260 Q60 230 120 260 T240 260 T360 260 T500 255 V315 H0 Z" fill="#0a3a78"/>
+      <g fill="none" stroke="#e6fbff" stroke-width="4" stroke-linecap="round" opacity=".8"><path d="M30 168 Q60 150 90 166"/><path d="M270 214 Q300 196 330 212"/><path d="M150 258 Q180 240 210 256"/></g></svg>`
+  };
+  const front = `<div class="brand">NOVA</div><div class="kind">DEBIT</div><div class="chip"></div><div class="nfc"></div><div class="num">•••• •••• •••• ••••</div><div class="holder">J. SMITH</div><div class="mark"></div>`;
+  el('cardA').innerHTML = ART.night + front + '<div class="shine" id="shine"></div><div id="edge"></div>';
+  el('cardB').innerHTML = ART.sunset + front;
+  el('cardC').innerHTML = ART.ocean + front;
+
+  const ph = el('ph'), D = 34, N = 14;
   for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; ph.insertBefore(s, ph.firstChild); }
   ph.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
   ph.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
 
   const PT = Array.from({ length: 22 }, (_, i) => { const d = document.createElement('div'); d.className = 'pt'; el('pts').appendChild(d);
-    return { el: d, x: 80 + (i * 173) % 920, y: 300 + (i * 211) % 1250, sp: 14 + (i * 7) % 20, ph: i * .7 }; });
+    return { el: d, x: 60 + (i * 173) % 960, y: 300 + (i * 211) % 1250, sp: 14 + (i * 7) % 20, ph: i * .7 }; });
 
-  const setTrack = (tr, v) => { tr.querySelector('.fill').style.width = (v * 100) + '%'; tr.querySelector('.h').style.left = (v * 330) + 'px'; };
+  const setTrack = (tr, v) => { tr.querySelector('.fill').style.width = (v * 100) + '%'; tr.querySelector('.h').style.left = (v * 520) + 'px'; };
   const dotsFor = v => v > .75 ? '●●●' : v > .45 ? '●●○' : '●○○';
 
   // screen -> stage mapping (phone faces the viewer during interactions)
-  const SX = 345, SY = 435;
+  const SX = 226, SY = 436;
   const S2 = (x, y) => [SX + x, SY + y];
-  const CARD = S2(195, 254), TG = S2(318, 550), BTN = S2(195, 644);
-  const sl1 = v => S2(30 + 330 * v, 425), sl2 = v => S2(30 + 330 * v, 495);
+  const CARD = S2(314, 424), TG = S2(546, 586), BTN = S2(314, 690);
+  const sl1 = v => S2(54 + 520 * v, 385), sl2 = v => S2(54 + 520 * v, 495);
   const V1 = t => .2 + .62 * eInOut(seg(t, 6.25, 7.45)), V2 = t => .2 + .45 * eInOut(seg(t, 7.85, 8.65));
-  const OFF = [1150, 2080], REST = [860, 1380];
-  // hand path: [t, point fn]
   const HW = [
-    [2.55, () => OFF], [2.95, () => CARD], [3.2, () => CARD], [3.6, () => REST],
-    [5.7, () => REST], [6.15, () => sl1(.2)], [6.25, () => sl1(.2)], [7.45, t => sl1(V1(t))], [7.5, () => sl1(.82)],
-    [7.8, () => sl2(.2)], [7.85, () => sl2(.2)], [8.65, t => sl2(V2(t))], [8.7, () => sl2(.65)],
-    [9.0, () => TG], [9.15, () => TG], [9.45, () => BTN], [9.6, () => BTN], [10.1, () => OFF]];
-  const handAt = t => {
-    if (t <= HW[0][0] || t >= HW[HW.length - 1][0]) return null;
+    [2.9, () => CARD], [3.25, () => CARD],
+    [6.1, () => sl1(.2)], [6.25, () => sl1(.2)], [7.45, t => sl1(V1(t))], [7.6, () => sl1(.82)],
+    [7.75, () => sl2(.2)], [7.85, () => sl2(.2)], [8.65, t => sl2(V2(t))], [8.8, () => sl2(.65)],
+    [8.9, () => TG], [9.2, () => TG], [9.35, () => BTN], [9.7, () => BTN]];
+  const touchAt = t => {
+    if (t < HW[0][0] || t > HW[HW.length - 1][0]) return null;
     let i = 0; while (i < HW.length - 2 && t >= HW[i + 1][0]) i++;
     const a = HW[i], b = HW[i + 1];
-    // drag segments: hand follows the handle exactly
     if ((a[0] === 6.25 && b[0] === 7.45) || (a[0] === 7.85 && b[0] === 8.65)) return b[1](t);
     const p = eInOut(seg(t, a[0], b[0])), A = a[1](t), B = b[1](t);
     return [lerp(A[0], B[0], p), lerp(A[1], B[1], p)];
@@ -247,50 +256,49 @@
   const press = t => {
     let pr = 0;
     for (const k of TAPS) { const d = t - k.t; if (d >= -.05 && d < .15) pr = Math.max(pr, Math.sin(Math.PI * seg(d, -.05, .15))); }
-    if ((t > 6.2 && t < 7.5) || (t > 7.82 && t < 8.7)) pr = Math.max(pr, .8); // holding a slider
+    if ((t > 6.2 && t < 7.5) || (t > 7.82 && t < 8.7)) pr = Math.max(pr, .8);
     return pr;
   };
 
   function render(t) {
-    const cam = lerp(.9, 1.0, eInOut(seg(t, 0, 2.2))) * lerp(1, .92, eInOut(seg(t, 12.2, 14.8)));
+    const cam = lerp(.92, 1.0, eInOut(seg(t, 0, 2.2))) * lerp(1, .93, eInOut(seg(t, 12.2, 14.8)));
     world.style.transform = `scale(${cam})`;
     el('fade').style.opacity = Math.max(1 - eOut(seg(t, 0, .7)), eInOut(seg(t, 15.0, 15.5)));
     el('gridWrap').style.opacity = eOut(seg(t, .1, 1.0));
     el('grid').style.backgroundPosition = `0 ${-(t * 40 + 240 * eInOut(seg(t, 12, 15.5))) % 120}px`;
     el('horizon').style.opacity = eOut(seg(t, .3, 1.2));
     el('glow').style.opacity = eOut(seg(t, 1.0, 2.0)) * (.75 + .25 * Math.sin(t * 1.2)) * (1 + .3 * eInOut(seg(t, 13, 14.5)));
-    ['g1', 'g2', 'g3', 'g4'].forEach((id, i) => { const g = el(id); g.style.opacity = eOut(seg(t, .8 + i * .15, 1.6 + i * .15)) * .9; g.style.transform = `translateY(${Math.sin(t * .9 + i * 1.6) * 16}px) rotate(${t * (i % 2 ? -14 : 10)}deg)`; });
     PT.forEach(o => { o.el.style.left = (o.x + Math.sin(t * .6 + o.ph) * 30) + 'px'; o.el.style.top = (o.y - (t * o.sp) % 260) + 'px'; o.el.style.opacity = (.35 + .35 * Math.sin(t * 2 + o.ph)) * eOut(seg(t, 1, 2)); });
 
-    // phone: rises, faces the viewer during interactions, sways at the end
+    // phone rises and faces the viewer
     const rise = eOutBack(seg(t, .3, 1.5));
-    const sway = Math.sin(t * .8) * 4 * (1 - seg(t, 2.2, 2.5) + seg(t, 10.5, 11.5)) ;
-    ph.style.transform = `translateY(${lerp(1100, 0, clamp(rise, 0, 1.1))}px) rotateY(${lerp(-14, 0, eOut(seg(t, .3, 2))) + sway}deg) rotateX(${lerp(10, 0, eOut(seg(t, .3, 2)))}deg)`;
+    const sway = Math.sin(t * .8) * 3 * (1 - seg(t, 2.2, 2.5) + seg(t, 10.5, 11.5));
+    ph.style.transform = `translateY(${lerp(1150, 0, clamp(rise, 0, 1.1))}px) rotateY(${lerp(-12, 0, eOut(seg(t, .3, 2))) + sway}deg) rotateX(${lerp(10, 0, eOut(seg(t, .3, 2)))}deg)`;
     el('scrDark').style.opacity = 1 - eOut(seg(t, 1.2, 1.7));
-    el('nav').querySelectorAll('b').forEach((b, i) => { const p = eOutBack(seg(t, 1.5 + i * .07, 1.85 + i * .07)); b.style.transform = `scale(${clamp(p, 0, 1.2)})`; });
-    el('nav').style.opacity = eOut(seg(t, 1.4, 1.6));
+    el('nav').style.opacity = eOut(seg(t, 1.4, 1.7));
 
     // titles
     const s1 = eOut(seg(t, 1.6, 1.9)) * (1 - eInOut(seg(t, 4.0, 4.3)));
     el('ttl1').style.opacity = s1; el('sub1').style.opacity = s1;
     el('ttl2').style.opacity = eOut(seg(t, 4.3, 4.6)) * (1 - eInOut(seg(t, 9.85, 10.0)));
 
-    // cards: A slides in, B behind; tap selects A
-    const A = el('cardA'), B = el('cardB');
+    // carousel: A in the centre, B and C peek from the sides; tap on A, it moves to the top
+    const A = el('cardA'), B = el('cardB'), C = el('cardC');
     const ain = eOutBack(seg(t, 1.7, 2.15));
     const sel = eOutBack(seg(t, 3.05, 3.4));
-    const shrink = eInOut(seg(t, 4.0, 4.6));
+    const up = eInOut(seg(t, 4.0, 4.6));
     const aPulse = Math.sin(Math.PI * seg(t, 9.6, 10.4));
     A.style.opacity = clamp(seg(t, 1.7, 1.85));
-    A.style.transform = `translateX(${lerp(420, 0, clamp(ain, 0, 1.1))}px) translateY(${lerp(0, -18, shrink)}px) scale(${(1 + .06 * clamp(sel, 0, 1.1) - .06 * shrink) * lerp(1, .82, shrink) * (1 - .04 * press(t) * (t < 3.3 ? 1 : 0)) * (1 + .04 * aPulse)})`;
     A.style.zIndex = 3;
-    const bin = eOut(seg(t, 2.2, 2.7)), bout = eInOut(seg(t, 3.3, 3.8));
-    B.style.opacity = clamp(seg(t, 2.2, 2.35)) * (1 - bout) * .95;
-    B.style.transform = `translateX(${lerp(-420, -96, bin) + lerp(0, -80, bout)}px) translateY(-30px) scale(.94) rotate(-4deg)`;
-    B.style.zIndex = 2;
+    A.style.transform = `translateY(${lerp(lerp(160, 0, clamp(ain, 0, 1.1)), -205, up)}px) scale(${(1 + .05 * clamp(sel, 0, 1.1) - .05 * up) * lerp(1, .5, up) * (1 - .04 * press(t) * (t < 3.3 ? 1 : 0)) * (1 + .03 * aPulse)})`;
+    const side = eOut(seg(t, 2.0, 2.5)), sOut = eInOut(seg(t, 3.3, 3.8));
+    B.style.opacity = C.style.opacity = clamp(seg(t, 2.0, 2.2)) * (1 - sOut);
+    B.style.zIndex = C.style.zIndex = 2;
+    B.style.transform = `translateX(${lerp(0, -420, side) - 160 * sOut}px) scale(.84) rotate(${lerp(0, -4, side)}deg)`;
+    C.style.transform = `translateX(${lerp(0, 420, side) + 160 * sOut}px) scale(.84) rotate(${lerp(0, 4, side)}deg)`;
     el('edge').style.opacity = eOut(seg(t, 3.05, 3.3)) * (1 - eInOut(seg(t, 4.0, 4.4))) + .8 * aPulse;
-    el('shine').style.left = lerp(-50, 140, eInOut(seg(t, 3.3, 4.0))) + '%';
-    el('cdots').style.opacity = eOut(seg(t, 2.0, 2.3)) * (1 - eInOut(seg(t, 4.0, 4.3)));
+    el('shine').style.left = lerp(-50, 140, eInOut(seg(t, 2.3, 3.0))) + '%';
+    el('cdots').style.opacity = eOut(seg(t, 2.2, 2.5)) * (1 - eInOut(seg(t, 3.8, 4.1)));
 
     // sliders, toggle, continue
     const sIn = eOut(seg(t, 4.6, 5.0));
@@ -301,8 +309,8 @@
     const tgIn = eOut(seg(t, 4.8, 5.2));
     el('tgRow').style.opacity = tgIn; el('tgRow').style.transform = `translateY(${lerp(24, 0, tgIn)}px)`;
     const tgOn = eInOut(seg(t, 9.05, 9.25));
-    el('tg').style.background = tgOn > .5 ? '#2f7dff' : '#26324f';
-    el('tg').querySelector('i').style.transform = `translateX(${32 * tgOn}px)`;
+    el('tg').style.background = tgOn > .5 ? '#2f6fe8' : '#9aa9c4';
+    el('tg').querySelector('i').style.transform = `translateX(${40 * tgOn}px)`;
     const cIn = eOutBack(seg(t, 5.0, 5.4));
     const conf = el('conf');
     conf.style.opacity = clamp(seg(t, 5.0, 5.15));
@@ -314,18 +322,14 @@
     const nIn = eOutBack(seg(t, 9.95, 10.4));
     const nt = el('notif');
     nt.style.opacity = clamp(seg(t, 9.95, 10.1));
-    nt.style.transform = `translateY(${lerp(-170, 0, clamp(nIn, 0, 1.1))}px)`;
+    nt.style.transform = `translateY(${lerp(-180, 0, clamp(nIn, 0, 1.1))}px)`;
     nt.querySelector('.ind').style.transform = `scale(${eOutBack(seg(t, 10.3, 10.6))})`;
     const pp = seg(t, 10.6, 11.4);
-    el('pulse').style.top = lerp(-180, 880, eInOut(pp)) + 'px';
+    el('pulse').style.top = lerp(-200, 880, eInOut(pp)) + 'px';
     el('pulse').style.opacity = pp > 0 && pp < 1 ? 1 : 0;
-    el('scr').style.filter = `brightness(${1 + .1 * eInOut(seg(t, 10.8, 11.6))})`;
 
-    // hand + ripple
-    const hp = handAt(t), hand = el('hand');
-    const pr = press(t);
-    hand.style.opacity = 0;
-    // touch indicator: appears only at the moment of a tap and while dragging a slider
+    // touch point + ripple (no hand)
+    const hp = touchAt(t), pr = press(t);
     let tv = 0;
     for (const k of TAPS) { const d = t - k.t; if (d > -.15 && d < .35) tv = Math.max(tv, d < 0 ? seg(d, -.15, 0) : 1 - seg(d, .1, .35)); }
     if (t > 6.1 && t < 7.6) tv = Math.max(tv, seg(t, 6.1, 6.25) * (1 - seg(t, 7.45, 7.6)));
@@ -335,7 +339,7 @@
     else tc.style.opacity = 0;
     const R = el('ripple');
     let rk = null; for (const k of TAPS) if (t >= k.t && t < k.t + .45) rk = k;
-    if (rk) { const p = seg(t, rk.t, rk.t + .45); R.style.left = rk.p[0] + 'px'; R.style.top = rk.p[1] + 'px'; R.style.transform = `scale(${lerp(.35, 1.5, eOut(p))})`; R.style.opacity = .9 * (1 - p); }
+    if (rk) { const p = seg(t, rk.t, rk.t + .45); R.style.left = rk.p[0] + 'px'; R.style.top = rk.p[1] + 'px'; R.style.transform = `scale(${lerp(.35, 1.6, eOut(p))})`; R.style.opacity = .9 * (1 - p); }
     else R.style.opacity = 0;
 
     // captions
@@ -352,7 +356,8 @@
   // ---- layout / controls ----
   let S = 1;
   let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
-  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = clean ? ({ scene: '#040a1c', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' }[v]) : '#040a1c'; $('#bgSel').value = v; };
+  const BGC = { scene: '#040a1c', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' };
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = BGC[v] || '#040a1c'; $('#bgSel').value = v; };
   const layout = () => {
     document.body.classList.toggle('clean', clean);
     const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
