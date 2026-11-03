@@ -120,6 +120,17 @@
       "topic": "finance",
       "date": "2026-11-02",
       "task": "tasks/finance/2026-11-02_debit-cards-online"
+    },
+    {
+      "section": "motion",
+      "path": "motion/tech/2026-11-03_security-guard-technology/",
+      "title": "Security Guard Technology: messaging deleted-messages motion v1",
+      "q": "Security Guard Technology",
+      "partner": "visymo",
+      "platforms": "facebook",
+      "topic": "tech",
+      "date": "2026-11-03",
+      "task": "tasks/tech/2026-11-03_security-guard-technology"
     }
   ]
 }

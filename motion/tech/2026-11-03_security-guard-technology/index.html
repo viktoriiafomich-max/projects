@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Messaging security — motion</title>
+<style>
+  :root { --font: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #060b18; font-family: var(--font); overflow: hidden; -webkit-font-smoothing: antialiased; }
+  #wrap { position: absolute; left: 0; top: 0; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; }
+
+  /* backgrounds: navy (intro), dark marble table, soft light gradient (chat + finale) */
+  .bgl { position: absolute; inset: 0; }
+  #bgNavy { background: radial-gradient(ellipse 85% 60% at 50% 42%, #14304a 0%, #0b1a30 48%, #060b18 100%); }
+  #bgMarble { background:
+      radial-gradient(ellipse 60% 40% at 30% 20%, rgba(40,150,170,.28), rgba(40,150,170,0) 70%),
+      radial-gradient(ellipse 55% 35% at 80% 75%, rgba(50,80,200,.25), rgba(50,80,200,0) 70%),
+      linear-gradient(118deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.07) 31%, rgba(255,255,255,0) 33%),
+      linear-gradient(64deg, rgba(255,255,255,0) 55%, rgba(255,255,255,.05) 56%, rgba(255,255,255,0) 57.5%),
+      linear-gradient(140deg, rgba(255,255,255,0) 70%, rgba(255,255,255,.06) 71%, rgba(255,255,255,0) 72%),
+      linear-gradient(98deg, rgba(255,255,255,0) 12%, rgba(255,255,255,.04) 13%, rgba(255,255,255,0) 15%),
+      linear-gradient(170deg, #0f1a20 0%, #0a1216 50%, #070c10 100%); }
+  #marbleVig { background: radial-gradient(ellipse 75% 60% at 50% 55%, rgba(0,0,0,0) 45%, rgba(0,0,0,.65) 100%); }
+  #bgLight { background:
+      radial-gradient(ellipse 60% 40% at 18% 22%, rgba(186,200,255,.55), rgba(186,200,255,0) 70%),
+      radial-gradient(ellipse 55% 45% at 85% 70%, rgba(205,190,245,.55), rgba(205,190,245,0) 70%),
+      radial-gradient(ellipse 50% 30% at 60% 100%, rgba(170,210,255,.45), rgba(170,210,255,0) 70%),
+      linear-gradient(180deg, #faf8f4 0%, #f1eef8 55%, #e9ecf8 100%); }
+  .bok { position: absolute; border-radius: 50%; filter: blur(14px); }
+  #dip { position: absolute; inset: 0; background: #04070e; }
+  #fade { position: absolute; inset: 0; background: #070d1c; }
+  #stage.bg-magenta #bgall, #stage.bg-green #bgall, #stage.bg-black #bgall, #stage.bg-checker #bgall { display: none; }
+  #stage.bg-magenta { background: #FF00FF; } #stage.bg-green { background: #00FF00; } #stage.bg-black { background: #000; }
+  #stage.bg-checker { background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0/60px 60px; }
+  #stage.key #dip, #stage.key #fade, #stage.key #pts { display: none; }
+  #stage.key .shadow { display: none; }
+
+  /* phone: graphite titanium, thin bezels, Dynamic Island */
+  #cam { position: absolute; inset: 0; perspective: 2600px; perspective-origin: 540px 960px; }
+  .p3 { position: absolute; left: 169px; top: 155px; width: 742px; height: 1610px; transform-style: preserve-3d; }
+  .face, .slice { position: absolute; inset: 0; border-radius: 118px; }
+  .slice { background: linear-gradient(90deg, #15181d, #4a5059 30%, #a9b0ba 50%, #4a5059 70%, #15181d); }
+  .face { backface-visibility: hidden; overflow: hidden; }
+  .back { background: linear-gradient(160deg, #3a3f47, #1b1e23 60%, #2c3037); }
+  .front { background: linear-gradient(135deg, #9aa1ab 0%, #3b4048 14%, #6d737c 36%, #23272d 58%, #8c929b 82%, #3a3f46 100%); }
+  .bez { position: absolute; inset: 6px; border-radius: 112px; background: #020305; }
+  .scr { position: absolute; inset: 22px; border-radius: 98px; overflow: hidden; }
+  .island { position: absolute; left: 50%; top: 46px; width: 210px; height: 62px; margin-left: -105px; border-radius: 31px; background: #000; z-index: 20; }
+  .island i { position: absolute; right: 20px; top: 18px; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #26304a, #04060b 65%); }
+  .btn3 { position: absolute; width: 11px; border-radius: 6px; background: linear-gradient(90deg, #2a2e34, #9aa1ab, #3a3f46); }
+  .glare { position: absolute; inset: 22px; border-radius: 98px; z-index: 18; pointer-events: none;
+    background: linear-gradient(118deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,.06) 100%); }
+  .sweep { position: absolute; inset: 22px; border-radius: 98px; overflow: hidden; z-index: 19; pointer-events: none; }
+  .sweep i { position: absolute; top: -20%; left: -60%; width: 34%; height: 140%; transform: rotate(16deg);
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.42), rgba(255,255,255,0)); }
+  .shadow { position: absolute; left: 30px; right: 30px; top: 40px; bottom: -10px; border-radius: 110px; background: rgba(0,0,0,.85); filter: blur(46px); }
+
+  /* screen 698 x 1566 */
+  .sl { position: absolute; inset: 0; }
+  /* inbox */
+  #inbox { background: linear-gradient(180deg, #f8f6fd 0%, #f1eff9 100%); }
+  .tb { position: absolute; left: 34px; right: 34px; top: 128px; height: 70px; }
+  .ci { position: absolute; top: 6px; width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: 0 4px 12px rgba(60,50,120,.10); display: flex; align-items: center; justify-content: center; }
+  .bar { position: absolute; border-radius: 12px; }
+  .search { position: absolute; left: 34px; right: 34px; top: 222px; height: 70px; border-radius: 35px; background: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1.5px rgba(80,70,140,.06); }
+  .row { position: absolute; left: 22px; right: 22px; height: 138px; border-radius: 34px; }
+  .row .av { position: absolute; left: 18px; top: 23px; width: 92px; height: 92px; border-radius: 50%; }
+  .row .hl { position: absolute; inset: 0; border-radius: 34px; background: linear-gradient(90deg, rgba(77,123,255,.22), rgba(140,110,255,.12)); box-shadow: inset 0 0 0 2px rgba(77,123,255,.35); opacity: 0; }
+  .dot { position: absolute; right: 26px; top: 76px; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(160deg, #4d7bff, #6b5cff); box-shadow: 0 0 0 0 rgba(77,123,255,.4); }
+  .nav { position: absolute; left: 30px; right: 30px; bottom: 44px; height: 112px; border-radius: 56px; background: rgba(255,255,255,.82); box-shadow: 0 10px 30px rgba(60,50,120,.12); display: flex; justify-content: space-around; align-items: center; }
+  .nav svg { width: 44px; height: 44px; }
+  /* dark wallpaper (table scene) */
+  #darkw { background:
+      radial-gradient(circle at 25% 20%, rgba(60,170,190,.45), rgba(60,170,190,0) 45%),
+      radial-gradient(circle at 80% 70%, rgba(110,90,230,.45), rgba(110,90,230,0) 45%),
+      linear-gradient(170deg, #0d2034, #0a1424); }
+  .db { position: absolute; border-radius: 34px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
+  .db.o { background: rgba(110,140,255,.30); }
+  /* chat */
+  #chat { background-color: #f7f5f1; background-image: radial-gradient(rgba(120,110,160,.10) 2px, transparent 2.5px); background-size: 46px 46px; }
+  .ctb { position: absolute; left: 0; right: 0; top: 0; height: 236px; background: rgba(255,255,255,.88); box-shadow: 0 1px 0 rgba(60,50,120,.08); }
+  .bub { position: absolute; height: 96px; border-radius: 34px; box-shadow: 0 6px 16px rgba(60,50,120,.10); }
+  .bub.in { left: 34px; background: #fff; border-bottom-left-radius: 10px; }
+  .bub.out { right: 34px; background: linear-gradient(135deg, #4d7bff, #6d5cff); border-bottom-right-radius: 10px; }
+  .bub .ct { position: absolute; inset: 0; }
+  .bub .ph { position: absolute; inset: 0; border-radius: inherit; background: #e7e5ee; box-shadow: inset 0 0 0 2px rgba(150,145,170,.25); opacity: 0; }
+  .bub .x { position: absolute; left: 26px; top: 50%; width: 44px; height: 44px; margin-top: -22px; opacity: 0; }
+  .comp { position: absolute; left: 30px; right: 30px; bottom: 44px; height: 112px; border-radius: 56px; background: rgba(255,255,255,.92); box-shadow: 0 10px 30px rgba(60,50,120,.12); }
+
+  /* floating message cards (table scene) */
+  #cards { position: absolute; inset: 0; perspective: 1800px; perspective-origin: 540px 900px; }
+  .fc { position: absolute; left: 230px; width: 620px; height: 156px; border-radius: 40px; background: linear-gradient(160deg, rgba(255,255,255,.95), rgba(240,243,255,.86));
+    box-shadow: 0 30px 60px rgba(0,10,30,.45), inset 0 0 0 1.5px rgba(255,255,255,.9); opacity: 0; }
+  .fc .ind { position: absolute; left: 30px; top: 46px; width: 64px; height: 64px; border-radius: 50%; }
+  #cover { position: absolute; inset: 0; background: #f7f5f1; opacity: 0; }
+
+  .pt { position: absolute; border-radius: 50%; background: #d8ecff; filter: blur(1px); }
+
+  #disc { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 12px 26px; border-radius: 26px; z-index: 50;
+    background: rgba(10,16,32,.55); color: rgba(255,255,255,.92); font-size: 28px; font-weight: 700; white-space: nowrap; }
+
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; background: #111; color: #eee; display: flex; align-items: center; gap: 12px; padding: 0 16px; font: 14px system-ui, sans-serif; }
+  #ui button, #ui select { background: #2a2a2a; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  #ui input[type=range] { flex: 1; }
+  body.clean #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="stage">
+  <div id="bgall">
+    <div class="bgl" id="bgNavy"></div>
+    <div class="bgl" id="bgMarble"></div><div class="bgl" id="bok"></div><div class="bgl" id="marbleVig"></div>
+    <div class="bgl" id="bgLight"></div>
+  </div>
+  <div id="pts"></div>
+
+  <div id="cam"><div class="p3" id="ph">
+    <div class="shadow" id="shadow"></div>
+    <div class="face back"></div>
+    <div class="face front"><div class="bez"></div>
+      <div class="scr">
+        <div class="sl" id="inbox"></div>
+        <div class="sl" id="darkw"></div>
+        <div class="sl" id="chat"></div>
+      </div>
+      <div class="island"><i></i></div><div class="glare" id="glare"></div><div class="sweep"><i id="sweep"></i></div>
+    </div>
+  </div></div>
+
+  <div id="cards"></div>
+  <div id="cover"></div>
+
+  <div id="dip"></div>
+  <div id="fade"></div>
+  <div id="disc">For illustration purposes only</div>
+</div>
+</div>
+
+<div id="ui">
+  <button id="bPlay">Pause</button><button id="bRe">Restart</button>
+  <input id="scrub" type="range" min="0" max="13" step="0.001" value="0"><span id="time">0.00</span>
+  <select id="bgSel"><option value="scene">scene</option><option value="magenta">magenta</option><option value="green">green</option><option value="black">black</option><option value="checker">checker</option></select>
+  <button id="bClean">Clean (H)</button>
+</div>
+
+<script>
+(() => {
+  const DUR = 13;
+  const $ = s => document.querySelector(s);
+  const el = id => document.getElementById(id);
+  const stage = $('#stage'), wrap = $('#wrap');
+  const q = new URLSearchParams(location.search);
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const eOut = p => 1 - Math.pow(1 - p, 3);
+  const eInOut = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const eSpring = p => p >= 1 ? 1 : 1 - Math.exp(-6 * p) * Math.cos(7 * p);
+  const bump = (t, a, b) => Math.sin(Math.PI * seg(t, a, b));
+
+  // abstract-only UI: circles, rounded bars, geometric icons (no text, no faces)
+  const svgI = (d, c = '#8f8ba6') => `<svg viewBox="0 0 44 44" fill="none" stroke="${c}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICON = { circle: '<circle cx="22" cy="22" r="13"/>', square: '<rect x="9" y="9" width="26" height="26" rx="8"/>', tri: '<path d="M22 9 L35 33 H9 Z"/>', ring: '<circle cx="22" cy="22" r="14"/><circle cx="22" cy="22" r="5"/>', back: '<path d="M27 10 L15 22 L27 34"/>', dots: '<circle cx="12" cy="22" r="2"/><circle cx="22" cy="22" r="2"/><circle cx="32" cy="22" r="2"/>', plus: '<path d="M22 11 V33 M11 22 H33"/>' };
+  const AV = [['#8fb2ff', '#5b6cff'], ['#ffb6a3', '#ff7a9a'], ['#9fe3cf', '#3bbfa2'], ['#d6b8ff', '#9a6bff'], ['#ffd88a', '#ffa64d'], ['#a6dcff', '#4aa6ff'], ['#c9c4dd', '#8f88b0']];
+
+  // inbox
+  let h = `<div class="tb"><div class="ci" style="left:0">${svgI(ICON.back)}</div><div class="bar" style="left:50%;top:24px;width:170px;height:22px;margin-left:-85px;background:#d8d4e6"></div><div class="ci" style="right:70px">${svgI(ICON.ring)}</div><div class="ci" style="right:0">${svgI(ICON.dots)}</div></div><div class="search"><div class="bar" style="left:30px;top:24px;width:22px;height:22px;border-radius:50%;background:#cfcbe0"></div><div class="bar" style="left:70px;top:27px;width:180px;height:16px;background:#e2dfec"></div></div>`;
+  const RW = [[300, 220, 360, 1], [440, 260, 320, 1], [580, 200, 380, 0], [720, 280, 300, 1], [860, 240, 350, 0], [1000, 210, 330, 0], [1140, 250, 370, 0]];
+  RW.forEach(([y, w1, w2, unread], i) => {
+    const [a, b] = AV[i];
+    h += `<div class="row" id="r${i}" style="top:${y}px"><div class="hl"></div><div class="av" style="background:linear-gradient(150deg,${a},${b})"></div>
+      <div class="bar" style="left:134px;top:38px;width:${w1}px;height:22px;background:#2c2a3c;opacity:.78"></div>
+      <div class="bar" style="left:134px;top:78px;width:${w2}px;height:16px;background:#bdb9cc"></div>
+      <div class="bar" style="right:26px;top:38px;width:52px;height:14px;background:#d3cfe2"></div>${unread ? '<div class="dot"></div>' : ''}</div>`;
+  });
+  h += `<div class="nav">${svgI(ICON.circle, '#4d7bff')}${svgI(ICON.square)}${svgI(ICON.tri)}${svgI(ICON.ring)}</div>`;
+  el('inbox').innerHTML = h;
+
+  // dark wallpaper bubbles
+  el('darkw').innerHTML = [[200, 'in', 360], [330, 'o', 300], [460, 'in', 420], [600, 'o', 340], [740, 'in', 300]].map(([y, s, w]) =>
+    `<div class="db ${s}" style="top:${y}px;height:96px;width:${w}px;${s === 'o' ? 'right:34px' : 'left:34px'}"></div>`).join('');
+
+  // chat
+  const CX = `<svg viewBox="0 0 44 44" fill="none" stroke="#8d89a3" stroke-width="3.6" stroke-linecap="round"><circle cx="22" cy="22" r="15"/><path d="M12 32 L32 12"/></svg>`;
+  const tick = c => `<svg style="position:absolute;right:20px;bottom:14px;width:34px;height:20px" viewBox="0 0 34 20" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 L8 16 L17 5"/><path d="M15 15 L16 16 L25 5"/></svg>`;
+  const BB = [[300, 'in', 380, 96], [420, 'out', 330, 96], [540, 'in', 440, 140], [706, 'out', 300, 96], [826, 'in', 360, 96], [946, 'out', 420, 140], [1110, 'in', 280, 96], [1230, 'out', 380, 96]];
+  let c = `<div class="ctb"><div class="ci" style="left:34px;top:140px">${svgI(ICON.back)}</div><div class="bar" style="left:112px;top:138px;width:64px;height:64px;border-radius:50%;background:linear-gradient(150deg,#8fb2ff,#5b6cff)"></div>
+    <div class="bar" style="left:196px;top:150px;width:170px;height:20px;background:#2c2a3c;opacity:.78"></div><div class="bar" style="left:196px;top:182px;width:110px;height:14px;background:#c9c5d8"></div>
+    <div class="ci" style="right:104px;top:140px">${svgI(ICON.circle)}</div><div class="ci" style="right:34px;top:140px">${svgI(ICON.dots)}</div></div>`;
+  BB.forEach(([y, s, w, hh], i) => {
+    const lc = s === 'out' ? 'rgba(255,255,255,.75)' : '#c9c5d8', lc2 = s === 'out' ? 'rgba(255,255,255,.5)' : '#e0ddea';
+    const lines = hh > 100 ? `<div class="bar" style="left:30px;top:32px;width:${w - 90}px;height:18px;background:${lc}"></div><div class="bar" style="left:30px;top:66px;width:${w - 150}px;height:18px;background:${lc}"></div><div class="bar" style="left:30px;top:100px;width:${w - 200}px;height:14px;background:${lc2}"></div>`
+      : `<div class="bar" style="left:30px;top:30px;width:${w - 110}px;height:18px;background:${lc}"></div><div class="bar" style="left:30px;top:60px;width:${w - 170}px;height:12px;background:${lc2}"></div>`;
+    c += `<div class="bub ${s}" id="b${i}" style="top:${y}px;width:${w}px;height:${hh}px"><div class="ct">${lines}${s === 'out' ? tick('rgba(255,255,255,.85)') : ''}</div><div class="ph"></div><div class="x">${CX}</div></div>`;
+  });
+  c += `<div class="comp"><div class="ci" style="left:20px;top:26px;width:60px;height:60px;background:#eef0ff">${svgI(ICON.plus, '#4d7bff')}</div><div class="bar" style="left:100px;right:110px;top:30px;height:52px;border-radius:26px;background:#f1eff7"></div><div class="ci" style="right:20px;top:26px;width:60px;height:60px;background:linear-gradient(150deg,#4d7bff,#6d5cff)">${svgI(ICON.circle, '#fff')}</div></div>`;
+  el('chat').innerHTML = c;
+  const DEL = [{ i: 1, t: 8.25 }, { i: 4, t: 8.95 }, { i: 5, t: 9.65 }];
+
+  // floating cards
+  el('cards').innerHTML = [0, 1, 2].map(i => `<div class="fc" id="f${i}"><div class="ind" style="background:linear-gradient(150deg,${AV[i * 2][0]},${AV[i * 2][1]})"></div>
+    <div class="bar" style="left:120px;top:44px;width:${[300, 340, 260][i]}px;height:22px;background:#2c2a3c;opacity:.7"></div>
+    <div class="bar" style="left:120px;top:86px;width:${[400, 360, 420][i]}px;height:16px;background:#a9c1ff"></div>
+    <div class="bar" style="right:30px;top:46px;width:20px;height:20px;border-radius:50%;background:#4d7bff"></div></div>`).join('');
+
+  // phone thickness + buttons
+  const ph = el('ph'), D = 36, N = 16;
+  for (let i = 0; i < N; i++) { const s = document.createElement('div'); s.className = 'slice'; s.style.transform = `translateZ(${-D / 2 + D * (i + .5) / N}px)`; ph.insertBefore(s, ph.children[1]); }
+  [[-8, 300, 70], [-8, 410, 130], [-8, 565, 130], [739, 460, 200]].forEach(([x, y, hh]) => { const b = document.createElement('div'); b.className = 'btn3'; b.style.left = x + 'px'; b.style.top = y + 'px'; b.style.height = hh + 'px'; ph.insertBefore(b, ph.children[1]); });
+  ph.querySelector('.back').style.transform = `rotateY(180deg) translateZ(${D / 2 + .5}px)`;
+  ph.querySelector('.front').style.transform = `translateZ(${D / 2 + .5}px)`;
+  el('shadow').style.transform = `translateZ(${-D / 2 - 30}px)`;
+
+  // bokeh + particles
+  el('bok').innerHTML = [[140, 260, 70, '#3fc6d8'], [880, 180, 90, '#5a7dff'], [760, 420, 50, '#ffcf8a'], [260, 1500, 80, '#3fa8d8'], [960, 1380, 60, '#8a6dff'], [520, 120, 40, '#9fe3ff']]
+    .map(([x, y, s, col], i) => `<div class="bok" id="k${i}" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${col};opacity:.55"></div>`).join('');
+  const PT = Array.from({ length: 22 }, (_, i) => { const d = document.createElement('div'); d.className = 'pt'; const s = 3 + (i * 5) % 6; d.style.width = d.style.height = s + 'px'; el('pts').appendChild(d);
+    return { el: d, x: 30 + (i * 197) % 1020, y: 160 + (i * 233) % 1600, sp: 8 + (i * 7) % 14, ph: i * .9 }; });
+
+  // phone pose keyframes: [t, x, y, rx, ry, rz, s]
+  const KP = [
+    [0.0, 0, 520, 0, 0, 0, 2.45], [2.0, 0, 0, 0, 0, 0, 1.0],
+    [2.05, 0, 170, 58, 0, -36, .6], [4.0, 0, 120, 56, 0, -24, .7], [6.55, 0, 110, 55, 0, -18, .74],
+    [6.6, 0, 0, 0, 0, 0, 1.3], [7.4, 0, 0, 0, 0, 0, 1.22], [10.5, 0, -6, 0, 0, 0, 1.24], [11.7, 0, 0, 0, -6, -1.5, 1.0], [13, 0, 0, 0, -8, -2, .99]];
+  const CUT = new Set([2.0, 6.55]); // hard cuts hidden under the dip / card cover
+  const pose = t => {
+    let i = 0; while (i < KP.length - 2 && t >= KP[i + 1][0]) i++;
+    const a = KP[i], b = KP[i + 1];
+    if (CUT.has(a[0]) && b[0] - a[0] < .1) return b.slice(1);
+    const p = (a[0] === 6.6) ? eSpring(seg(t, a[0], b[0])) : eInOut(seg(t, a[0], b[0]));
+    return a.slice(1).map((v, j) => lerp(v, b[j + 1], p));
+  };
+
+  function render(t) {
+    // backgrounds
+    const navy = 1 - seg(t, 1.95, 2.05), marble = seg(t, 1.95, 2.05) * (1 - seg(t, 6.5, 6.6)), light = seg(t, 6.5, 6.6);
+    el('bgNavy').style.opacity = navy; el('bgMarble').style.opacity = el('marbleVig').style.opacity = el('bok').style.opacity = marble; el('bgLight').style.opacity = light;
+    el('bgMarble').style.transform = `scale(${1.08 + .04 * seg(t, 2, 6.5)}) rotate(${lerp(-3, 2, seg(t, 2, 6.5))}deg)`;
+    for (let i = 0; i < 6; i++) el('k' + i).style.transform = `translate(${Math.sin(t * .5 + i) * 30}px, ${Math.cos(t * .4 + i) * 20}px)`;
+    el('bgLight').style.backgroundPosition = `${Math.sin(t * .3) * 20}px 0`;
+    el('dip').style.opacity = bump(t, 1.8, 2.25);
+    el('fade').style.opacity = Math.max(1 - eOut(seg(t, 0, .35)), eInOut(seg(t, 12.45, 13)));
+    PT.forEach(o => { o.el.style.left = (o.x + Math.sin(t * .6 + o.ph) * 22) + 'px'; o.el.style.top = (o.y - (t * o.sp) % 260) + 'px'; o.el.style.opacity = (.18 + .22 * Math.sin(t * 1.7 + o.ph)) * (light > .5 ? .5 : 1); });
+
+    // phone
+    const [x, y, rx, ry, rz, s] = pose(t);
+    const fl = t > 2 && t < 6.6 ? Math.sin(t * 1.2) * 3 : Math.sin(t * .9) * 4;
+    ph.style.transform = `translate(${x}px, ${y + fl}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;
+    el('shadow').style.opacity = marble > .5 ? .75 : light > .5 ? .22 : .35;
+    el('glare').style.backgroundPosition = `${Math.sin(t * .6) * 40}px 0`;
+    el('sweep').style.left = lerp(-60, 140, eInOut(seg(t, 11.7, 12.45))) + '%';
+
+    // screens
+    el('inbox').style.opacity = t < 2.0 ? 1 : 0;
+    el('darkw').style.opacity = t >= 2.0 && t < 6.55 ? 1 : 0;
+    el('darkw').style.filter = `brightness(${lerp(.75, 1.25, eInOut(seg(t, 2.2, 4.2)))})`;
+    el('chat').style.opacity = t >= 6.55 ? 1 : 0;
+    RW.forEach((_, i) => { const p = eOut(seg(t, .15 + i * .07, .6 + i * .07)); const r = el('r' + i); r.style.opacity = p; r.style.transform = `translateY(${lerp(30, 0, p)}px)`; });
+    el('r0').querySelector('.hl').style.opacity = bump(t, .55, 1.6);
+    document.querySelectorAll('#inbox .dot').forEach((d, i) => { const p = seg(t, .9 + i * .2, 1.5 + i * .2); d.style.boxShadow = `0 0 0 ${18 * eOut(p)}px rgba(77,123,255,${.4 * (1 - p)})`; });
+    document.querySelectorAll('#darkw .db').forEach((d, i) => { const p = eOut(seg(t, 2.3 + i * .12, 2.8 + i * .12)); d.style.opacity = p; d.style.transform = `translateY(${lerp(24, 0, p)}px)`; });
+
+    // floating message cards
+    [0, 1, 2].forEach(i => {
+      const f = el('f' + i), a = 4.05 + i * .35, p = eSpring(seg(t, a, a + .7));
+      const out = i === 1 ? 0 : eInOut(seg(t, 6.0, 6.35));
+      const base = [520, 720, 920][i], dx = [-40, 30, -10][i];
+      if (i === 1) {
+        const g = eInOut(seg(t, 6.0, 6.6));
+        f.style.opacity = clamp(seg(t, a, a + .2)) * (1 - seg(t, 6.6, 6.75));
+        f.style.transform = `translate(${lerp(dx, 0, g)}px, ${lerp(base + lerp(60, 0, clamp(p)) + Math.sin(t * 1.5 + i) * 8, 882, g)}px) rotateX(${lerp(10, 0, g)}deg) rotateY(${lerp(-10, 0, g)}deg) scale(${lerp(1, 7.5, g * g)})`;
+      } else {
+        f.style.opacity = clamp(seg(t, a, a + .2)) * (1 - out);
+        f.style.transform = `translate(${dx}px, ${base + lerp(60, 0, clamp(p)) + Math.sin(t * 1.5 + i) * 8 - 40 * out}px) rotateX(10deg) rotateY(${-10 + i * 4}deg) scale(${1 - .1 * out})`;
+      }
+    });
+    el('cover').style.opacity = bump(t, 6.35, 6.95) > 0 ? clamp(seg(t, 6.4, 6.55) * (1 - seg(t, 6.6, 6.95))) : 0;
+
+    // chat bubbles slide in, then three turn into deleted placeholders
+    BB.forEach((b, i) => {
+      const e = el('b' + i), p = eOut(seg(t, 6.75 + i * .06, 7.2 + i * .06));
+      const d = DEL.find(k => k.i === i);
+      let sc = 1, gs = 0, bl = 0, ph1 = 0, xo = 0;
+      if (d) {
+        gs = seg(t, d.t, d.t + .35); ph1 = eInOut(seg(t, d.t + .3, d.t + .8));
+        bl = 2.5 * bump(t, d.t + .25, d.t + .85); sc = 1 - .07 * ph1;
+        xo = eOut(seg(t, d.t + .45, d.t + .7));
+      }
+      e.style.opacity = p;
+      e.style.transform = `translate(${lerp(b[1] === 'in' ? -40 : 40, 0, p)}px, 0) scale(${sc})`;
+      e.style.transformOrigin = b[1] === 'in' ? 'left center' : 'right center';
+      e.style.filter = d ? `grayscale(${gs}) blur(${bl}px)` : 'none';
+      e.style.boxShadow = d ? `0 6px 16px rgba(60,50,120,${.1 * (1 - ph1)})` : '';
+      if (d) {
+        e.querySelector('.ct').style.opacity = 1 - ph1;
+        e.querySelector('.ph').style.opacity = ph1;
+        const xx = e.querySelector('.x'); xx.style.opacity = xo; xx.style.transform = `scale(${lerp(.4, 1, xo)})`;
+        xx.style.filter = `drop-shadow(0 0 ${8 * bump(t, d.t + .45, d.t + 1.1)}px rgba(110,140,255,.9))`;
+      }
+    });
+  }
+
+  // ---- layout / controls ----
+  let S = 1;
+  let T = clamp(+(q.get('t') || 0), 0, DUR), playing = !q.has('t'), loop = q.get('loop') !== '0', clean = q.get('clean') === '1';
+  const BGC = { scene: '#060b18', magenta: '#FF00FF', green: '#00FF00', black: '#000', checker: '#ccc' };
+  const setBg = v => { stage.className = 'bg-' + v + ((v === 'scene' || v === 'checker') ? '' : ' key'); document.body.style.background = BGC[v] || '#060b18'; $('#bgSel').value = v; };
+  const layout = () => {
+    document.body.classList.toggle('clean', clean);
+    const W = innerWidth, H = innerHeight - (clean ? 0 : 64);
+    S = Math.min(W / 1080, H / 1920);
+    stage.style.transform = `scale(${S})`;
+    wrap.style.width = 1080 * S + 'px'; wrap.style.height = 1920 * S + 'px';
+    wrap.style.left = (W - 1080 * S) / 2 + 'px'; wrap.style.top = (H - 1920 * S) / 2 + 'px';
+    setBg($('#bgSel').value || 'scene');
+    render(T);
+  };
+  $('#bgSel').value = q.get('bg') || 'scene';
+  addEventListener('resize', layout);
+  const ui = () => { $('#scrub').value = T; $('#time').textContent = T.toFixed(2); $('#bPlay').textContent = playing ? 'Pause' : 'Play'; };
+  $('#bPlay').onclick = () => { playing = !playing; ui(); };
+  $('#bRe').onclick = () => { T = 0; playing = true; ui(); render(T); };
+  $('#scrub').oninput = e => { T = +e.target.value; playing = false; ui(); render(T); };
+  $('#bgSel').onchange = e => { setBg(e.target.value); render(T); };
+  $('#bClean').onclick = () => { clean = !clean; layout(); };
+  addEventListener('keydown', e => {
+    if (e.code === 'Space') { playing = !playing; ui(); e.preventDefault(); }
+    if (e.key === 'r' || e.key === 'R') $('#bRe').onclick();
+    if (e.key === 'h' || e.key === 'H') { clean = !clean; layout(); }
+  });
+  let last = null;
+  const tickF = now => {
+    if (last != null && playing) {
+      T += (now - last) / 1000;
+      if (T >= DUR) { if (loop) T %= DUR; else { T = DUR; playing = false; } }
+      render(T); ui();
+    }
+    last = now; requestAnimationFrame(tickF);
+  };
+  layout(); ui();
+  requestAnimationFrame(tickF);
+
+  let fontsOk = false;
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { fontsOk = true; render(T); });
+  window.__motion = { seek(t) { T = clamp(t, 0, DUR); playing = false; render(T); }, DUR, get ready() { return fontsOk; } };
+})();
+</script>
+</body>
+</html>
